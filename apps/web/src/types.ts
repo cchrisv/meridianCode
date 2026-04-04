@@ -131,6 +131,8 @@ export interface SidebarThreadSummary {
   worktreePath: string | null;
   latestUserMessageAt: string | null;
   hasPendingApprovals: boolean;
+  /** Meridian: linked work item ID for sidebar grouping. */
+  workItemId: string | null;
   hasPendingUserInput: boolean;
   hasActionableProposedPlan: boolean;
 }

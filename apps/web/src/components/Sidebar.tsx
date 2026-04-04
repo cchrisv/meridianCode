@@ -1741,37 +1741,77 @@ export default function Sidebar() {
               </div>
             </SidebarMenuSubItem>
           ) : null}
-          {shouldShowThreadPanel &&
-            renderedThreadIds.map((threadId) => (
-              <SidebarThreadRow
-                key={threadId}
-                threadId={threadId}
-                orderedProjectThreadIds={orderedProjectThreadIds}
-                routeThreadId={routeThreadId}
-                selectedThreadIds={selectedThreadIds}
-                showThreadJumpHints={showThreadJumpHints}
-                jumpLabel={threadJumpLabelById.get(threadId) ?? null}
-                appSettingsConfirmThreadArchive={appSettings.confirmThreadArchive}
-                renamingThreadId={renamingThreadId}
-                renamingTitle={renamingTitle}
-                setRenamingTitle={setRenamingTitle}
-                renamingInputRef={renamingInputRef}
-                renamingCommittedRef={renamingCommittedRef}
-                confirmingArchiveThreadId={confirmingArchiveThreadId}
-                setConfirmingArchiveThreadId={setConfirmingArchiveThreadId}
-                confirmArchiveButtonRefs={confirmArchiveButtonRefs}
-                handleThreadClick={handleThreadClick}
-                navigateToThread={navigateToThread}
-                handleMultiSelectContextMenu={handleMultiSelectContextMenu}
-                handleThreadContextMenu={handleThreadContextMenu}
-                clearSelection={clearSelection}
-                commitRename={commitRename}
-                cancelRename={cancelRename}
-                attemptArchiveThread={attemptArchiveThread}
-                openPrLink={openPrLink}
-                pr={prByThreadId.get(threadId) ?? null}
-              />
-            ))}
+          {shouldShowThreadPanel && (() => {
+            // Group threads by workItemId for visual clustering
+            const threadRowProps = (threadId: ThreadId) => ({
+              key: threadId,
+              threadId,
+              orderedProjectThreadIds,
+              routeThreadId,
+              selectedThreadIds,
+              showThreadJumpHints,
+              jumpLabel: threadJumpLabelById.get(threadId) ?? null,
+              appSettingsConfirmThreadArchive: appSettings.confirmThreadArchive,
+              renamingThreadId,
+              renamingTitle,
+              setRenamingTitle,
+              renamingInputRef,
+              renamingCommittedRef,
+              confirmingArchiveThreadId,
+              setConfirmingArchiveThreadId,
+              confirmArchiveButtonRefs,
+              handleThreadClick,
+              navigateToThread,
+              handleMultiSelectContextMenu,
+              handleThreadContextMenu,
+              clearSelection,
+              commitRename,
+              cancelRename,
+              attemptArchiveThread,
+              openPrLink,
+              pr: prByThreadId.get(threadId) ?? null,
+            });
+
+            // Build groups: { workItemId → threadIds[] } + ungrouped
+            const workItemGroups = new Map<string, ThreadId[]>();
+            const ungrouped: ThreadId[] = [];
+            for (const tid of renderedThreadIds) {
+              const summary = sidebarThreadsById[tid];
+              const wid = summary?.workItemId;
+              if (wid) {
+                const group = workItemGroups.get(wid);
+                if (group) group.push(tid);
+                else workItemGroups.set(wid, [tid]);
+              } else {
+                ungrouped.push(tid);
+              }
+            }
+
+            return (
+              <>
+                {/* Work item groups */}
+                {Array.from(workItemGroups.entries()).map(([wid, tids]) => {
+                  const firstSummary = sidebarThreadsById[tids[0]!];
+                  return (
+                    <SidebarMenuSubItem key={`wi-${wid}`} className="w-full">
+                      <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-muted-foreground/70">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                        <span className="truncate">#{wid}</span>
+                        <span className="text-muted-foreground/40">({tids.length})</span>
+                      </div>
+                      {tids.map((tid) => (
+                        <SidebarThreadRow {...threadRowProps(tid)} />
+                      ))}
+                    </SidebarMenuSubItem>
+                  );
+                })}
+                {/* Ungrouped threads */}
+                {ungrouped.map((tid) => (
+                  <SidebarThreadRow {...threadRowProps(tid)} />
+                ))}
+              </>
+            );
+          })()}
 
           {project.expanded && hasHiddenThreads && !isThreadListExpanded && (
             <SidebarMenuSubItem className="w-full">

@@ -511,7 +511,7 @@ const WsRpcLayer = WsRpcGroup.toLayer(
       [WS_METHODS.ticketGetState]: (input) =>
         observeRpcEffect(
           WS_METHODS.ticketGetState,
-          ticketService.getTicketState(input.ticketId).pipe(
+          ticketService.getTicketState(input.workItemId).pipe(
             Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
           ),
           { "rpc.aggregate": "ticket" },
@@ -519,7 +519,7 @@ const WsRpcLayer = WsRpcGroup.toLayer(
       [WS_METHODS.ticketGetContext]: (input) =>
         observeRpcEffect(
           WS_METHODS.ticketGetContext,
-          ticketService.getTicketContext(input.ticketId).pipe(
+          ticketService.getTicketContext(input.workItemId).pipe(
             Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
           ),
           { "rpc.aggregate": "ticket" },
@@ -527,7 +527,7 @@ const WsRpcLayer = WsRpcGroup.toLayer(
       [WS_METHODS.ticketTransitionStage]: (input) =>
         observeRpcEffect(
           WS_METHODS.ticketTransitionStage,
-          ticketService.transitionStage(input.ticketId, input.targetStage).pipe(
+          ticketService.transitionStage(input.workItemId, input.targetStage).pipe(
             Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
           ),
           { "rpc.aggregate": "ticket" },

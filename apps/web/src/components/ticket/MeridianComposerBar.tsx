@@ -9,13 +9,11 @@ import { ContextDrawer } from "./ContextDrawer";
  * is passed to onSendPrompt to be injected as a user turn.
  */
 export function MeridianComposerBar({
-  ticketId,
   workItemId,
   stage,
   platform,
   onSendPrompt,
 }: {
-  ticketId: string | null;
   workItemId: string | null;
   stage: string | null;
   platform: string | null;
@@ -56,7 +54,7 @@ export function MeridianComposerBar({
           />
         </div>
 
-        {ticketId && (
+        {workItemId && (
           <button
             onClick={() => setContextOpen(!contextOpen)}
             className="flex items-center gap-1 rounded px-2 py-1 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
@@ -65,7 +63,7 @@ export function MeridianComposerBar({
           </button>
         )}
 
-        {ticketId && (
+        {workItemId && (
           <span className="ml-auto text-[10px] text-muted-foreground">
             #{workItemId} {platform ? `\u00b7 ${platform}` : ""} {stage ? `\u00b7 ${stage}` : ""}
           </span>
@@ -76,7 +74,6 @@ export function MeridianComposerBar({
       {selectedPrompt && (
         <UtilityWizardDialog
           prompt={selectedPrompt}
-          ticketId={ticketId}
           workItemId={workItemId}
           platform={platform}
           onClose={() => setSelectedPrompt(null)}
@@ -86,7 +83,7 @@ export function MeridianComposerBar({
 
       {/* Context drawer */}
       <ContextDrawer
-        ticketId={ticketId}
+        workItemId={workItemId}
         open={contextOpen}
         onClose={() => setContextOpen(false)}
       />

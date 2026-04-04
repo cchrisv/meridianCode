@@ -10,14 +10,12 @@ import type { PromptItem } from "./UtilityActionMenu";
  */
 export function UtilityWizardDialog({
   prompt,
-  ticketId,
   workItemId,
   platform,
   onClose,
   onSubmit,
 }: {
   prompt: PromptItem;
-  ticketId?: string | null;
   workItemId?: string | null;
   platform?: string | null;
   onClose: () => void;

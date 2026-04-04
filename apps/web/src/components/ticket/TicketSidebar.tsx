@@ -21,7 +21,7 @@ export function TicketSidebar({
   onImportTicket: (workItemId: string) => Promise<void>;
 }) {
   const tickets = useTicketStore((s) => s.tickets);
-  const activeTicketId = useTicketStore((s) => s.activeTicketId);
+  const activeWorkItemId = useTicketStore((s) => s.activeWorkItemId);
   const [importOpen, setImportOpen] = useState(false);
   const [collapsedStages, setCollapsedStages] = useState<Set<string>>(new Set(["closed"]));
 
@@ -73,10 +73,10 @@ export function TicketSidebar({
             {!isCollapsed &&
               stageTickets.map((ticket) => (
                 <TicketSidebarItem
-                  key={ticket.ticketId}
+                  key={ticket.workItemId}
                   ticket={ticket}
-                  isActive={ticket.ticketId === activeTicketId}
-                  onClick={() => onSelectTicket(ticket.ticketId, ticket.threadId ?? undefined)}
+                  isActive={ticket.workItemId === activeWorkItemId}
+                  onClick={() => onSelectTicket(ticket.workItemId, ticket.threadId ?? undefined)}
                 />
               ))}
           </div>

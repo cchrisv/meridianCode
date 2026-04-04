@@ -165,8 +165,8 @@ export const decideOrchestrationCommand = Effect.fn("decideOrchestrationCommand"
           worktreePath: command.worktreePath,
           createdAt: command.createdAt,
           updatedAt: command.createdAt,
-          ticketId: command.ticketId ?? null,
-          ticketStage: command.ticketStage ?? null,
+          workItemId: command.workItemId ?? null,
+          workItemStage: command.workItemStage ?? null,
           copilotPhase: command.copilotPhase ?? null,
         },
       };

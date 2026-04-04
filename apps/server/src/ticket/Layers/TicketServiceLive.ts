@@ -15,8 +15,8 @@ import { TicketService } from "../Services/TicketService";
 
 const store = new TicketArtifactStore();
 
-function makeTicketId(workItemId: string): string {
-  return `ticket-${workItemId}`;
+function makeWorkItemId(workItemId: string): string {
+  return workItemId;
 }
 
 function nowIso(): string {
@@ -55,7 +55,7 @@ const importTicket = (workItemId: string): Effect.Effect<TicketImportResult, Err
     const context = store.readContext(workItemId) as Record<string, unknown> | null;
     const adoData = adoResult.json as Record<string, unknown> | null;
 
-    const ticketId = makeTicketId(workItemId);
+    const resolvedWorkItemId = makeWorkItemId(workItemId);
     const title =
       (adoData?.title as string) ??
       (context?.metadata as Record<string, unknown>)?.title as string ??
@@ -69,7 +69,7 @@ const importTicket = (workItemId: string): Effect.Effect<TicketImportResult, Err
     const threadId = `thread-ticket-${workItemId}` as any;
 
     const state: TicketState = {
-      ticketId: ticketId as any,
+      workItemId: resolvedWorkItemId as any,
       metadata: {
         workItemId: workItemId as any,
         title: title as any,
@@ -94,7 +94,7 @@ const importTicket = (workItemId: string): Effect.Effect<TicketImportResult, Err
     };
 
     return {
-      ticketId: ticketId as any,
+      workItemId: resolvedWorkItemId as any,
       threadId,
       state,
     };
@@ -109,10 +109,9 @@ const listTickets = (): Effect.Effect<readonly TicketListItem[], Error> =>
       return workItemIds.map((workItemId): TicketListItem => {
         const context = store.readContext(workItemId) as Record<string, unknown> | null;
         const meta = context ? store.extractMetadataFromContext(workItemId, context) : null;
-        const ticketId = makeTicketId(workItemId);
+        const resolvedWorkItemId = makeWorkItemId(workItemId);
 
         return {
-          ticketId: ticketId as any,
           workItemId: workItemId as any,
           title: (meta?.title ?? `Work Item ${workItemId}`) as any,
           workItemType: meta?.workItemType ?? null,
@@ -129,21 +128,20 @@ const listTickets = (): Effect.Effect<readonly TicketListItem[], Error> =>
     catch: (e) => new Error(`Failed to list tickets: ${e}`),
   });
 
-const getTicketState = (ticketId: string): Effect.Effect<TicketGetStateResult, Error> =>
+const getTicketState = (workItemId: string): Effect.Effect<TicketGetStateResult, Error> =>
   Effect.try({
     try: () => {
-      const workItemId = ticketId.replace("ticket-", "");
       const context = store.readContext(workItemId) as Record<string, unknown> | null;
 
       if (!context) {
-        throw new Error(`No ticket context found for ${ticketId}`);
+        throw new Error(`No ticket context found for ${workItemId}`);
       }
 
       const meta = store.extractMetadataFromContext(workItemId, context);
       const now = nowIso();
 
       const state: TicketState = {
-        ticketId: ticketId as any,
+        workItemId: workItemId as any,
         metadata: {
           workItemId: workItemId as any,
           title: meta.title as any,
@@ -172,14 +170,13 @@ const getTicketState = (ticketId: string): Effect.Effect<TicketGetStateResult, E
     catch: (e) => new Error(`Failed to get ticket state: ${e}`),
   });
 
-const getTicketContext = (ticketId: string): Effect.Effect<TicketGetContextResult, Error> =>
+const getTicketContext = (workItemId: string): Effect.Effect<TicketGetContextResult, Error> =>
   Effect.try({
     try: () => {
-      const workItemId = ticketId.replace("ticket-", "");
       const context = store.readContext(workItemId);
 
       if (context == null) {
-        throw new Error(`No ticket context found for ${ticketId}`);
+        throw new Error(`No ticket context found for ${workItemId}`);
       }
 
       return { context };
@@ -188,16 +185,15 @@ const getTicketContext = (ticketId: string): Effect.Effect<TicketGetContextResul
   });
 
 const transitionStage = (
-  ticketId: string,
+  workItemId: string,
   targetStage: TicketStage,
 ): Effect.Effect<TicketStageTransitionResult, Error> =>
   Effect.try({
     try: () => {
-      const workItemId = ticketId.replace("ticket-", "");
       const context = store.readContext(workItemId) as Record<string, unknown> | null;
 
       if (!context) {
-        throw new Error(`No ticket context found for ${ticketId}`);
+        throw new Error(`No ticket context found for ${workItemId}`);
       }
 
       const metadata = (context.metadata ?? {}) as Record<string, unknown>;
@@ -209,7 +205,7 @@ const transitionStage = (
       store.writeContext(workItemId, context);
 
       return {
-        ticketId: ticketId as any,
+        workItemId: workItemId as any,
         previousStage,
         currentStage: targetStage as TicketStage,
       };

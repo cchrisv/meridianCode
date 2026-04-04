@@ -3034,8 +3034,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
           branch: nextThreadBranch,
           worktreePath: nextThreadWorktreePath,
           createdAt: activeThread.createdAt,
-          ticketId: activeThread.ticketId ?? null,
-          ticketStage: activeThread.ticketStage ?? null,
+          workItemId: activeThread.workItemId ?? null,
+          workItemStage: activeThread.workItemStage ?? null,
           copilotPhase: activeThread.copilotPhase ?? null,
         });
         createdServerThreadForLocalDraft = true;
@@ -3506,8 +3506,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
         branch: activeThread.branch,
         worktreePath: activeThread.worktreePath,
         createdAt,
-        ticketId: null,
-        ticketStage: null,
+        workItemId: null,
+        workItemStage: null,
         copilotPhase: null,
       })
       .then(() => {
@@ -4029,9 +4029,9 @@ export default function ChatView({ threadId }: ChatViewProps) {
               onTouchCancel={onMessagesTouchEnd}
             >
               {/* Meridian: Stage indicator for ticket-linked threads */}
-              {activeThread?.ticketId && (
+              {activeThread?.workItemId && (
                 <StageIndicator
-                  currentStage={(activeThread.ticketStage as any) ?? "copilot-refinement"}
+                  currentStage={(activeThread.workItemStage as any) ?? "copilot-refinement"}
                   copilotPhase={activeThread.copilotPhase as any}
                 />
               )}
@@ -4129,9 +4129,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
                   ) : null}
                   {/* Meridian utility action bar */}
                   <MeridianComposerBar
-                    ticketId={activeThread?.ticketId ?? null}
-                    workItemId={activeThread?.ticketId?.replace("ticket-", "") ?? null}
-                    stage={activeThread?.ticketStage ?? null}
+                    workItemId={activeThread?.workItemId ?? null}
+                    stage={activeThread?.workItemStage ?? null}
                     platform={null}
                     onSendPrompt={(content) => {
                       // Inject prompt content into the composer, same pattern as setPromptFromTraits

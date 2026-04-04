@@ -32,7 +32,7 @@ export function useTicketImport() {
   const navigate = useNavigate();
   const projects = useStore((s) => s.projects);
   const addTicket = useTicketStore((s) => s.addTicket);
-  const setActiveTicket = useTicketStore((s) => s.setActiveTicket);
+  const setActiveWorkItem = useTicketStore((s) => s.setActiveWorkItem);
 
   const [state, setState] = useState<TicketImportState>({
     importing: false,
@@ -41,7 +41,7 @@ export function useTicketImport() {
   });
 
   const importTicket = useCallback(
-    async (workItemId: string): Promise<void> => {
+    async (workItemId: string, projectId?: string): Promise<void> => {
       setState({ importing: true, progress: "Connecting to ADO...", error: null });
 
       const loadingToastId = toastManager.add({
@@ -58,9 +58,11 @@ export function useTicketImport() {
         // Step 2: Create a real orchestration thread linked to the ticket
         setState((s) => ({ ...s, progress: "Creating thread..." }));
         const api = ensureNativeApi();
-        const activeProject = projects[0];
+        const activeProject = projectId
+          ? projects.find((p) => p.id === projectId) ?? projects[0]
+          : projects[0];
         if (!activeProject) {
-          throw new Error("No project available. Create a feature/workspace first.");
+          throw new Error("No space available. Create a space first.");
         }
 
         const threadId = newThreadId();
@@ -82,14 +84,13 @@ export function useTicketImport() {
           branch: null,
           worktreePath: null,
           createdAt: new Date().toISOString(),
-          ticketId: result.ticketId as string,
-          ticketStage: (result.state.currentStage as string) ?? null,
+          workItemId: result.workItemId as string,
+          workItemStage: (result.state.currentStage as string) ?? null,
           copilotPhase: (result.state.copilotPhase as string) ?? null,
         });
 
         // Step 3: Add to ticket store
         addTicket({
-          ticketId: result.ticketId,
           workItemId: workItemId as any,
           title: title as any,
           workItemType: result.state.metadata.workItemType,
@@ -101,7 +102,7 @@ export function useTicketImport() {
           threadId: threadId as any,
           updatedAt: new Date().toISOString() as any,
         });
-        setActiveTicket(result.ticketId as string);
+        setActiveWorkItem(result.workItemId as string);
 
         // Step 4: Success toast + navigate
         toastManager.close(loadingToastId);
@@ -128,7 +129,7 @@ export function useTicketImport() {
         setState({ importing: false, progress: null, error: errorMessage });
       }
     },
-    [navigate, projects, addTicket, setActiveTicket],
+    [navigate, projects, addTicket, setActiveWorkItem],
   );
 
   return { importTicket, ...state };

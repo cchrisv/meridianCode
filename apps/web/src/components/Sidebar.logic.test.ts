@@ -664,8 +664,8 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     worktreePath: null,
     turnDiffSummaries: [],
     activities: [],
-    ticketId: null,
-    ticketStage: null,
+    workItemId: null,
+    workItemStage: null,
     copilotPhase: null,
     ...overrides,
   };

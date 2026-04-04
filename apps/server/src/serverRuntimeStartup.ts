@@ -206,8 +206,8 @@ const autoBootstrapWelcome = Effect.gen(function* () {
           runtimeMode: "full-access",
           branch: null,
           worktreePath: null,
-          ticketId: null,
-          ticketStage: null,
+          workItemId: null,
+          workItemStage: null,
           copilotPhase: null,
           createdAt,
         });

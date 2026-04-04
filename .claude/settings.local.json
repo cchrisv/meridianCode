@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx\\)$\")",
+      "Bash(grep -l \"approval\\\\|ProviderApprovalPolicy\\\\|file.*write\\\\|execute\" /c/Users/cchri/project2/meridianCode/apps/server/src/provider/**/*.ts)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(find /c/Users/cchri/project2/meridianCode/node_modules -name types.d.ts -path *copilot-sdk*)",
+      "Bash(npx tsc:*)",
+      "Bash(ls \"C:/Users/cchri/project2/meridianCode/apps/web/src/components/chat/ProviderModelPicker\"*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh pr:*)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:5733)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3773)",
+      "Bash(taskkill /F /FI 'WINDOWTITLE eq *turbo*')",
+      "Bash(netstat -ano)",
+      "Bash(taskkill /F /PID 33632)",
+      "Bash(taskkill //F //PID 33632)",
+      "Bash(node -e \":*)",
+      "Bash(npm install:*)",
+      "Bash(node --experimental-strip-types -e \":*)",
+      "Bash(git log:*)",
+      "Bash(git fetch:*)"
+    ]
+  }
+}

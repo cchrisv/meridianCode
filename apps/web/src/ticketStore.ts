@@ -3,15 +3,15 @@ import { STAGE_DEFINITIONS, type TicketListItem, type TicketState, type TicketSt
 
 export interface TicketStore {
   tickets: TicketListItem[];
-  activeTicketId: string | null;
+  activeWorkItemId: string | null;
   ticketStates: Record<string, TicketState>;
   loading: boolean;
   error: string | null;
 
   // Actions
   setTickets: (tickets: TicketListItem[]) => void;
-  setActiveTicket: (ticketId: string | null) => void;
-  setTicketState: (ticketId: string, state: TicketState) => void;
+  setActiveWorkItem: (workItemId: string | null) => void;
+  setTicketState: (workItemId: string, state: TicketState) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
   addTicket: (ticket: TicketListItem) => void;
@@ -19,22 +19,22 @@ export interface TicketStore {
 
 export const useTicketStore = create<TicketStore>((set) => ({
   tickets: [],
-  activeTicketId: null,
+  activeWorkItemId: null,
   ticketStates: {},
   loading: false,
   error: null,
 
   setTickets: (tickets) => set({ tickets }),
-  setActiveTicket: (activeTicketId) => set({ activeTicketId }),
-  setTicketState: (ticketId, state) =>
+  setActiveWorkItem: (activeWorkItemId) => set({ activeWorkItemId }),
+  setTicketState: (workItemId, state) =>
     set((prev) => ({
-      ticketStates: { ...prev.ticketStates, [ticketId]: state },
+      ticketStates: { ...prev.ticketStates, [workItemId]: state },
     })),
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
   addTicket: (ticket) =>
     set((prev) => ({
-      tickets: [...prev.tickets.filter((t) => t.ticketId !== ticket.ticketId), ticket],
+      tickets: [...prev.tickets.filter((t) => t.workItemId !== ticket.workItemId), ticket],
     })),
 }));
 

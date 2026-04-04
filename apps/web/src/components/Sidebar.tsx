@@ -5,6 +5,7 @@ import {
   FolderIcon,
   GitPullRequestIcon,
   PlusIcon,
+  DownloadIcon,
   SquarePenIcon,
   TerminalIcon,
   TriangleAlertIcon,
@@ -78,9 +79,8 @@ import { useThreadActions } from "../hooks/useThreadActions";
 import { toastManager } from "./ui/toast";
 import { formatRelativeTimeLabel } from "../timestampFormat";
 import { SidebarGithubAccount } from "./SidebarGithubAccount";
-import { TicketSidebar } from "./ticket/TicketSidebar";
-import { useTicketStore } from "../ticketStore";
 import { useTicketImport } from "../hooks/useTicketImport";
+import { TicketImportDialog } from "./ticket/TicketImportDialog";
 import { SettingsSidebarNav } from "./settings/SettingsSidebarNav";
 import {
   getArm64IntelBuildWarningDescription,
@@ -584,12 +584,12 @@ function ProjectSortMenu({
         >
           <ArrowUpDownIcon className="size-3.5" />
         </TooltipTrigger>
-        <TooltipPopup side="right">Sort features</TooltipPopup>
+        <TooltipPopup side="right">Sort spaces</TooltipPopup>
       </Tooltip>
       <MenuPopup align="end" side="bottom" className="min-w-44">
         <MenuGroup>
           <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">
-            Sort features
+            Sort spaces
           </div>
           <MenuRadioGroup
             value={projectSortOrder}
@@ -667,29 +667,6 @@ function SortableProjectItem({
   );
 }
 
-/**
- * Meridian ticket section — renders TicketSidebar with import capability.
- * Uses the useTicketImport hook for proper thread creation, toasts, and navigation.
- */
-function TicketSidebarSection({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
-  const { importTicket } = useTicketImport();
-  const setActiveTicket = useTicketStore((s) => s.setActiveTicket);
-
-  const handleSelectTicket = (ticketId: string, threadId?: string) => {
-    setActiveTicket(ticketId);
-    if (threadId) {
-      void navigate({ to: "/$threadId", params: { threadId } });
-    }
-  };
-
-  return (
-    <TicketSidebar
-      onSelectTicket={handleSelectTicket}
-      onImportTicket={importTicket}
-    />
-  );
-}
-
 export default function Sidebar() {
   const projects = useStore((store) => store.projects);
   const sidebarThreadsById = useStore((store) => store.sidebarThreadsById);
@@ -719,6 +696,8 @@ export default function Sidebar() {
   const { updateSettings } = useUpdateSettings();
   const { activeDraftThread, activeThread, handleNewThread } = useHandleNewThread();
   const { archiveThread, deleteThread } = useThreadActions();
+  const { importTicket } = useTicketImport();
+  const [importForProjectId, setImportForProjectId] = useState<string | null>(null);
   const routeThreadId = useParams({
     strict: false,
     select: (params) => (params.threadId ? ThreadId.makeUnsafe(params.threadId) : null),
@@ -934,12 +913,12 @@ export default function Sidebar() {
         }).catch(() => undefined);
       } catch (error) {
         const description =
-          error instanceof Error ? error.message : "An error occurred while adding the feature.";
+          error instanceof Error ? error.message : "An error occurred while adding the space.";
         setIsAddingProject(false);
         if (shouldBrowseForProjectImmediately) {
           toastManager.add({
             type: "error",
-            title: "Failed to add feature",
+            title: "Failed to add space",
             description,
           });
         } else {
@@ -1266,8 +1245,8 @@ export default function Sidebar() {
 
       const clicked = await api.contextMenu.show(
         [
-          { id: "copy-path", label: "Copy feature path" },
-          { id: "delete", label: "Remove feature", destructive: true },
+          { id: "copy-path", label: "Copy space path" },
+          { id: "delete", label: "Remove space", destructive: true },
         ],
         position,
       );
@@ -1281,13 +1260,13 @@ export default function Sidebar() {
       if (projectThreadIds.length > 0) {
         toastManager.add({
           type: "warning",
-          title: "Feature is not empty",
-          description: "Delete all threads in this feature before removing it.",
+          title: "Space is not empty",
+          description: "Delete all threads in this space before removing it.",
         });
         return;
       }
 
-      const confirmed = await api.dialogs.confirm(`Remove feature "${project.name}"?`);
+      const confirmed = await api.dialogs.confirm(`Remove space "${project.name}"?`);
       if (!confirmed) return;
 
       try {
@@ -1302,8 +1281,8 @@ export default function Sidebar() {
           projectId,
         });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error removing feature.";
-        console.error("Failed to remove feature", { projectId, error });
+        const message = error instanceof Error ? error.message : "Unknown error removing space.";
+        console.error("Failed to remove space", { projectId, error });
         toastManager.add({
           type: "error",
           title: `Failed to remove "${project.name}"`,
@@ -1722,6 +1701,30 @@ export default function Sidebar() {
               {newThreadShortcutLabel ? `New thread (${newThreadShortcutLabel})` : "New thread"}
             </TooltipPopup>
           </Tooltip>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <SidebarMenuAction
+                  render={
+                    <button
+                      type="button"
+                      aria-label={`Import ticket into ${project.name}`}
+                    />
+                  }
+                  showOnHover
+                  className="top-1 right-8 size-5 rounded-md p-0 text-muted-foreground/70 hover:bg-secondary hover:text-foreground"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    setImportForProjectId(project.id);
+                  }}
+                >
+                  <DownloadIcon className="size-3.5" />
+                </SidebarMenuAction>
+              }
+            />
+            <TooltipPopup side="top">Import ticket</TooltipPopup>
+          </Tooltip>
         </div>
 
         <SidebarMenuSub
@@ -2031,11 +2034,6 @@ export default function Sidebar() {
       ) : (
         <>
           <SidebarContent className="gap-0">
-            {/* ── Meridian Ticket Section ── */}
-            <SidebarGroup className="px-2 py-2">
-              <TicketSidebarSection navigate={navigate} />
-            </SidebarGroup>
-            <SidebarSeparator />
             {showArm64IntelBuildWarning && arm64IntelBuildWarningDescription ? (
               <SidebarGroup className="px-2 pt-2 pb-0">
                 <Alert variant="warning" className="rounded-2xl border-warning/40 bg-warning/8">
@@ -2062,7 +2060,7 @@ export default function Sidebar() {
             <SidebarGroup className="px-2 py-2">
               <div className="mb-1 flex items-center justify-between pl-2 pr-1.5">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
-                  Features
+                  Spaces
                 </span>
                 <div className="flex items-center gap-1">
                   <ProjectSortMenu
@@ -2081,7 +2079,7 @@ export default function Sidebar() {
                         <button
                           type="button"
                           aria-label={
-                            shouldShowProjectPathEntry ? "Cancel add feature" : "Add feature"
+                            shouldShowProjectPathEntry ? "Cancel add space" : "Add space"
                           }
                           aria-pressed={shouldShowProjectPathEntry}
                           className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
@@ -2096,7 +2094,7 @@ export default function Sidebar() {
                       />
                     </TooltipTrigger>
                     <TooltipPopup side="right">
-                      {shouldShowProjectPathEntry ? "Cancel add feature" : "Add feature"}
+                      {shouldShowProjectPathEntry ? "Cancel add space" : "Add space"}
                     </TooltipPopup>
                   </Tooltip>
                 </div>
@@ -2122,7 +2120,7 @@ export default function Sidebar() {
                           ? "border-red-500/70 focus:border-red-500"
                           : "border-border focus:border-ring"
                       }`}
-                      placeholder="/path/to/feature"
+                      placeholder="/path/to/workspace"
                       value={newCwd}
                       onChange={(event) => {
                         setNewCwd(event.target.value);
@@ -2191,7 +2189,7 @@ export default function Sidebar() {
 
               {projects.length === 0 && !shouldShowProjectPathEntry && (
                 <div className="px-2 pt-4 text-center text-xs text-muted-foreground/60">
-                  No features yet
+                  No spaces yet
                 </div>
               )}
             </SidebarGroup>
@@ -2204,6 +2202,17 @@ export default function Sidebar() {
           </SidebarFooter>
         </>
       )}
+
+      {/* Per-Space ticket import dialog (portaled to body) */}
+      <TicketImportDialog
+        open={importForProjectId !== null}
+        onOpenChange={(open: boolean) => { if (!open) setImportForProjectId(null); }}
+        onImport={async (workItemId: string) => {
+          const pid = importForProjectId;
+          setImportForProjectId(null);
+          await importTicket(workItemId, pid ?? undefined);
+        }}
+      />
     </>
   );
 }

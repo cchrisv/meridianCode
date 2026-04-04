@@ -11,10 +11,10 @@ import type {
 export interface TicketServiceShape {
   readonly importTicket: (workItemId: string) => Effect.Effect<TicketImportResult, Error>;
   readonly listTickets: () => Effect.Effect<readonly TicketListItem[], Error>;
-  readonly getTicketState: (ticketId: string) => Effect.Effect<TicketGetStateResult, Error>;
-  readonly getTicketContext: (ticketId: string) => Effect.Effect<TicketGetContextResult, Error>;
+  readonly getTicketState: (workItemId: string) => Effect.Effect<TicketGetStateResult, Error>;
+  readonly getTicketContext: (workItemId: string) => Effect.Effect<TicketGetContextResult, Error>;
   readonly transitionStage: (
-    ticketId: string,
+    workItemId: string,
     targetStage: TicketStage,
   ) => Effect.Effect<TicketStageTransitionResult, Error>;
 }

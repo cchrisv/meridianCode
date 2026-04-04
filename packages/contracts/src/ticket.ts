@@ -3,7 +3,7 @@ import { IsoDateTime, ThreadId, TrimmedNonEmptyString, TrimmedString } from "./b
 
 // ── Branded IDs ──────────────────────────────────────────────────────
 
-export const TicketId = TrimmedNonEmptyString.pipe(Schema.brand("TicketId"));
+export const TicketId = TrimmedNonEmptyString;
 export type TicketId = typeof TicketId.Type;
 
 // ── Enums ────────────────────────────────────────────────────────────
@@ -82,7 +82,7 @@ export type TicketMetadata = typeof TicketMetadata.Type;
 // ── Ticket State ─────────────────────────────────────────────────────
 
 export const TicketState = Schema.Struct({
-  ticketId: TicketId,
+  workItemId: TicketId,
   metadata: TicketMetadata,
   currentStage: TicketStage,
   copilotPhase: Schema.NullOr(TrimmedString).pipe(Schema.withDecodingDefault(() => null)),
@@ -97,7 +97,6 @@ export type TicketState = typeof TicketState.Type;
 // ── Ticket List Item (lightweight for sidebar) ───────────────────────
 
 export const TicketListItem = Schema.Struct({
-  ticketId: TicketId,
   workItemId: TrimmedNonEmptyString,
   title: TrimmedNonEmptyString,
   workItemType: Schema.NullOr(TrimmedString).pipe(Schema.withDecodingDefault(() => null)),
@@ -119,7 +118,7 @@ export const TicketImportInput = Schema.Struct({
 export type TicketImportInput = typeof TicketImportInput.Type;
 
 export const TicketImportResult = Schema.Struct({
-  ticketId: TicketId,
+  workItemId: TicketId,
   threadId: ThreadId,
   state: TicketState,
 });
@@ -136,7 +135,7 @@ export const TicketListResult = Schema.Struct({
 export type TicketListResult = typeof TicketListResult.Type;
 
 export const TicketGetStateInput = Schema.Struct({
-  ticketId: TicketId,
+  workItemId: TicketId,
 });
 export type TicketGetStateInput = typeof TicketGetStateInput.Type;
 
@@ -146,7 +145,7 @@ export const TicketGetStateResult = Schema.Struct({
 export type TicketGetStateResult = typeof TicketGetStateResult.Type;
 
 export const TicketGetContextInput = Schema.Struct({
-  ticketId: TicketId,
+  workItemId: TicketId,
 });
 export type TicketGetContextInput = typeof TicketGetContextInput.Type;
 
@@ -156,13 +155,13 @@ export const TicketGetContextResult = Schema.Struct({
 export type TicketGetContextResult = typeof TicketGetContextResult.Type;
 
 export const TicketStageTransitionInput = Schema.Struct({
-  ticketId: TicketId,
+  workItemId: TicketId,
   targetStage: TicketStage,
 });
 export type TicketStageTransitionInput = typeof TicketStageTransitionInput.Type;
 
 export const TicketStageTransitionResult = Schema.Struct({
-  ticketId: TicketId,
+  workItemId: TicketId,
   previousStage: TicketStage,
   currentStage: TicketStage,
 });

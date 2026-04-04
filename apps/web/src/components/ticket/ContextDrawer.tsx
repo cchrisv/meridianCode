@@ -15,11 +15,11 @@ const PHASES: readonly PhaseDefDisplay[] = PHASE_DEFINITIONS;
  * Opened via [Context] button near the composer.
  */
 export function ContextDrawer({
-  ticketId,
+  workItemId,
   open,
   onClose,
 }: {
-  ticketId: string | null;
+  workItemId: string | null;
   open: boolean;
   onClose: () => void;
 }) {
@@ -28,16 +28,16 @@ export function ContextDrawer({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!open || !ticketId) return;
+    if (!open || !workItemId) return;
     setLoading(true);
     setError(null);
     const rpc = getWsRpcClient();
     rpc.ticket
-      .getContext({ ticketId: ticketId as any })
+      .getContext({ workItemId: workItemId as any })
       .then((result) => setContext(result.context as Record<string, unknown>))
       .catch((err) => setError(String(err)))
       .finally(() => setLoading(false));
-  }, [open, ticketId]);
+  }, [open, workItemId]);
 
   if (!open) return null;
 
@@ -76,7 +76,7 @@ export function ContextDrawer({
           <div className="text-center text-sm text-destructive">{String(error)}</div>
         ) : !context ? (
           <div className="text-center text-sm text-muted-foreground">
-            {ticketId ? "No context data found." : "Select a ticket to view its context."}
+            {workItemId ? "No context data found." : "Select a ticket to view its context."}
           </div>
         ) : (
           <div className="flex flex-col gap-4">

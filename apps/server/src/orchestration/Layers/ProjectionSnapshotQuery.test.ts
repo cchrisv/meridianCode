@@ -334,8 +334,8 @@ projectionSnapshotLayer("ProjectionSnapshotQuery", (it) => {
             lastError: null,
             updatedAt: "2026-02-24T00:00:07.000Z",
           },
-          ticketId: null,
-          ticketStage: null,
+          workItemId: null,
+          workItemStage: null,
           copilotPhase: null,
         },
       ]);

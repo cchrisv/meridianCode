@@ -3993,6 +3993,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
           gitCwd={gitCwd}
           diffOpen={diffOpen}
           workItemId={activeThread?.workItemId ?? null}
+          workItemType={activeThread?.workItemType ?? null}
           workItemStage={activeThread?.workItemStage ?? null}
           copilotPhase={activeThread?.copilotPhase ?? null}
           onRunProjectScript={(script) => {

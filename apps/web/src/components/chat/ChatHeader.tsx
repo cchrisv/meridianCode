@@ -6,10 +6,11 @@ import {
   type TicketStage,
   type CopilotPhase,
 } from "@t3tools/contracts";
+import { memo, useState } from "react";
+import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon } from "lucide-react";
 import { StageIndicator } from "../ticket/StageIndicator";
-import { memo } from "react";
+import { ContextDrawer } from "../ticket/ContextDrawer";
 import GitActionsControl from "../GitActionsControl";
-import { DiffIcon, TerminalSquareIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import ProjectScriptsControl, { type NewProjectScriptInput } from "../ProjectScriptsControl";
@@ -35,6 +36,7 @@ interface ChatHeaderProps {
   diffOpen: boolean;
   /** Meridian: work item fields for inline header display */
   workItemId: string | null;
+  workItemType: string | null;
   workItemStage: string | null;
   copilotPhase: string | null;
   onRunProjectScript: (script: ProjectScript) => void;
@@ -62,6 +64,7 @@ export const ChatHeader = memo(function ChatHeader({
   gitCwd,
   diffOpen,
   workItemId,
+  workItemType,
   workItemStage,
   copilotPhase,
   onRunProjectScript,
@@ -99,11 +102,9 @@ export const ChatHeader = memo(function ChatHeader({
         )}
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2 @3xl/header-actions:gap-3">
-        {/* Meridian: work item badge */}
+        {/* Meridian: work item context button — icon + ID, click opens context drawer */}
         {workItemId && (
-          <span className="text-[10px] text-muted-foreground/60 tabular-nums">
-            #{workItemId}
-          </span>
+          <WorkItemContextButton workItemId={workItemId} workItemType={workItemType} />
         )}
         {activeProjectScripts && (
           <ProjectScriptsControl
@@ -176,3 +177,55 @@ export const ChatHeader = memo(function ChatHeader({
     </div>
   );
 });
+
+// ── Work Item Context Button ─────────────────────────────────────────
+
+function getWorkItemTypeIcon(type: string | null) {
+  switch (type) {
+    case "User Story": return { Icon: BookOpenIcon, color: "#1565c0" };
+    case "Bug": return { Icon: BugIcon, color: "#c62828" };
+    case "Feature": return { Icon: StarIcon, color: "#7b1fa2" };
+    case "Epic": return { Icon: LayersIcon, color: "#f57c00" };
+    case "Task": return { Icon: CheckSquareIcon, color: "#388e3c" };
+    default: return { Icon: FileTextIcon, color: "var(--muted-foreground)" };
+  }
+}
+
+function WorkItemContextButton({
+  workItemId,
+  workItemType,
+}: {
+  workItemId: string;
+  workItemType: string | null;
+}) {
+  const [contextOpen, setContextOpen] = useState(false);
+  const { Icon, color } = getWorkItemTypeIcon(workItemType);
+
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <button
+              type="button"
+              className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              onClick={() => setContextOpen(true)}
+            />
+          }
+        >
+          <Icon className="h-3 w-3" style={{ color }} />
+          <span>#{workItemId}</span>
+        </TooltipTrigger>
+        <TooltipPopup side="bottom">
+          {workItemType ?? "Work Item"} #{workItemId} — Click to view context
+        </TooltipPopup>
+      </Tooltip>
+
+      <ContextDrawer
+        workItemId={workItemId}
+        open={contextOpen}
+        onClose={() => setContextOpen(false)}
+      />
+    </>
+  );
+}

@@ -682,9 +682,9 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
             activities: activitiesByThread.get(row.threadId) ?? [],
             checkpoints: checkpointsByThread.get(row.threadId) ?? [],
             session: sessionsByThread.get(row.threadId) ?? null,
-            workItemId: null,
-            workItemStage: null,
-            copilotPhase: null,
+            workItemId: row.workItemId ?? null,
+            workItemStage: row.workItemStage ?? null,
+            copilotPhase: row.copilotPhase ?? null,
           }));
 
           const snapshot = {

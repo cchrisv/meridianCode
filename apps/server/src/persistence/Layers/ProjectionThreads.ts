@@ -40,7 +40,10 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           created_at,
           updated_at,
           archived_at,
-          deleted_at
+          deleted_at,
+          work_item_id,
+          work_item_stage,
+          copilot_phase
         )
         VALUES (
           ${row.threadId},
@@ -55,7 +58,10 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           ${row.createdAt},
           ${row.updatedAt},
           ${row.archivedAt},
-          ${row.deletedAt}
+          ${row.deletedAt},
+          ${row.workItemId},
+          ${row.workItemStage},
+          ${row.copilotPhase}
         )
         ON CONFLICT (thread_id)
         DO UPDATE SET
@@ -70,7 +76,10 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           created_at = excluded.created_at,
           updated_at = excluded.updated_at,
           archived_at = excluded.archived_at,
-          deleted_at = excluded.deleted_at
+          deleted_at = excluded.deleted_at,
+          work_item_id = excluded.work_item_id,
+          work_item_stage = excluded.work_item_stage,
+          copilot_phase = excluded.copilot_phase
       `,
   });
 
@@ -92,7 +101,10 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           created_at AS "createdAt",
           updated_at AS "updatedAt",
           archived_at AS "archivedAt",
-          deleted_at AS "deletedAt"
+          deleted_at AS "deletedAt",
+          work_item_id AS "workItemId",
+          work_item_stage AS "workItemStage",
+          copilot_phase AS "copilotPhase"
         FROM projection_threads
         WHERE thread_id = ${threadId}
       `,
@@ -116,7 +128,10 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           created_at AS "createdAt",
           updated_at AS "updatedAt",
           archived_at AS "archivedAt",
-          deleted_at AS "deletedAt"
+          deleted_at AS "deletedAt",
+          work_item_id AS "workItemId",
+          work_item_stage AS "workItemStage",
+          copilot_phase AS "copilotPhase"
         FROM projection_threads
         WHERE project_id = ${projectId}
         ORDER BY created_at ASC, thread_id ASC

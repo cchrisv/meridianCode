@@ -34,6 +34,12 @@ export const ProjectionThread = Schema.Struct({
   updatedAt: IsoDateTime,
   archivedAt: Schema.NullOr(IsoDateTime),
   deletedAt: Schema.NullOr(IsoDateTime),
+  /** Meridian: linked ADO work item ID. */
+  workItemId: Schema.NullOr(Schema.String).pipe(Schema.withDecodingDefault(() => null)),
+  /** Meridian: Dream Team stage. */
+  workItemStage: Schema.NullOr(Schema.String).pipe(Schema.withDecodingDefault(() => null)),
+  /** Meridian: Copilot phase within Stage 1. */
+  copilotPhase: Schema.NullOr(Schema.String).pipe(Schema.withDecodingDefault(() => null)),
 });
 export type ProjectionThread = typeof ProjectionThread.Type;
 

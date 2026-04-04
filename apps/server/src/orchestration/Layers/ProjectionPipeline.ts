@@ -451,6 +451,9 @@ const makeOrchestrationProjectionPipeline = Effect.fn("makeOrchestrationProjecti
             updatedAt: event.payload.updatedAt,
             archivedAt: null,
             deletedAt: null,
+            workItemId: event.payload.workItemId ?? null,
+            workItemStage: event.payload.workItemStage ?? null,
+            copilotPhase: event.payload.copilotPhase ?? null,
           });
           return;
 

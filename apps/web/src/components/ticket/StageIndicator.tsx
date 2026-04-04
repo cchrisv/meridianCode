@@ -5,148 +5,117 @@ import {
   CodeIcon,
   ShieldCheckIcon,
   RocketIcon,
+  CheckIcon,
 } from "lucide-react";
 import { STAGE_DEFINITIONS, PHASE_DEFINITIONS, type TicketStage, type CopilotPhase } from "@t3tools/contracts";
 
 const STAGE_ICONS = [BotIcon, FilterIcon, ClipboardCheckIcon, CodeIcon, ShieldCheckIcon, RocketIcon];
 
+/**
+ * Compact stage stepper designed to sit inside the chat header bar.
+ * Shows stage icons in a horizontal row with connector lines.
+ */
 export function StageIndicator({
   currentStage,
   copilotPhase,
-  activeAction,
 }: {
   currentStage: TicketStage;
   copilotPhase?: CopilotPhase | null;
-  activeAction?: string | null;
 }) {
   const visibleStages = STAGE_DEFINITIONS.filter((s) => s.stage !== "closed");
   const currentIndex = visibleStages.findIndex((s) => s.stage === currentStage);
 
   return (
-    <div className="border-b border-border bg-card/50 px-4 py-3">
-      {/* Stage stepper */}
-      <div className="flex items-start justify-between">
-        {visibleStages.map((stageDef, index) => {
-          const isActive = stageDef.stage === currentStage;
-          const isCompleted = index < currentIndex;
-          const isFuture = index > currentIndex;
-          const Icon = STAGE_ICONS[index] ?? BotIcon;
-          const stepNumber = index + 1;
+    <div className="flex items-center gap-0 border-t border-border/50 px-3 py-1">
+      {visibleStages.map((stageDef, index) => {
+        const isActive = stageDef.stage === currentStage;
+        const isCompleted = index < currentIndex;
+        const Icon = STAGE_ICONS[index] ?? BotIcon;
 
-          return (
-            <div key={stageDef.stage} className="flex flex-1 items-start">
-              {/* Step content */}
-              <div className="flex flex-col items-center gap-1.5 flex-1">
-                {/* Circle with icon + step number */}
-                <div className="relative">
-                  <div
-                    className="flex h-8 w-8 items-center justify-center rounded-full transition-all"
-                    style={{
-                      backgroundColor: isActive
-                        ? stageDef.color
-                        : isCompleted
-                          ? stageDef.color
-                          : "var(--muted)",
-                      color: isActive || isCompleted ? "white" : "var(--muted-foreground)",
-                      boxShadow: isActive ? `0 0 0 3px ${stageDef.color}30` : "none",
-                    }}
-                  >
-                    <Icon className="h-3.5 w-3.5" />
-                  </div>
-                  {/* Step number badge */}
-                  <span
-                    className="absolute -top-1 -right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full text-[8px] font-bold"
-                    style={{
-                      backgroundColor: isActive || isCompleted ? stageDef.color : "var(--muted-foreground)",
-                      color: "white",
-                      border: "1.5px solid var(--card)",
-                    }}
-                  >
-                    {stepNumber}
-                  </span>
-                </div>
+        return (
+          <div key={stageDef.stage} className="flex items-center">
+            {/* Connector line */}
+            {index > 0 && (
+              <div
+                className="h-[1.5px] w-3 transition-colors"
+                style={{
+                  backgroundColor: isCompleted ? stageDef.color : "var(--border)",
+                }}
+              />
+            )}
 
-                {/* Label */}
-                <span
-                  className="text-[9px] font-semibold text-center leading-tight max-w-[60px]"
-                  style={{
-                    color: isActive
+            {/* Stage dot/icon */}
+            <div className="group relative flex items-center">
+              <div
+                className="flex h-5 w-5 items-center justify-center rounded-full transition-all"
+                style={{
+                  backgroundColor: isActive
+                    ? stageDef.color
+                    : isCompleted
                       ? stageDef.color
-                      : isCompleted
-                        ? stageDef.color
-                        : "var(--muted-foreground)",
-                    opacity: isFuture ? 0.5 : 1,
-                  }}
-                >
-                  {stageDef.shortLabel}
-                </span>
-              </div>
-
-              {/* Connector line */}
-              {index < visibleStages.length - 1 && (
-                <div className="flex items-center pt-4 px-0.5 flex-shrink-0">
-                  <div
-                    className="h-[2px] w-4 rounded-full transition-colors"
+                      : "transparent",
+                  border: `1.5px solid ${isActive || isCompleted ? stageDef.color : "var(--border)"}`,
+                  boxShadow: isActive ? `0 0 0 2px ${stageDef.color}25` : "none",
+                }}
+              >
+                {isCompleted ? (
+                  <CheckIcon className="h-2.5 w-2.5 text-white" />
+                ) : (
+                  <Icon
+                    className="h-2.5 w-2.5"
                     style={{
-                      backgroundColor: index < currentIndex ? visibleStages[index + 1]?.color ?? "var(--border)" : "var(--border)",
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Sub-phases (Stage 1 only) */}
-      {currentStage === "copilot-refinement" && copilotPhase && (
-        <div className="mt-2 flex items-center justify-center gap-1">
-          {PHASE_DEFINITIONS.map((phaseDef: { phase: string; label: string; shortLabel: string; index: number }) => {
-            const currentPhaseIndex = PHASE_DEFINITIONS.findIndex(
-              (p: { phase: string }) => p.phase === copilotPhase,
-            );
-            const isActive = phaseDef.phase === copilotPhase;
-            const isCompleted = phaseDef.index < currentPhaseIndex;
-
-            return (
-              <div key={phaseDef.phase} className="flex items-center">
-                {phaseDef.index > 0 && (
-                  <div
-                    className="mx-0.5 h-[1.5px] w-2 rounded-full"
-                    style={{
-                      backgroundColor: isCompleted ? "#1565c0" : "var(--border)",
+                      color: isActive ? "white" : "var(--muted-foreground)",
+                      opacity: isActive ? 1 : 0.5,
                     }}
                   />
                 )}
+              </div>
+
+              {/* Tooltip label on hover */}
+              <div className="pointer-events-none absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-popover px-1.5 py-0.5 text-[9px] font-medium text-popover-foreground shadow-sm border border-border opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                {stageDef.shortLabel}
+              </div>
+            </div>
+          </div>
+        );
+      })}
+
+      {/* Sub-phase pills (Stage 1 only) */}
+      {currentStage === "copilot-refinement" && copilotPhase && (
+        <>
+          <div className="mx-1.5 h-3 w-px bg-border" />
+          <div className="flex items-center gap-0.5">
+            {PHASE_DEFINITIONS.map((phaseDef: { phase: string; shortLabel: string; index: number }) => {
+              const currentPhaseIndex = PHASE_DEFINITIONS.findIndex(
+                (p: { phase: string }) => p.phase === copilotPhase,
+              );
+              const isPhaseActive = phaseDef.phase === copilotPhase;
+              const isPhaseCompleted = phaseDef.index < currentPhaseIndex;
+
+              return (
                 <div
-                  className="rounded-full px-1.5 py-0.5 text-[8px] font-semibold transition-colors"
+                  key={phaseDef.phase}
+                  className="rounded-sm px-1 py-px text-[8px] font-semibold leading-none"
                   style={{
-                    backgroundColor: isActive
+                    backgroundColor: isPhaseActive
                       ? "#1565c0"
-                      : isCompleted
+                      : isPhaseCompleted
                         ? "#1565c015"
                         : "transparent",
-                    color: isActive
+                    color: isPhaseActive
                       ? "white"
-                      : isCompleted
+                      : isPhaseCompleted
                         ? "#1565c0"
                         : "var(--muted-foreground)",
-                    border: `1px solid ${isActive ? "#1565c0" : isCompleted ? "#1565c040" : "var(--border)"}`,
+                    opacity: !isPhaseActive && !isPhaseCompleted ? 0.4 : 1,
                   }}
                 >
                   {phaseDef.shortLabel}
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Active action */}
-      {activeAction && (
-        <div className="mt-1.5 text-center text-[10px] text-muted-foreground">
-          {activeAction}
-        </div>
+              );
+            })}
+          </div>
+        </>
       )}
     </div>
   );

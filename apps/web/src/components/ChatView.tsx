@@ -4001,6 +4001,13 @@ export default function ChatView({ threadId }: ChatViewProps) {
           onToggleTerminal={toggleTerminalVisibility}
           onToggleDiff={onToggleDiff}
         />
+        {/* Meridian: compact stage indicator in header bar */}
+        {activeThread?.workItemId && (
+          <StageIndicator
+            currentStage={(activeThread.workItemStage as any) ?? "copilot-refinement"}
+            copilotPhase={activeThread.copilotPhase as any}
+          />
+        )}
       </header>
 
       {/* Error banner */}
@@ -4030,13 +4037,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
               onTouchEnd={onMessagesTouchEnd}
               onTouchCancel={onMessagesTouchEnd}
             >
-              {/* Meridian: Stage indicator for ticket-linked threads */}
-              {activeThread?.workItemId && (
-                <StageIndicator
-                  currentStage={(activeThread.workItemStage as any) ?? "copilot-refinement"}
-                  copilotPhase={activeThread.copilotPhase as any}
-                />
-              )}
+              {/* StageIndicator moved into header bar */}
               <MessagesTimeline
                 key={activeThread.id}
                 hasMessages={timelineEntries.length > 0}

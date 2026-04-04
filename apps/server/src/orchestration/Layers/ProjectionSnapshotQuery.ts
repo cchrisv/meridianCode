@@ -201,7 +201,10 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
           created_at AS "createdAt",
           updated_at AS "updatedAt",
           archived_at AS "archivedAt",
-          deleted_at AS "deletedAt"
+          deleted_at AS "deletedAt",
+          work_item_id AS "workItemId",
+          work_item_stage AS "workItemStage",
+          copilot_phase AS "copilotPhase"
         FROM projection_threads
         ORDER BY created_at ASC, thread_id ASC
       `,

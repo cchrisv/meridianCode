@@ -466,6 +466,32 @@ const WsRpcLayer = WsRpcGroup.toLayer(
           }),
           { "rpc.aggregate": "server" },
         ),
+      [WS_METHODS.promptList]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.promptList,
+          Effect.try({
+            try: () => {
+              const { listPrompts } = require("./ticket/Layers/PromptLoader") as typeof import("./ticket/Layers/PromptLoader");
+              const prompts = listPrompts(input.stage as any);
+              return { prompts };
+            },
+            catch: (cause) => new TicketRpcError({ detail: String(cause), cause }),
+          }),
+          { "rpc.aggregate": "prompt" },
+        ),
+      [WS_METHODS.promptLoad]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.promptLoad,
+          Effect.try({
+            try: () => {
+              const { loadPrompt } = require("./ticket/Layers/PromptLoader") as typeof import("./ticket/Layers/PromptLoader");
+              const result = loadPrompt(input.name, (input.variables ?? {}) as Record<string, string>);
+              return { name: result.name, content: result.content };
+            },
+            catch: (cause) => new TicketRpcError({ detail: String(cause), cause }),
+          }),
+          { "rpc.aggregate": "prompt" },
+        ),
       [WS_METHODS.ticketImport]: (input) =>
         observeRpcEffect(
           WS_METHODS.ticketImport,

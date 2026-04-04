@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 
 export function TicketImportDialog({
   open,
@@ -27,8 +28,13 @@ export function TicketImportDialog({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onOpenChange(false);
+      }}
+    >
       <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-lg">
         <h2 className="text-lg font-semibold text-foreground">Import Ticket</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -65,6 +71,7 @@ export function TicketImportDialog({
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

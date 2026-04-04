@@ -78,6 +78,9 @@ import { useThreadActions } from "../hooks/useThreadActions";
 import { toastManager } from "./ui/toast";
 import { formatRelativeTimeLabel } from "../timestampFormat";
 import { SidebarGithubAccount } from "./SidebarGithubAccount";
+import { TicketSidebar } from "./ticket/TicketSidebar";
+import { useTicketStore } from "../ticketStore";
+import { useTicketImport } from "../hooks/useTicketImport";
 import { SettingsSidebarNav } from "./settings/SettingsSidebarNav";
 import {
   getArm64IntelBuildWarningDescription,
@@ -661,6 +664,29 @@ function SortableProjectItem({
     >
       {children({ attributes, listeners, setActivatorNodeRef })}
     </li>
+  );
+}
+
+/**
+ * Meridian ticket section — renders TicketSidebar with import capability.
+ * Uses the useTicketImport hook for proper thread creation, toasts, and navigation.
+ */
+function TicketSidebarSection({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+  const { importTicket } = useTicketImport();
+  const setActiveTicket = useTicketStore((s) => s.setActiveTicket);
+
+  const handleSelectTicket = (ticketId: string, threadId?: string) => {
+    setActiveTicket(ticketId);
+    if (threadId) {
+      void navigate({ to: "/$threadId", params: { threadId } });
+    }
+  };
+
+  return (
+    <TicketSidebar
+      onSelectTicket={handleSelectTicket}
+      onImportTicket={importTicket}
+    />
   );
 }
 
@@ -2005,6 +2031,11 @@ export default function Sidebar() {
       ) : (
         <>
           <SidebarContent className="gap-0">
+            {/* ── Meridian Ticket Section ── */}
+            <SidebarGroup className="px-2 py-2">
+              <TicketSidebarSection navigate={navigate} />
+            </SidebarGroup>
+            <SidebarSeparator />
             {showArm64IntelBuildWarning && arm64IntelBuildWarningDescription ? (
               <SidebarGroup className="px-2 pt-2 pb-0">
                 <Alert variant="warning" className="rounded-2xl border-warning/40 bg-warning/8">

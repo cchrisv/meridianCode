@@ -166,6 +166,8 @@ import { ProviderModelPicker } from "./chat/ProviderModelPicker";
 import { ComposerCommandItem, ComposerCommandMenu } from "./chat/ComposerCommandMenu";
 import { ComposerPendingApprovalActions } from "./chat/ComposerPendingApprovalActions";
 import { CompactComposerControlsMenu } from "./chat/CompactComposerControlsMenu";
+import { MeridianComposerBar } from "./ticket/MeridianComposerBar";
+import { StageIndicator } from "./ticket/StageIndicator";
 import { ComposerPrimaryActions } from "./chat/ComposerPrimaryActions";
 import { ComposerPendingApprovalPanel } from "./chat/ComposerPendingApprovalPanel";
 import { ComposerPendingUserInputPanel } from "./chat/ComposerPendingUserInputPanel";
@@ -3032,6 +3034,9 @@ export default function ChatView({ threadId }: ChatViewProps) {
           branch: nextThreadBranch,
           worktreePath: nextThreadWorktreePath,
           createdAt: activeThread.createdAt,
+          ticketId: activeThread.ticketId ?? null,
+          ticketStage: activeThread.ticketStage ?? null,
+          copilotPhase: activeThread.copilotPhase ?? null,
         });
         createdServerThreadForLocalDraft = true;
       }
@@ -3501,6 +3506,9 @@ export default function ChatView({ threadId }: ChatViewProps) {
         branch: activeThread.branch,
         worktreePath: activeThread.worktreePath,
         createdAt,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
       })
       .then(() => {
         return api.orchestration.dispatchCommand({
@@ -4020,6 +4028,13 @@ export default function ChatView({ threadId }: ChatViewProps) {
               onTouchEnd={onMessagesTouchEnd}
               onTouchCancel={onMessagesTouchEnd}
             >
+              {/* Meridian: Stage indicator for ticket-linked threads */}
+              {activeThread?.ticketId && (
+                <StageIndicator
+                  currentStage={(activeThread.ticketStage as any) ?? "copilot-refinement"}
+                  copilotPhase={activeThread.copilotPhase as any}
+                />
+              )}
               <MessagesTimeline
                 key={activeThread.id}
                 hasMessages={timelineEntries.length > 0}
@@ -4112,6 +4127,20 @@ export default function ChatView({ threadId }: ChatViewProps) {
                       />
                     </div>
                   ) : null}
+                  {/* Meridian utility action bar */}
+                  <MeridianComposerBar
+                    ticketId={activeThread?.ticketId ?? null}
+                    workItemId={activeThread?.ticketId?.replace("ticket-", "") ?? null}
+                    stage={activeThread?.ticketStage ?? null}
+                    platform={null}
+                    onSendPrompt={(content) => {
+                      // Inject prompt content into the composer, same pattern as setPromptFromTraits
+                      promptRef.current = content;
+                      setPrompt(content);
+                      setComposerCursor(content.length);
+                      composerEditorRef.current?.focusAtEnd();
+                    }}
+                  />
                   <div
                     className={cn(
                       "relative px-3 pb-2 sm:px-4",

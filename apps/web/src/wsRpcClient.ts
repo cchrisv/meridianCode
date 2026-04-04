@@ -101,6 +101,10 @@ export interface WsRpcClient {
     readonly listTree: RpcUnaryNoArgMethod<typeof WS_METHODS.knowledgeListTree>;
     readonly readFile: RpcUnaryMethod<typeof WS_METHODS.knowledgeReadFile>;
   };
+  readonly prompt: {
+    readonly list: RpcUnaryMethod<typeof WS_METHODS.promptList>;
+    readonly load: RpcUnaryMethod<typeof WS_METHODS.promptLoad>;
+  };
   readonly ticket: {
     readonly import: RpcUnaryMethod<typeof WS_METHODS.ticketImport>;
     readonly list: RpcUnaryMethod<typeof WS_METHODS.ticketList>;
@@ -222,6 +226,12 @@ export function createWsRpcClient(transport = new WsTransport()): WsRpcClient {
         transport.request((client) => castRequest(client[WS_METHODS.knowledgeListTree]({}))),
       readFile: (input) =>
         transport.request((client) => castRequest(client[WS_METHODS.knowledgeReadFile](input))),
+    },
+    prompt: {
+      list: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.promptList](input))),
+      load: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.promptLoad](input))),
     },
     ticket: {
       import: (input) =>

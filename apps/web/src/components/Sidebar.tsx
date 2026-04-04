@@ -78,6 +78,9 @@ import { useThreadActions } from "../hooks/useThreadActions";
 import { toastManager } from "./ui/toast";
 import { formatRelativeTimeLabel } from "../timestampFormat";
 import { SidebarGithubAccount } from "./SidebarGithubAccount";
+import { TicketSidebar } from "./ticket/TicketSidebar";
+import { useTicketStore } from "../ticketStore";
+import { getWsRpcClient } from "../wsRpcClient";
 import { SettingsSidebarNav } from "./settings/SettingsSidebarNav";
 import {
   getArm64IntelBuildWarningDescription,
@@ -661,6 +664,56 @@ function SortableProjectItem({
     >
       {children({ attributes, listeners, setActivatorNodeRef })}
     </li>
+  );
+}
+
+/**
+ * Meridian ticket section — renders TicketSidebar with import capability.
+ * Sits above the existing "Features" project/thread tree.
+ */
+function TicketSidebarSection({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
+  const addTicket = useTicketStore((s) => s.addTicket);
+  const setActiveTicket = useTicketStore((s) => s.setActiveTicket);
+
+  const handleImportTicket = async (workItemId: string) => {
+    try {
+      const rpc = getWsRpcClient();
+      const result = await rpc.ticket.import({ workItemId: workItemId as any });
+      addTicket({
+        ticketId: result.ticketId,
+        workItemId: workItemId as any,
+        title: result.state.metadata.title,
+        workItemType: result.state.metadata.workItemType,
+        currentStage: result.state.currentStage,
+        copilotPhase: result.state.copilotPhase,
+        platform: result.state.metadata.platform,
+        priority: result.state.metadata.priority,
+        assignedTo: result.state.metadata.assignedTo,
+        threadId: result.state.threadId,
+        updatedAt: result.state.updatedAt,
+      });
+      setActiveTicket(result.ticketId as string);
+      // Navigate to the thread if one was created
+      if (result.threadId) {
+        void navigate({ to: "/$threadId", params: { threadId: result.threadId as string } });
+      }
+    } catch (err) {
+      console.error("Failed to import ticket:", err);
+    }
+  };
+
+  const handleSelectTicket = (ticketId: string, threadId?: string) => {
+    setActiveTicket(ticketId);
+    if (threadId) {
+      void navigate({ to: "/$threadId", params: { threadId } });
+    }
+  };
+
+  return (
+    <TicketSidebar
+      onSelectTicket={handleSelectTicket}
+      onImportTicket={handleImportTicket}
+    />
   );
 }
 
@@ -2005,6 +2058,11 @@ export default function Sidebar() {
       ) : (
         <>
           <SidebarContent className="gap-0">
+            {/* ── Meridian Ticket Section ── */}
+            <SidebarGroup className="px-2 py-2">
+              <TicketSidebarSection navigate={navigate} />
+            </SidebarGroup>
+            <SidebarSeparator />
             {showArm64IntelBuildWarning && arm64IntelBuildWarningDescription ? (
               <SidebarGroup className="px-2 pt-2 pb-0">
                 <Alert variant="warning" className="rounded-2xl border-warning/40 bg-warning/8">

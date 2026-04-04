@@ -9,7 +9,7 @@ import {
 import { memo, useState } from "react";
 import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon, LinkIcon } from "lucide-react";
 import { createPortal } from "react-dom";
-import { Popover, PopoverTrigger, PopoverPopup } from "../ui/popover";
+import { Popover, PopoverTrigger, PopoverPopup, PopoverClose } from "../ui/popover";
 import { StageIndicator } from "../ticket/StageIndicator";
 import { ContextDrawer } from "../ticket/ContextDrawer";
 import { ensureNativeApi } from "../../nativeApi";
@@ -259,6 +259,7 @@ interface PromptItem {
 }
 
 function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => void }) {
+  const [open, setOpen] = useState(false);
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [loaded, setLoaded] = useState(false);
 
@@ -275,7 +276,13 @@ function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => 
   };
 
   return (
-    <Popover onOpenChange={(open) => { if (open) loadPrompts(); }}>
+    <Popover
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (nextOpen) loadPrompts();
+      }}
+    >
       <Tooltip>
         <TooltipTrigger
           render={
@@ -283,7 +290,7 @@ function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => 
               render={
                 <Toggle
                   className="shrink-0"
-                  pressed={false}
+                  pressed={open}
                   aria-label="Prompts"
                   variant="outline"
                   size="xs"
@@ -305,19 +312,18 @@ function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => 
             <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading...</div>
           )}
           {prompts.map((p) => (
-            <PopoverTrigger
+            <button
               key={p.name}
-              render={
-                <button
-                  type="button"
-                  className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-accent"
-                  onClick={() => onSelectPrompt(p.name)}
-                />
-              }
+              type="button"
+              className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-accent"
+              onClick={() => {
+                setOpen(false);
+                onSelectPrompt(p.name);
+              }}
             >
               <span className="text-xs font-medium text-foreground">{p.label}</span>
               <span className="text-[10px] text-muted-foreground">{p.description}</span>
-            </PopoverTrigger>
+            </button>
           ))}
         </div>
       </PopoverPopup>

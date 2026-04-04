@@ -3992,6 +3992,9 @@ export default function ChatView({ threadId }: ChatViewProps) {
           diffToggleShortcutLabel={diffPanelShortcutLabel}
           gitCwd={gitCwd}
           diffOpen={diffOpen}
+          workItemId={activeThread?.workItemId ?? null}
+          workItemStage={activeThread?.workItemStage ?? null}
+          copilotPhase={activeThread?.copilotPhase ?? null}
           onRunProjectScript={(script) => {
             void runProjectScript(script);
           }}
@@ -4001,13 +4004,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
           onToggleTerminal={toggleTerminalVisibility}
           onToggleDiff={onToggleDiff}
         />
-        {/* Meridian: compact stage indicator in header bar */}
-        {activeThread?.workItemId && (
-          <StageIndicator
-            currentStage={(activeThread.workItemStage as any) ?? "copilot-refinement"}
-            copilotPhase={activeThread.copilotPhase as any}
-          />
-        )}
       </header>
 
       {/* Error banner */}
@@ -4130,20 +4126,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
                       />
                     </div>
                   ) : null}
-                  {/* Meridian utility action bar */}
-                  <MeridianComposerBar
-                    workItemId={activeThread?.workItemId ?? null}
-                    threadId={activeThread?.id ?? null}
-                    stage={activeThread?.workItemStage ?? null}
-                    platform={null}
-                    onSendPrompt={(content) => {
-                      // Inject prompt content into the composer, same pattern as setPromptFromTraits
-                      promptRef.current = content;
-                      setPrompt(content);
-                      setComposerCursor(content.length);
-                      composerEditorRef.current?.focusAtEnd();
-                    }}
-                  />
+                  {/* MeridianComposerBar content moved to ChatHeader */}
                   <div
                     className={cn(
                       "relative px-3 pb-2 sm:px-4",

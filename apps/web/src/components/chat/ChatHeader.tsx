@@ -3,7 +3,10 @@ import {
   type ProjectScript,
   type ResolvedKeybindingsConfig,
   type ThreadId,
+  type TicketStage,
+  type CopilotPhase,
 } from "@t3tools/contracts";
+import { StageIndicator } from "../ticket/StageIndicator";
 import { memo } from "react";
 import GitActionsControl from "../GitActionsControl";
 import { DiffIcon, TerminalSquareIcon } from "lucide-react";
@@ -30,6 +33,10 @@ interface ChatHeaderProps {
   diffToggleShortcutLabel: string | null;
   gitCwd: string | null;
   diffOpen: boolean;
+  /** Meridian: work item fields for inline header display */
+  workItemId: string | null;
+  workItemStage: string | null;
+  copilotPhase: string | null;
   onRunProjectScript: (script: ProjectScript) => void;
   onAddProjectScript: (input: NewProjectScriptInput) => Promise<void>;
   onUpdateProjectScript: (scriptId: string, input: NewProjectScriptInput) => Promise<void>;
@@ -54,6 +61,9 @@ export const ChatHeader = memo(function ChatHeader({
   diffToggleShortcutLabel,
   gitCwd,
   diffOpen,
+  workItemId,
+  workItemStage,
+  copilotPhase,
   onRunProjectScript,
   onAddProjectScript,
   onUpdateProjectScript,
@@ -71,6 +81,12 @@ export const ChatHeader = memo(function ChatHeader({
         >
           {activeThreadTitle}
         </h2>
+        {workItemId && (
+          <StageIndicator
+            currentStage={(workItemStage as TicketStage) ?? "copilot-refinement"}
+            copilotPhase={copilotPhase as CopilotPhase}
+          />
+        )}
         {activeProjectName && (
           <Badge variant="outline" className="min-w-0 shrink overflow-hidden">
             <span className="min-w-0 truncate">{activeProjectName}</span>
@@ -83,6 +99,12 @@ export const ChatHeader = memo(function ChatHeader({
         )}
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2 @3xl/header-actions:gap-3">
+        {/* Meridian: work item badge */}
+        {workItemId && (
+          <span className="text-[10px] text-muted-foreground/60 tabular-nums">
+            #{workItemId}
+          </span>
+        )}
         {activeProjectScripts && (
           <ProjectScriptsControl
             scripts={activeProjectScripts}

@@ -403,7 +403,7 @@ describe("resolveThreadStatusPill", () => {
     latestTurn: null,
     lastVisitedAt: undefined,
     session: {
-      provider: "codex" as const,
+      provider: "copilot" as const,
       status: "running" as const,
       createdAt: "2026-03-09T10:00:00.000Z",
       updatedAt: "2026-03-09T10:00:00.000Z",
@@ -628,7 +628,7 @@ function makeProject(overrides: Partial<Project> = {}): Project {
     name: "Project",
     cwd: "/tmp/project",
     defaultModelSelection: {
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5.4",
       ...defaultModelSelection,
     },
@@ -646,7 +646,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     projectId: ProjectId.makeUnsafe("project-1"),
     title: "Thread",
     modelSelection: {
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5.4",
       ...overrides?.modelSelection,
     },

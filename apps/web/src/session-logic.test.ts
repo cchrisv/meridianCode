@@ -1161,23 +1161,15 @@ describe("deriveActiveWorkStartedAt", () => {
 });
 
 describe("PROVIDER_OPTIONS", () => {
-  it("advertises Claude as available while keeping Cursor as a placeholder", () => {
-    const claude = PROVIDER_OPTIONS.find((option) => option.value === "claudeAgent");
-    const cursor = PROVIDER_OPTIONS.find((option) => option.value === "cursor");
+  it("advertises copilot as the only available provider", () => {
+    const copilot = PROVIDER_OPTIONS.find((option) => option.value === "copilot");
     expect(PROVIDER_OPTIONS).toEqual([
-      { value: "codex", label: "Codex", available: true },
-      { value: "claudeAgent", label: "Claude", available: true },
-      { value: "cursor", label: "Cursor", available: false },
+      { value: "copilot", label: "GitHub Copilot", available: true },
     ]);
-    expect(claude).toEqual({
-      value: "claudeAgent",
-      label: "Claude",
+    expect(copilot).toEqual({
+      value: "copilot",
+      label: "GitHub Copilot",
       available: true,
-    });
-    expect(cursor).toEqual({
-      value: "cursor",
-      label: "Cursor",
-      available: false,
     });
   });
 });

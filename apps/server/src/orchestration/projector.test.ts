@@ -57,7 +57,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -77,7 +77,7 @@ describe("orchestration projector", () => {
         projectId: "project-1",
         title: "demo",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         runtimeMode: "full-access",
@@ -118,7 +118,7 @@ describe("orchestration projector", () => {
               projectId: "project-1",
               title: "demo",
               modelSelection: {
-                provider: "codex",
+                provider: "copilot",
                 model: "gpt-5-codex",
               },
               branch: null,
@@ -150,7 +150,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",
@@ -253,7 +253,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -281,7 +281,7 @@ describe("orchestration projector", () => {
             session: {
               threadId: "thread-1",
               status: "running",
-              providerName: "codex",
+              providerName: "copilot",
               providerSessionId: "session-1",
               providerThreadId: "provider-thread-1",
               runtimeMode: "approval-required",
@@ -319,7 +319,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -376,7 +376,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -463,7 +463,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -678,7 +678,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "demo",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5.3-codex",
             },
             runtimeMode: "full-access",
@@ -831,7 +831,7 @@ describe("orchestration projector", () => {
             projectId: "project-1",
             title: "capped",
             modelSelection: {
-              provider: "codex",
+              provider: "copilot",
               model: "gpt-5-codex",
             },
             runtimeMode: "full-access",

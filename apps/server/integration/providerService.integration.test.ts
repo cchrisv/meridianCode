@@ -1,6 +1,5 @@
 import type { ProviderRuntimeEvent } from "@t3tools/contracts";
 import { ThreadId } from "@t3tools/contracts";
-import { DEFAULT_SERVER_SETTINGS } from "@t3tools/contracts/settings";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { it, assert } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path, Queue, Stream } from "effect";
@@ -49,10 +48,10 @@ const makeIntegrationFixture = Effect.gen(function* () {
 
   const registry: typeof ProviderAdapterRegistry.Service = {
     getByProvider: (provider) =>
-      provider === "codex"
+      provider === "copilot"
         ? Effect.succeed(harness.adapter)
         : Effect.fail(new ProviderUnsupportedError({ provider })),
-    listProviders: () => Effect.succeed(["codex"]),
+    listProviders: () => Effect.succeed(["copilot"]),
   };
 
   const directoryLayer = ProviderSessionDirectoryLive.pipe(
@@ -62,7 +61,11 @@ const makeIntegrationFixture = Effect.gen(function* () {
   const shared = Layer.mergeAll(
     directoryLayer,
     Layer.succeed(ProviderAdapterRegistry, registry),
-    ServerSettingsService.layerTest(DEFAULT_SERVER_SETTINGS),
+    ServerSettingsService.layerTest({
+      providers: {
+        copilot: { enabled: true },
+      },
+    }),
     AnalyticsService.layerTest,
   ).pipe(Layer.provide(SqlitePersistenceMemory));
 
@@ -126,7 +129,7 @@ it.effect("replays typed runtime fixture events", () =>
         ThreadId.makeUnsafe("thread-integration-typed"),
         {
           threadId: ThreadId.makeUnsafe("thread-integration-typed"),
-          provider: "codex",
+          provider: "copilot",
           cwd: fixture.cwd,
           runtimeMode: "full-access",
         },
@@ -161,7 +164,7 @@ it.effect("replays file-changing fixture turn events", () =>
         ThreadId.makeUnsafe("thread-integration-tools"),
         {
           threadId: ThreadId.makeUnsafe("thread-integration-tools"),
-          provider: "codex",
+          provider: "copilot",
           cwd: fixture.cwd,
           runtimeMode: "full-access",
         },
@@ -200,7 +203,7 @@ it.effect("runs multi-turn tool/approval flow", () =>
         ThreadId.makeUnsafe("thread-integration-multi"),
         {
           threadId: ThreadId.makeUnsafe("thread-integration-multi"),
-          provider: "codex",
+          provider: "copilot",
           cwd: fixture.cwd,
           runtimeMode: "full-access",
         },
@@ -254,7 +257,7 @@ it.effect("rolls back provider conversation state only", () =>
         ThreadId.makeUnsafe("thread-integration-rollback"),
         {
           threadId: ThreadId.makeUnsafe("thread-integration-rollback"),
-          provider: "codex",
+          provider: "copilot",
           cwd: fixture.cwd,
           runtimeMode: "full-access",
         },

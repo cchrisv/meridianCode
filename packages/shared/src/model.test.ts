@@ -8,8 +8,7 @@ import {
   hasContextWindowOption,
   hasEffortLevel,
   isClaudeUltrathinkPrompt,
-  normalizeClaudeModelOptionsWithCapabilities,
-  normalizeCodexModelOptionsWithCapabilities,
+  normalizeCopilotModelOptionsWithCapabilities,
   normalizeModelSlug,
   resolveApiModelId,
   resolveContextWindow,
@@ -49,7 +48,7 @@ const claudeCaps: ModelCapabilities = {
 describe("normalizeModelSlug", () => {
   it("maps known aliases to canonical slugs", () => {
     expect(normalizeModelSlug("5.3")).toBe("gpt-5.3-codex");
-    expect(normalizeModelSlug("sonnet", "claudeAgent")).toBe("claude-sonnet-4-6");
+    expect(normalizeModelSlug("sonnet", "copilot")).toBe("claude-sonnet-4-6");
   });
 
   it("returns null for empty or missing values", () => {
@@ -62,15 +61,15 @@ describe("normalizeModelSlug", () => {
 
 describe("resolveModelSlug", () => {
   it("returns defaults when the model is missing", () => {
-    expect(resolveModelSlug(undefined, "codex")).toBe(DEFAULT_MODEL_BY_PROVIDER.codex);
+    expect(resolveModelSlug(undefined, "copilot")).toBe(DEFAULT_MODEL_BY_PROVIDER.copilot);
 
-    expect(resolveModelSlugForProvider("claudeAgent", undefined)).toBe(
-      DEFAULT_MODEL_BY_PROVIDER.claudeAgent,
+    expect(resolveModelSlugForProvider("copilot", undefined)).toBe(
+      DEFAULT_MODEL_BY_PROVIDER.copilot,
     );
   });
 
   it("preserves normalized unknown models", () => {
-    expect(resolveModelSlug("custom/internal-model", "codex")).toBe("custom/internal-model");
+    expect(resolveModelSlug("custom/internal-model", "copilot")).toBe("custom/internal-model");
   });
 });
 
@@ -80,9 +79,9 @@ describe("resolveSelectableModel", () => {
       { slug: "gpt-5.3-codex", name: "GPT-5.3 Codex" },
       { slug: "claude-sonnet-4-6", name: "Claude Sonnet 4.6" },
     ];
-    expect(resolveSelectableModel("codex", "gpt-5.3-codex", options)).toBe("gpt-5.3-codex");
-    expect(resolveSelectableModel("codex", "gpt-5.3 codex", options)).toBe("gpt-5.3-codex");
-    expect(resolveSelectableModel("claudeAgent", "sonnet", options)).toBe("claude-sonnet-4-6");
+    expect(resolveSelectableModel("copilot", "gpt-5.3-codex", options)).toBe("gpt-5.3-codex");
+    expect(resolveSelectableModel("copilot", "gpt-5.3 codex", options)).toBe("gpt-5.3-codex");
+    expect(resolveSelectableModel("copilot", "sonnet", options)).toBe("claude-sonnet-4-6");
   });
 });
 
@@ -195,90 +194,51 @@ describe("resolveContextWindow", () => {
 });
 
 describe("resolveApiModelId", () => {
-  it("appends [1m] suffix for 1m context window", () => {
-    expect(
-      resolveApiModelId({
-        provider: "claudeAgent",
-        model: "claude-opus-4-6",
-        options: { contextWindow: "1m" },
-      }),
-    ).toBe("claude-opus-4-6[1m]");
+  it("returns the model as-is for copilot selections", () => {
+    expect(resolveApiModelId({ provider: "copilot", model: "gpt-5.4" })).toBe("gpt-5.4");
   });
 
-  it("returns the model as-is for 200k context window", () => {
-    expect(
-      resolveApiModelId({
-        provider: "claudeAgent",
-        model: "claude-opus-4-6",
-        options: { contextWindow: "200k" },
-      }),
-    ).toBe("claude-opus-4-6");
-  });
-
-  it("returns the model as-is when no context window is set", () => {
-    expect(resolveApiModelId({ provider: "claudeAgent", model: "claude-opus-4-6" })).toBe(
+  it("returns the model as-is when no options are set", () => {
+    expect(resolveApiModelId({ provider: "copilot", model: "claude-opus-4-6" })).toBe(
       "claude-opus-4-6",
     );
     expect(
-      resolveApiModelId({ provider: "claudeAgent", model: "claude-opus-4-6", options: {} }),
+      resolveApiModelId({ provider: "copilot", model: "claude-opus-4-6", options: {} }),
     ).toBe("claude-opus-4-6");
-  });
-
-  it("returns the model as-is for Codex selections", () => {
-    expect(resolveApiModelId({ provider: "codex", model: "gpt-5.4" })).toBe("gpt-5.4");
   });
 });
 
-describe("normalize*ModelOptionsWithCapabilities", () => {
-  it("preserves explicit false codex fast mode", () => {
+describe("normalizeCopilotModelOptionsWithCapabilities", () => {
+  it("preserves supported reasoning effort", () => {
     expect(
-      normalizeCodexModelOptionsWithCapabilities(codexCaps, {
+      normalizeCopilotModelOptionsWithCapabilities(codexCaps, {
         reasoningEffort: "high",
-        fastMode: false,
       }),
     ).toEqual({
       reasoningEffort: "high",
-      fastMode: false,
     });
   });
 
-  it("preserves the default Claude context window explicitly", () => {
+  it("falls back to default for unsupported effort", () => {
     expect(
-      normalizeClaudeModelOptionsWithCapabilities(
-        {
-          ...claudeCaps,
-          contextWindowOptions: [
-            { value: "200k", label: "200k", isDefault: true },
-            { value: "1m", label: "1M" },
-          ],
-        },
-        {
-          effort: "high",
-          contextWindow: "200k",
-        },
-      ),
+      normalizeCopilotModelOptionsWithCapabilities(codexCaps, {
+        reasoningEffort: "bogus" as never,
+      }),
     ).toEqual({
-      effort: "high",
-      contextWindow: "200k",
+      reasoningEffort: "high",
     });
   });
 
-  it("omits unsupported Claude context window options", () => {
+  it("returns undefined when no effort levels exist", () => {
+    const noCaps: ModelCapabilities = {
+      reasoningEffortLevels: [],
+      supportsFastMode: false,
+      supportsThinkingToggle: false,
+      contextWindowOptions: [],
+      promptInjectedEffortLevels: [],
+    };
     expect(
-      normalizeClaudeModelOptionsWithCapabilities(
-        {
-          ...claudeCaps,
-          reasoningEffortLevels: [],
-          supportsThinkingToggle: true,
-          contextWindowOptions: [],
-        },
-        {
-          thinking: true,
-          contextWindow: "1m",
-        },
-      ),
-    ).toEqual({
-      thinking: true,
-    });
+      normalizeCopilotModelOptionsWithCapabilities(noCaps, { reasoningEffort: "high" }),
+    ).toBeUndefined();
   });
 });

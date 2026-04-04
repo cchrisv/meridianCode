@@ -39,7 +39,7 @@ const configListeners = new Set<(event: ServerConfigStreamEvent) => void>();
 
 const defaultProviders: ReadonlyArray<ServerProvider> = [
   {
-    provider: "codex",
+    provider: "copilot",
     enabled: true,
     installed: true,
     version: "0.116.0",

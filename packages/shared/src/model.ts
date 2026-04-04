@@ -1,9 +1,7 @@
 import {
   DEFAULT_MODEL_BY_PROVIDER,
   MODEL_SLUG_ALIASES_BY_PROVIDER,
-  type ClaudeCodeEffort,
-  type ClaudeModelOptions,
-  type CodexModelOptions,
+  type CopilotModelOptions,
   type ModelCapabilities,
   type ModelSelection,
   type ProviderKind,
@@ -85,35 +83,14 @@ export function resolveContextWindow(
   return hasContextWindowOption(caps, raw) ? raw : (defaultValue ?? undefined);
 }
 
-export function normalizeCodexModelOptionsWithCapabilities(
+export function normalizeCopilotModelOptionsWithCapabilities(
   caps: ModelCapabilities,
-  modelOptions: CodexModelOptions | null | undefined,
-): CodexModelOptions | undefined {
+  modelOptions: CopilotModelOptions | null | undefined,
+): CopilotModelOptions | undefined {
   const reasoningEffort = resolveEffort(caps, modelOptions?.reasoningEffort);
-  const fastMode = caps.supportsFastMode ? modelOptions?.fastMode : undefined;
-  const nextOptions: CodexModelOptions = {
-    ...(reasoningEffort
-      ? { reasoningEffort: reasoningEffort as CodexModelOptions["reasoningEffort"] }
-      : {}),
-    ...(fastMode !== undefined ? { fastMode } : {}),
-  };
-  return Object.keys(nextOptions).length > 0 ? nextOptions : undefined;
-}
-
-export function normalizeClaudeModelOptionsWithCapabilities(
-  caps: ModelCapabilities,
-  modelOptions: ClaudeModelOptions | null | undefined,
-): ClaudeModelOptions | undefined {
-  const effort = resolveEffort(caps, modelOptions?.effort);
-  const thinking = caps.supportsThinkingToggle ? modelOptions?.thinking : undefined;
-  const fastMode = caps.supportsFastMode ? modelOptions?.fastMode : undefined;
-  const contextWindow = resolveContextWindow(caps, modelOptions?.contextWindow);
-  const nextOptions: ClaudeModelOptions = {
-    ...(thinking !== undefined ? { thinking } : {}),
-    ...(effort ? { effort: effort as ClaudeModelOptions["effort"] } : {}),
-    ...(fastMode !== undefined ? { fastMode } : {}),
-    ...(contextWindow !== undefined ? { contextWindow } : {}),
-  };
+  const nextOptions: CopilotModelOptions = reasoningEffort
+    ? { reasoningEffort: reasoningEffort as CopilotModelOptions["reasoningEffort"] }
+    : {};
   return Object.keys(nextOptions).length > 0 ? nextOptions : undefined;
 }
 
@@ -123,7 +100,7 @@ export function isClaudeUltrathinkPrompt(text: string | null | undefined): boole
 
 export function normalizeModelSlug(
   model: string | null | undefined,
-  provider: ProviderKind = "codex",
+  provider: ProviderKind = "copilot",
 ): string | null {
   if (typeof model !== "string") {
     return null;
@@ -209,14 +186,7 @@ export function trimOrNull<T extends string>(value: T | null | undefined): T | n
  */
 export function resolveApiModelId(modelSelection: ModelSelection): string {
   switch (modelSelection.provider) {
-    case "claudeAgent": {
-      switch (modelSelection.options?.contextWindow) {
-        case "1m":
-          return `${modelSelection.model}[1m]`;
-        default:
-          return modelSelection.model;
-      }
-    }
+    case "copilot":
     default: {
       return modelSelection.model;
     }
@@ -225,7 +195,7 @@ export function resolveApiModelId(modelSelection: ModelSelection): string {
 
 export function applyClaudePromptEffortPrefix(
   text: string,
-  effort: ClaudeCodeEffort | null | undefined,
+  effort: string | null | undefined,
 ): string {
   const trimmed = text.trim();
   if (!trimmed) {

@@ -1,6 +1,5 @@
 import {
-  type ClaudeModelOptions,
-  type CodexModelOptions,
+  type CopilotModelOptions,
   type ProviderKind,
   type ProviderModelOptions,
   type ServerProviderModel,
@@ -46,34 +45,30 @@ type TraitsPersistence =
 const ULTRATHINK_PROMPT_PREFIX = "Ultrathink:\n";
 
 function getRawEffort(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   modelOptions: ProviderOptions | null | undefined,
 ): string | null {
-  if (provider === "codex") {
-    return trimOrNull((modelOptions as CodexModelOptions | undefined)?.reasoningEffort);
-  }
-  return trimOrNull((modelOptions as ClaudeModelOptions | undefined)?.effort);
+  return trimOrNull(
+    (modelOptions as CopilotModelOptions | undefined)?.reasoningEffort,
+  );
 }
 
 function getRawContextWindow(
-  provider: ProviderKind,
-  modelOptions: ProviderOptions | null | undefined,
+  _provider: ProviderKind,
+  _modelOptions: ProviderOptions | null | undefined,
 ): string | null {
-  if (provider === "claudeAgent") {
-    return trimOrNull((modelOptions as ClaudeModelOptions | undefined)?.contextWindow);
-  }
   return null;
 }
 
 function buildNextOptions(
-  provider: ProviderKind,
+  _provider: ProviderKind,
   modelOptions: ProviderOptions | null | undefined,
   patch: Record<string, unknown>,
 ): ProviderOptions {
-  if (provider === "codex") {
-    return { ...(modelOptions as CodexModelOptions | undefined), ...patch } as CodexModelOptions;
-  }
-  return { ...(modelOptions as ClaudeModelOptions | undefined), ...patch } as ClaudeModelOptions;
+  return {
+    ...(modelOptions as CopilotModelOptions | undefined),
+    ...patch,
+  } as CopilotModelOptions;
 }
 
 function getSelectedTraits(
@@ -97,7 +92,7 @@ function getSelectedTraits(
 
   // Thinking toggle (only for models that support it)
   const thinkingEnabled = caps.supportsThinkingToggle
-    ? ((modelOptions as ClaudeModelOptions | undefined)?.thinking ?? true)
+    ? ((modelOptions as { thinking?: boolean } | undefined)?.thinking ?? true)
     : null;
 
   // Fast mode
@@ -203,7 +198,7 @@ export const TraitsMenuContent = memo(function TraitsMenuContentImpl({
         const stripped = prompt.replace(/^Ultrathink:\s*/i, "");
         onPromptChange(stripped);
       }
-      const effortKey = provider === "codex" ? "reasoningEffort" : "effort";
+      const effortKey = "reasoningEffort";
       updateModelOptions(
         buildNextOptions(provider, modelOptions, { [effortKey]: nextOption.value }),
       );
@@ -365,7 +360,7 @@ export const TraitsPicker = memo(function TraitsPicker({
     .filter(Boolean)
     .join(" · ");
 
-  const isCodexStyle = provider === "codex";
+  const isCodexStyle = true; // copilot uses the compact style
 
   return (
     <Menu

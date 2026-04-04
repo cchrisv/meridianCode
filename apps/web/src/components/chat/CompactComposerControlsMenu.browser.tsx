@@ -11,7 +11,7 @@ import { useComposerDraftStore } from "../../composerDraftStore";
 
 async function mountMenu(props?: { modelSelection?: ModelSelection; prompt?: string }) {
   const threadId = ThreadId.makeUnsafe("thread-compact-menu");
-  const provider = props?.modelSelection?.provider ?? "claudeAgent";
+  const provider = props?.modelSelection?.provider ?? "copilot";
   const draftsByThreadId = {} as ReturnType<
     typeof useComposerDraftStore.getState
   >["draftsByThreadId"];
@@ -43,74 +43,37 @@ async function mountMenu(props?: { modelSelection?: ModelSelection; prompt?: str
   document.body.append(host);
   const onPromptChange = vi.fn();
   const providerOptions = props?.modelSelection?.options;
-  const models =
-    provider === "claudeAgent"
-      ? [
-          {
-            slug: "claude-opus-4-6",
-            name: "Claude Opus 4.6",
-            isCustom: false,
-            capabilities: {
-              reasoningEffortLevels: [
-                { value: "low", label: "Low" },
-                { value: "medium", label: "Medium" },
-                { value: "high", label: "High", isDefault: true },
-                { value: "max", label: "Max" },
-                { value: "ultrathink", label: "Ultrathink" },
-              ],
-              supportsFastMode: true,
-              supportsThinkingToggle: false,
-              contextWindowOptions: [],
-              promptInjectedEffortLevels: ["ultrathink"],
-            },
-          },
-          {
-            slug: "claude-haiku-4-5",
-            name: "Claude Haiku 4.5",
-            isCustom: false,
-            capabilities: {
-              reasoningEffortLevels: [],
-              supportsFastMode: false,
-              supportsThinkingToggle: true,
-              contextWindowOptions: [],
-              promptInjectedEffortLevels: [],
-            },
-          },
-          {
-            slug: "claude-sonnet-4-6",
-            name: "Claude Sonnet 4.6",
-            isCustom: false,
-            capabilities: {
-              reasoningEffortLevels: [
-                { value: "low", label: "Low" },
-                { value: "medium", label: "Medium" },
-                { value: "high", label: "High", isDefault: true },
-                { value: "ultrathink", label: "Ultrathink" },
-              ],
-              supportsFastMode: false,
-              supportsThinkingToggle: false,
-              contextWindowOptions: [],
-              promptInjectedEffortLevels: ["ultrathink"],
-            },
-          },
-        ]
-      : [
-          {
-            slug: "gpt-5.4",
-            name: "GPT-5.4",
-            isCustom: false,
-            capabilities: {
-              reasoningEffortLevels: [
-                { value: "xhigh", label: "Extra High" },
-                { value: "high", label: "High", isDefault: true },
-              ],
-              supportsFastMode: true,
-              supportsThinkingToggle: false,
-              contextWindowOptions: [],
-              promptInjectedEffortLevels: [],
-            },
-          },
-        ];
+  const models = [
+    {
+      slug: "gpt-5.4",
+      name: "GPT-5.4",
+      isCustom: false,
+      capabilities: {
+        reasoningEffortLevels: [
+          { value: "xhigh", label: "Extra High" },
+          { value: "high", label: "High", isDefault: true },
+          { value: "medium", label: "Medium" },
+          { value: "low", label: "Low" },
+        ],
+        supportsFastMode: false,
+        supportsThinkingToggle: false,
+        contextWindowOptions: [],
+        promptInjectedEffortLevels: [],
+      },
+    },
+    {
+      slug: "gpt-5.4-mini",
+      name: "GPT-5.4 Mini",
+      isCustom: false,
+      capabilities: {
+        reasoningEffortLevels: [],
+        supportsFastMode: false,
+        supportsThinkingToggle: false,
+        contextWindowOptions: [],
+        promptInjectedEffortLevels: [],
+      },
+    },
+  ];
   const screen = await render(
     <CompactComposerControlsMenu
       activePlan={false}
@@ -157,36 +120,43 @@ describe("CompactComposerControlsMenu", () => {
     });
   });
 
-  it("shows fast mode controls for Opus", async () => {
+  it("shows the provided reasoning effort options for copilot", async () => {
     await using _ = await mountMenu({
-      modelSelection: { provider: "claudeAgent", model: "claude-opus-4-6" },
+      modelSelection: { provider: "copilot", model: "gpt-5.4" },
     });
 
     await page.getByLabelText("More composer controls").click();
 
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
-      expect(text).toContain("Fast Mode");
-      expect(text).toContain("off");
-      expect(text).toContain("on");
+      expect(text).toContain("Extra High");
+      expect(text).toContain("High");
+      expect(text).toContain("Medium");
+      expect(text).toContain("Low");
     });
   });
 
-  it("hides fast mode controls for non-Opus Claude models", async () => {
+  it("renders without effort controls for models without effort levels", async () => {
     await using _ = await mountMenu({
-      modelSelection: { provider: "claudeAgent", model: "claude-sonnet-4-6" },
+      modelSelection: { provider: "copilot", model: "gpt-5.4-mini" },
     });
 
     await page.getByLabelText("More composer controls").click();
 
     await vi.waitFor(() => {
-      expect(document.body.textContent ?? "").not.toContain("Fast Mode");
+      const text = document.body.textContent ?? "";
+      expect(text).not.toContain("Extra High");
+      expect(text).not.toContain("Low");
     });
   });
 
-  it("shows only the provided effort options", async () => {
+  it("renders with explicit reasoning effort option", async () => {
     await using _ = await mountMenu({
-      modelSelection: { provider: "claudeAgent", model: "claude-sonnet-4-6" },
+      modelSelection: {
+        provider: "copilot",
+        model: "gpt-5.4",
+        options: { reasoningEffort: "low" },
+      },
     });
 
     await page.getByLabelText("More composer controls").click();
@@ -194,68 +164,7 @@ describe("CompactComposerControlsMenu", () => {
     await vi.waitFor(() => {
       const text = document.body.textContent ?? "";
       expect(text).toContain("Low");
-      expect(text).toContain("Medium");
       expect(text).toContain("High");
-      expect(text).not.toContain("Max");
-      expect(text).toContain("Ultrathink");
-    });
-  });
-
-  it("shows a Claude thinking on/off section for Haiku", async () => {
-    await using _ = await mountMenu({
-      modelSelection: {
-        provider: "claudeAgent",
-        model: "claude-haiku-4-5",
-        options: { thinking: true },
-      },
-    });
-
-    await page.getByLabelText("More composer controls").click();
-
-    await vi.waitFor(() => {
-      const text = document.body.textContent ?? "";
-      expect(text).toContain("Thinking");
-      expect(text).toContain("On (default)");
-      expect(text).toContain("Off");
-    });
-  });
-
-  it("shows prompt-controlled Ultrathink state with selectable effort controls", async () => {
-    await using _ = await mountMenu({
-      modelSelection: {
-        provider: "claudeAgent",
-        model: "claude-opus-4-6",
-        options: { effort: "high" },
-      },
-      prompt: "Ultrathink:\nInvestigate this",
-    });
-
-    await page.getByLabelText("More composer controls").click();
-
-    await vi.waitFor(() => {
-      const text = document.body.textContent ?? "";
-      expect(text).toContain("Effort");
-      expect(text).not.toContain("ultrathink");
-    });
-  });
-
-  it("warns when ultrathink appears in prompt body text", async () => {
-    await using _ = await mountMenu({
-      modelSelection: {
-        provider: "claudeAgent",
-        model: "claude-opus-4-6",
-        options: { effort: "high" },
-      },
-      prompt: "Ultrathink:\nplease ultrathink about this problem",
-    });
-
-    await page.getByLabelText("More composer controls").click();
-
-    await vi.waitFor(() => {
-      const text = document.body.textContent ?? "";
-      expect(text).toContain(
-        'Your prompt contains "ultrathink" in the text. Remove it to change effort.',
-      );
     });
   });
 });

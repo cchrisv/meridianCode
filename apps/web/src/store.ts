@@ -1,4 +1,5 @@
 import {
+  DEFAULT_PROVIDER_KIND,
   type OrchestrationEvent,
   type OrchestrationMessage,
   type OrchestrationProposedPlan,
@@ -80,9 +81,9 @@ function updateProject(
   return changed ? next : projects;
 }
 
-function normalizeModelSelection<T extends { provider: "codex" | "claudeAgent"; model: string }>(
-  selection: T,
-): T {
+function normalizeModelSelection<
+  T extends { provider: "copilot"; model: string },
+>(selection: T): T {
   return {
     ...selection,
     model: resolveModelSlugForProvider(selection.provider, selection.model),
@@ -493,10 +494,10 @@ function toLegacySessionStatus(
 }
 
 function toLegacyProvider(providerName: string | null): ProviderKind {
-  if (providerName === "codex" || providerName === "claudeAgent") {
+  if (providerName === "copilot") {
     return providerName;
   }
-  return "codex";
+  return DEFAULT_PROVIDER_KIND;
 }
 
 function resolveWsHttpOrigin(): string {
@@ -1078,6 +1079,7 @@ export function applyOrchestrationEvent(state: AppState, event: OrchestrationEve
 
     case "thread.approval-response-requested":
     case "thread.user-input-response-requested":
+    case "thread.context-compact-requested":
       return state;
   }
 

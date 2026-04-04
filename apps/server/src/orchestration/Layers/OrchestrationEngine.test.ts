@@ -102,7 +102,7 @@ describe("OrchestrationEngine", () => {
           title: "Bootstrap Project",
           workspaceRoot: "/tmp/project-bootstrap",
           defaultModelSelection: {
-            provider: "codex" as const,
+            provider: "copilot" as const,
             model: "gpt-5-codex",
           },
           scripts: [],
@@ -117,7 +117,7 @@ describe("OrchestrationEngine", () => {
           projectId: asProjectId("project-bootstrap"),
           title: "Bootstrap Thread",
           modelSelection: {
-            provider: "codex" as const,
+            provider: "copilot" as const,
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -186,7 +186,7 @@ describe("OrchestrationEngine", () => {
         title: "Project 1",
         workspaceRoot: "/tmp/project-1",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -200,7 +200,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-1"),
         title: "Thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -246,7 +246,7 @@ describe("OrchestrationEngine", () => {
         title: "Project Archive",
         workspaceRoot: "/tmp/project-archive",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -260,7 +260,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-archive"),
         title: "Archive me",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -313,7 +313,7 @@ describe("OrchestrationEngine", () => {
         title: "Replay Project",
         workspaceRoot: "/tmp/project-replay",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -327,7 +327,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-replay"),
         title: "replay",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -371,7 +371,7 @@ describe("OrchestrationEngine", () => {
         title: "Stream Project",
         workspaceRoot: "/tmp/project-stream",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -395,7 +395,7 @@ describe("OrchestrationEngine", () => {
           projectId: asProjectId("project-stream"),
           title: "domain-stream",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -432,7 +432,7 @@ describe("OrchestrationEngine", () => {
         title: "Ack Project",
         workspaceRoot: "/tmp/project-ack",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -447,7 +447,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-ack"),
         title: "Ack Thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -484,7 +484,7 @@ describe("OrchestrationEngine", () => {
           projectId: asProjectId("project-missing"),
           title: "Missing Project Thread",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -521,7 +521,7 @@ describe("OrchestrationEngine", () => {
         title: "Turn Diff Project",
         workspaceRoot: "/tmp/project-turn-diff",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -535,7 +535,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-turn-diff"),
         title: "Turn diff thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -639,7 +639,7 @@ describe("OrchestrationEngine", () => {
         title: "Flaky Project",
         workspaceRoot: "/tmp/project-flaky",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -655,7 +655,7 @@ describe("OrchestrationEngine", () => {
           projectId: asProjectId("project-flaky"),
           title: "flaky-fail",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -675,7 +675,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-flaky"),
         title: "flaky-ok",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -733,7 +733,7 @@ describe("OrchestrationEngine", () => {
         title: "Atomic Project",
         workspaceRoot: "/tmp/project-atomic",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -747,7 +747,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-atomic"),
         title: "atomic",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -875,7 +875,7 @@ describe("OrchestrationEngine", () => {
         title: "Sync Project",
         workspaceRoot: "/tmp/project-sync",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -889,7 +889,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-sync"),
         title: "sync-before",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -960,7 +960,7 @@ describe("OrchestrationEngine", () => {
         title: "Duplicate Project",
         workspaceRoot: "/tmp/project-duplicate",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -975,7 +975,7 @@ describe("OrchestrationEngine", () => {
         projectId: asProjectId("project-duplicate"),
         title: "duplicate",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -995,7 +995,7 @@ describe("OrchestrationEngine", () => {
           projectId: asProjectId("project-duplicate"),
           title: "duplicate",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,

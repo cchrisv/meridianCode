@@ -71,8 +71,15 @@ const rpcClientMock = {
     upsertKeybinding: vi.fn(),
     getSettings: vi.fn(),
     updateSettings: vi.fn(),
+    validateKnowledgeRoot: vi.fn(),
+    getKnowledgeStatus: vi.fn(),
+    syncKnowledge: vi.fn(),
     subscribeConfig: vi.fn(),
     subscribeLifecycle: vi.fn(),
+  },
+  knowledge: {
+    listTree: vi.fn(),
+    readFile: vi.fn(),
   },
   orchestration: {
     getSnapshot: vi.fn(),
@@ -141,7 +148,7 @@ function makeDesktopBridge(overrides: Partial<DesktopBridge> = {}): DesktopBridg
 
 const defaultProviders: ReadonlyArray<ServerProvider> = [
   {
-    provider: "codex",
+    provider: "copilot",
     enabled: true,
     installed: true,
     version: "0.116.0",
@@ -229,7 +236,7 @@ describe("wsNativeApi", () => {
         title: "Project",
         workspaceRoot: "/tmp/workspace",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         scripts: [],
@@ -255,7 +262,7 @@ describe("wsNativeApi", () => {
       title: "Project",
       workspaceRoot: "/tmp/project",
       defaultModelSelection: {
-        provider: "codex",
+        provider: "copilot",
         model: "gpt-5-codex",
       },
       createdAt: "2026-02-24T00:00:00.000Z",

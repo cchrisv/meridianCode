@@ -1,4 +1,11 @@
-import type { OrchestrationThreadActivity, ThreadTokenUsageSnapshot } from "@t3tools/contracts";
+import type {
+  ModelCapabilities,
+  OrchestrationThreadActivity,
+  ProviderKind,
+  ProviderModelOptions,
+  ThreadTokenUsageSnapshot,
+} from "@t3tools/contracts";
+
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" ? (value as Record<string, unknown>) : null;
@@ -23,7 +30,80 @@ export type ContextWindowSnapshot = NullableContextWindowUsage & {
   readonly usedPercentage: number | null;
   readonly remainingPercentage: number | null;
   readonly updatedAt: string;
+  /** When `maxTokens` was inferred from model context-window settings (not provider-reported). */
+  readonly maxTokensIsEstimated?: boolean;
 };
+
+/** Parse options like `200k`, `1m` into a token count for display-only estimates. */
+export function parseContextWindowOptionToMaxTokens(
+  value: string | null | undefined,
+): number | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  const normalized = value.trim().toLowerCase();
+  const match = /^([0-9]+(?:\.[0-9]+)?)\s*([km])?$/.exec(normalized);
+  if (!match) {
+    return null;
+  }
+  const n = Number(match[1]);
+  if (!Number.isFinite(n)) {
+    return null;
+  }
+  const suffix = match[2];
+  if (suffix === "k") {
+    return Math.round(n * 1000);
+  }
+  if (suffix === "m") {
+    return Math.round(n * 1_000_000);
+  }
+  return Math.round(n);
+}
+
+export function resolveEstimatedMaxTokensFromComposerModel(input: {
+  readonly provider: ProviderKind;
+  readonly modelOptions: ProviderModelOptions | null | undefined;
+  readonly caps: ModelCapabilities;
+}): number | null {
+  const opts = input.caps.contextWindowOptions;
+  if (opts.length === 1) {
+    return parseContextWindowOptionToMaxTokens(opts[0]?.value);
+  }
+  const def = opts.find((o) => o.isDefault);
+  if (def) {
+    return parseContextWindowOptionToMaxTokens(def.value);
+  }
+  return null;
+}
+
+export function mergeContextWindowSnapshotWithEstimatedMax(
+  snapshot: ContextWindowSnapshot,
+  estimatedMaxTokens: number | null,
+): ContextWindowSnapshot {
+  if (
+    estimatedMaxTokens === null ||
+    !Number.isFinite(estimatedMaxTokens) ||
+    estimatedMaxTokens <= 0 ||
+    snapshot.maxTokens !== null
+  ) {
+    return snapshot;
+  }
+
+  const maxTokens = Math.round(estimatedMaxTokens);
+  const usedTokens = snapshot.usedTokens;
+  const usedPercentage = Math.min(100, (usedTokens / maxTokens) * 100);
+  const remainingTokens = Math.max(0, Math.round(maxTokens - usedTokens));
+  const remainingPercentage = Math.max(0, 100 - usedPercentage);
+
+  return {
+    ...snapshot,
+    maxTokens,
+    usedPercentage,
+    remainingTokens,
+    remainingPercentage,
+    maxTokensIsEstimated: true,
+  };
+}
 
 export function deriveLatestContextWindowSnapshot(
   activities: ReadonlyArray<OrchestrationThreadActivity>,

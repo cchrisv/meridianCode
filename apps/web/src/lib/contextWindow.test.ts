@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { EventId, type OrchestrationThreadActivity, TurnId } from "@t3tools/contracts";
 
-import { deriveLatestContextWindowSnapshot, formatContextWindowTokens } from "./contextWindow";
+import type { ModelCapabilities } from "@t3tools/contracts";
+
+import {
+  deriveLatestContextWindowSnapshot,
+  formatContextWindowTokens,
+  mergeContextWindowSnapshotWithEstimatedMax,
+  parseContextWindowOptionToMaxTokens,
+  resolveEstimatedMaxTokensFromComposerModel,
+} from "./contextWindow";
 
 function makeActivity(id: string, kind: string, payload: unknown): OrchestrationThreadActivity {
   return {
@@ -63,5 +71,44 @@ describe("contextWindow", () => {
 
     expect(snapshot?.usedTokens).toBe(81_659);
     expect(snapshot?.totalProcessedTokens).toBe(748_126);
+  });
+
+  it("parses context window option tokens", () => {
+    expect(parseContextWindowOptionToMaxTokens("200k")).toBe(200_000);
+    expect(parseContextWindowOptionToMaxTokens("1.5m")).toBe(1_500_000);
+    expect(parseContextWindowOptionToMaxTokens(null)).toBeNull();
+  });
+
+  it("merges estimated max tokens when provider omits max", () => {
+    const base = deriveLatestContextWindowSnapshot([
+      makeActivity("activity-1", "context-window.updated", {
+        usedTokens: 50_000,
+      }),
+    ]);
+    expect(base).not.toBeNull();
+    const merged = mergeContextWindowSnapshotWithEstimatedMax(base!, 200_000);
+    expect(merged.maxTokens).toBe(200_000);
+    expect(merged.maxTokensIsEstimated).toBe(true);
+    expect(merged.usedPercentage).toBeCloseTo(25, 5);
+  });
+
+  it("resolves estimated max from default context window option", () => {
+    const caps: ModelCapabilities = {
+      reasoningEffortLevels: [],
+      supportsFastMode: false,
+      supportsThinkingToggle: false,
+      contextWindowOptions: [
+        { value: "200k", label: "200k", isDefault: true },
+        { value: "1m", label: "1M" },
+      ],
+      promptInjectedEffortLevels: [],
+    };
+    expect(
+      resolveEstimatedMaxTokensFromComposerModel({
+        provider: "copilot",
+        modelOptions: { copilot: { reasoningEffort: "high" } },
+        caps,
+      }),
+    ).toBe(200_000);
   });
 });

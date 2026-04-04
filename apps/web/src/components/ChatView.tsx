@@ -1,7 +1,7 @@
 import {
   type ApprovalRequestId,
   DEFAULT_MODEL_BY_PROVIDER,
-  type ClaudeCodeEffort,
+  DEFAULT_PROVIDER_KIND,
   type MessageId,
   type ModelSelection,
   type ProjectScript,
@@ -9,6 +9,7 @@ import {
   type ProjectEntry,
   type ProjectId,
   type ProviderApprovalDecision,
+  PROVIDER_DISPLAY_NAMES,
   PROVIDER_SEND_TURN_MAX_ATTACHMENTS,
   PROVIDER_SEND_TURN_MAX_IMAGE_BYTES,
   type ServerProvider,
@@ -143,7 +144,11 @@ import {
   type TerminalContextDraft,
   type TerminalContextSelection,
 } from "../lib/terminalContext";
-import { deriveLatestContextWindowSnapshot } from "../lib/contextWindow";
+import {
+  deriveLatestContextWindowSnapshot,
+  mergeContextWindowSnapshotWithEstimatedMax,
+  resolveEstimatedMaxTokensFromComposerModel,
+} from "../lib/contextWindow";
 import {
   resolveComposerFooterContentWidth,
   shouldForceCompactComposerFooterForFit,
@@ -157,7 +162,7 @@ import { MessagesTimeline } from "./chat/MessagesTimeline";
 import { ChatHeader } from "./chat/ChatHeader";
 import { ContextWindowMeter } from "./chat/ContextWindowMeter";
 import { buildExpandedImagePreview, ExpandedImagePreview } from "./chat/ExpandedImagePreview";
-import { AVAILABLE_PROVIDER_OPTIONS, ProviderModelPicker } from "./chat/ProviderModelPicker";
+import { ProviderModelPicker } from "./chat/ProviderModelPicker";
 import { ComposerCommandItem, ComposerCommandMenu } from "./chat/ComposerCommandMenu";
 import { ComposerPendingApprovalActions } from "./chat/ComposerPendingApprovalActions";
 import { CompactComposerControlsMenu } from "./chat/CompactComposerControlsMenu";
@@ -293,7 +298,7 @@ function formatOutgoingPrompt(params: {
 }): string {
   const caps = getProviderModelCapabilities(params.models, params.model, params.provider);
   if (params.effort && caps.promptInjectedEffortLevels.includes(params.effort)) {
-    return applyClaudePromptEffortPrefix(params.text, params.effort as ClaudeCodeEffort | null);
+    return applyClaudePromptEffortPrefix(params.text, params.effort);
   }
   return params.text;
 }
@@ -651,6 +656,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
   >({});
   const [isConnecting, _setIsConnecting] = useState(false);
   const [isRevertingCheckpoint, setIsRevertingCheckpoint] = useState(false);
+  const [contextCompactPending, setContextCompactPending] = useState(false);
   const [respondingRequestIds, setRespondingRequestIds] = useState<ApprovalRequestId[]>([]);
   const [respondingUserInputRequestIds, setRespondingUserInputRequestIds] = useState<
     ApprovalRequestId[]
@@ -812,8 +818,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
             threadId,
             draftThread,
             fallbackDraftProject?.defaultModelSelection ?? {
-              provider: "codex",
-              model: DEFAULT_MODEL_BY_PROVIDER.codex,
+              provider: DEFAULT_PROVIDER_KIND,
+              model: DEFAULT_MODEL_BY_PROVIDER[DEFAULT_PROVIDER_KIND],
             },
             localDraftError,
           )
@@ -847,10 +853,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
       }
       return threadIds;
     }, [activeLatestTurn?.sourceProposedPlan?.threadId, activeThread?.id]),
-  );
-  const activeContextWindow = useMemo(
-    () => deriveLatestContextWindowSnapshot(activeThread?.activities ?? []),
-    [activeThread?.activities],
   );
   useEffect(() => {
     setMountedTerminalThreadIds((currentThreadIds) => {
@@ -891,7 +893,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const openOrReuseProjectDraftThread = useCallback(
     async (input: { branch: string; worktreePath: string | null; envMode: DraftThreadEnvMode }) => {
       if (!activeProject) {
-        throw new Error("No active project is available for this pull request.");
+        throw new Error("No active feature is available for this pull request.");
       }
       const storedDraftThread = getDraftThreadByProjectId(activeProject.id);
       if (storedDraftThread) {
@@ -992,7 +994,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const providerStatuses = serverConfig?.providers ?? EMPTY_PROVIDERS;
   const unlockedSelectedProvider = resolveSelectableProvider(
     providerStatuses,
-    selectedProviderByThreadId ?? threadProvider ?? "codex",
+    selectedProviderByThreadId ?? threadProvider ?? DEFAULT_PROVIDER_KIND,
   );
   const selectedProvider: ProviderKind = lockedProvider ?? unlockedSelectedProvider;
   const { modelOptions: composerModelOptions, selectedModel } = useEffectiveComposerModelState({
@@ -1018,15 +1020,30 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const selectedPromptEffort = composerProviderState.promptEffort;
   const selectedModelOptionsForDispatch = composerProviderState.modelOptionsForDispatch;
   const selectedModelSelection = useMemo<ModelSelection>(
-    () => ({
-      provider: selectedProvider,
-      model: selectedModel,
-      ...(selectedModelOptionsForDispatch ? { options: selectedModelOptionsForDispatch } : {}),
-    }),
+    () =>
+      ({
+        provider: selectedProvider,
+        model: selectedModel,
+        ...(selectedModelOptionsForDispatch ? { options: selectedModelOptionsForDispatch } : {}),
+      }) as ModelSelection,
     [selectedModel, selectedModelOptionsForDispatch, selectedProvider],
   );
   const selectedModelForPicker = selectedModel;
   const phase = derivePhase(activeThread?.session ?? null);
+  const selectedModelCapabilities = useMemo(
+    () => getProviderModelCapabilities(selectedProviderModels, selectedModel, selectedProvider),
+    [selectedModel, selectedProvider, selectedProviderModels],
+  );
+  const activeContextWindow = useMemo(() => {
+    const raw = deriveLatestContextWindowSnapshot(activeThread?.activities ?? []);
+    if (!raw) return null;
+    const est = resolveEstimatedMaxTokensFromComposerModel({
+      provider: selectedProvider,
+      modelOptions: composerModelOptions,
+      caps: selectedModelCapabilities,
+    });
+    return mergeContextWindowSnapshotWithEstimatedMax(raw, est);
+  }, [activeThread?.activities, composerModelOptions, selectedModelCapabilities, selectedProvider]);
   const threadActivities = activeThread?.activities ?? EMPTY_ACTIVITIES;
   const workLogEntries = useMemo(
     () => deriveWorkLogEntries(threadActivities, activeLatestTurn?.turnId ?? undefined),
@@ -1400,9 +1417,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const availableEditors = useServerAvailableEditors();
   const modelOptionsByProvider = useMemo(
     () => ({
-      codex: providerStatuses.find((provider) => provider.provider === "codex")?.models ?? [],
-      claudeAgent:
-        providerStatuses.find((provider) => provider.provider === "claudeAgent")?.models ?? [],
+      copilot: providerStatuses.find((provider) => provider.provider === "copilot")?.models ?? [],
     }),
     [providerStatuses],
   );
@@ -1412,11 +1427,13 @@ export default function ChatView({ threadId }: ChatViewProps) {
       ? selectedModelForPicker
       : (normalizeModelSlug(selectedModelForPicker, selectedProvider) ?? selectedModelForPicker);
   }, [modelOptionsByProvider, selectedModelForPicker, selectedProvider]);
-  const searchableModelOptions = useMemo(
-    () =>
-      AVAILABLE_PROVIDER_OPTIONS.filter(
-        (option) => lockedProvider === null || option.value === lockedProvider,
-      ).flatMap((option) =>
+  const searchableModelOptions = useMemo(() => {
+    const providers: ReadonlyArray<{ value: ProviderKind; label: string }> = [
+      { value: "copilot", label: PROVIDER_DISPLAY_NAMES.copilot },
+    ];
+    return providers
+      .filter((option) => lockedProvider === null || option.value === lockedProvider)
+      .flatMap((option) =>
         modelOptionsByProvider[option.value].map(({ slug, name }) => ({
           provider: option.value,
           providerLabel: option.label,
@@ -1426,9 +1443,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
           searchName: name.toLowerCase(),
           searchProvider: option.label.toLowerCase(),
         })),
-      ),
-    [lockedProvider, modelOptionsByProvider],
-  );
+      );
+  }, [lockedProvider, modelOptionsByProvider]);
   const workspaceEntriesQuery = useQuery(
     projectSearchEntriesQueryOptions({
       cwd: gitCwd,
@@ -2994,14 +3010,14 @@ export default function ChatView({ threadId }: ChatViewProps) {
         }
       }
       const title = truncate(titleSeed);
-      const threadCreateModelSelection: ModelSelection = {
+      const threadCreateModelSelection = {
         provider: selectedProvider,
         model:
           selectedModel ||
           activeProject.defaultModelSelection?.model ||
-          DEFAULT_MODEL_BY_PROVIDER.codex,
+          DEFAULT_MODEL_BY_PROVIDER[DEFAULT_PROVIDER_KIND],
         ...(selectedModelSelection.options ? { options: selectedModelSelection.options } : {}),
-      };
+      } as ModelSelection;
 
       if (isLocalDraftThread) {
         await api.orchestration.dispatchCommand({
@@ -3136,6 +3152,28 @@ export default function ChatView({ threadId }: ChatViewProps) {
       createdAt: new Date().toISOString(),
     });
   };
+
+  const onCompactContext = useCallback(async () => {
+    const api = readNativeApi();
+    if (!api || !activeThread?.id || !isServerThread) return;
+    // Compact context is available for copilot provider.
+    setContextCompactPending(true);
+    try {
+      await api.orchestration.dispatchCommand({
+        type: "thread.context.compact",
+        commandId: newCommandId(),
+        threadId: activeThread.id,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err: unknown) {
+      setThreadError(
+        activeThread.id,
+        err instanceof Error ? err.message : "Failed to compact conversation.",
+      );
+    } finally {
+      setContextCompactPending(false);
+    }
+  }, [activeThread, isServerThread, selectedProvider, setThreadError]);
 
   const onRespondToApproval = useCallback(
     async (requestId: ApprovalRequestId, decision: ProviderApprovalDecision) => {
@@ -4362,7 +4400,18 @@ export default function ChatView({ threadId }: ChatViewProps) {
                         className="flex shrink-0 flex-nowrap items-center justify-end gap-2"
                       >
                         {activeContextWindow ? (
-                          <ContextWindowMeter usage={activeContextWindow} />
+                          <ContextWindowMeter
+                            compactDisabled={
+                              !isServerThread ||
+                              phase === "running" ||
+                              isConnecting ||
+                              isPreparingWorktree
+                            }
+                            compactPending={contextCompactPending}
+                            compactSupported={true}
+                            usage={activeContextWindow}
+                            onCompact={onCompactContext}
+                          />
                         ) : null}
                         {isPreparingWorktree ? (
                           <span className="text-muted-foreground/70 text-xs">

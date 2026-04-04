@@ -39,16 +39,16 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       const initialThreadId = ThreadId.makeUnsafe("thread-1");
 
       yield* directory.upsert({
-        provider: "codex",
+        provider: "copilot",
         threadId: initialThreadId,
       });
 
       const provider = yield* directory.getProvider(initialThreadId);
-      assert.equal(provider, "codex");
+      assert.equal(provider, "copilot");
       const resolvedBinding = yield* directory.getBinding(initialThreadId);
       assertSome(resolvedBinding, {
         threadId: initialThreadId,
-        provider: "codex",
+        provider: "copilot",
       });
       if (Option.isSome(resolvedBinding)) {
         assert.equal(resolvedBinding.value.threadId, initialThreadId);
@@ -57,7 +57,7 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       const nextThreadId = ThreadId.makeUnsafe("thread-2");
 
       yield* directory.upsert({
-        provider: "codex",
+        provider: "copilot",
         threadId: nextThreadId,
       });
       const updatedBinding = yield* directory.getBinding(nextThreadId);
@@ -71,7 +71,7 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       if (Option.isSome(runtime)) {
         assert.equal(runtime.value.threadId, nextThreadId);
         assert.equal(runtime.value.status, "running");
-        assert.equal(runtime.value.providerName, "codex");
+        assert.equal(runtime.value.providerName, "copilot");
       }
 
       const threadIds = yield* directory.listThreadIds();
@@ -96,7 +96,7 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       const threadId = ThreadId.makeUnsafe("thread-runtime");
 
       yield* directory.upsert({
-        provider: "codex",
+        provider: "copilot",
         threadId,
         status: "starting",
         resumeCursor: {
@@ -109,7 +109,7 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       });
 
       yield* directory.upsert({
-        provider: "codex",
+        provider: "copilot",
         threadId,
         status: "running",
         runtimePayload: {
@@ -141,8 +141,8 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
 
       yield* runtimeRepository.upsert({
         threadId,
-        providerName: "claudeAgent",
-        adapterKey: "claudeAgent",
+        providerName: "copilot",
+        adapterKey: "copilot",
         runtimeMode: "full-access",
         status: "running",
         lastSeenAt: new Date().toISOString(),
@@ -151,15 +151,15 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       });
 
       yield* directory.upsert({
-        provider: "codex",
+        provider: "copilot",
         threadId,
       });
 
       const runtime = yield* runtimeRepository.getByThreadId({ threadId });
       assert.equal(Option.isSome(runtime), true);
       if (Option.isSome(runtime)) {
-        assert.equal(runtime.value.providerName, "codex");
-        assert.equal(runtime.value.adapterKey, "codex");
+        assert.equal(runtime.value.providerName, "copilot");
+        assert.equal(runtime.value.adapterKey, "copilot");
       }
     }));
 
@@ -174,7 +174,7 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
       yield* Effect.gen(function* () {
         const directory = yield* ProviderSessionDirectory;
         yield* directory.upsert({
-          provider: "codex",
+          provider: "copilot",
           threadId,
         });
       }).pipe(Effect.provide(directoryLayer));
@@ -183,12 +183,12 @@ it.layer(makeDirectoryLayer(SqlitePersistenceMemory))("ProviderSessionDirectoryL
         const directory = yield* ProviderSessionDirectory;
         const sql = yield* SqlClient.SqlClient;
         const provider = yield* directory.getProvider(threadId);
-        assert.equal(provider, "codex");
+        assert.equal(provider, "copilot");
 
         const resolvedBinding = yield* directory.getBinding(threadId);
         assertSome(resolvedBinding, {
           threadId,
-          provider: "codex",
+          provider: "copilot",
         });
         if (Option.isSome(resolvedBinding)) {
           assert.equal(resolvedBinding.value.threadId, threadId);

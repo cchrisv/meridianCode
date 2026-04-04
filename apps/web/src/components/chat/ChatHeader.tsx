@@ -7,9 +7,13 @@ import {
   type CopilotPhase,
 } from "@t3tools/contracts";
 import { memo, useState } from "react";
-import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon } from "lucide-react";
+import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon, LinkIcon } from "lucide-react";
+import { createPortal } from "react-dom";
 import { StageIndicator } from "../ticket/StageIndicator";
 import { ContextDrawer } from "../ticket/ContextDrawer";
+import { ensureNativeApi } from "../../nativeApi";
+import { newCommandId } from "../../lib/utils";
+import { toastManager } from "../ui/toast";
 import GitActionsControl from "../GitActionsControl";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -124,9 +128,11 @@ export const ChatHeader = memo(function ChatHeader({
             <TooltipPopup side="bottom">Prompts</TooltipPopup>
           </Tooltip>
         )}
-        {/* Meridian: work item context button */}
-        {workItemId && (
+        {/* Meridian: work item context button OR link button */}
+        {workItemId ? (
           <WorkItemContextButton workItemId={workItemId} workItemType={workItemType} />
+        ) : (
+          <LinkWorkItemButton threadId={activeThreadId} />
         )}
         {activeProjectScripts && (
           <ProjectScriptsControl
@@ -251,6 +257,90 @@ function WorkItemContextButton({
         open={contextOpen}
         onClose={() => setContextOpen(false)}
       />
+    </>
+  );
+}
+
+// ── Link Work Item Button ────────────────────────────────────────────
+
+function LinkWorkItemButton({ threadId }: { threadId: ThreadId }) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [workItemId, setWorkItemId] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = workItemId.trim();
+    if (!trimmed) return;
+    setLoading(true);
+    try {
+      const api = ensureNativeApi();
+      await api.orchestration.dispatchCommand({
+        type: "thread.link-work-item",
+        commandId: newCommandId(),
+        threadId,
+        workItemId: trimmed,
+        workItemType: null,
+        workItemStage: null,
+        copilotPhase: null,
+      } as any);
+      toastManager.add({ type: "success" as const, title: "Linked", description: `#${trimmed}` });
+      setDialogOpen(false);
+      setWorkItemId("");
+    } catch {
+      // silent
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Toggle
+              className="shrink-0"
+              pressed={false}
+              onPressedChange={() => setDialogOpen(true)}
+              aria-label="Link to work item"
+              variant="outline"
+              size="xs"
+            >
+              <LinkIcon className="size-3" />
+            </Toggle>
+          }
+        />
+        <TooltipPopup side="bottom">Link to work item</TooltipPopup>
+      </Tooltip>
+
+      {dialogOpen &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50"
+            onClick={(e) => { if (e.target === e.currentTarget) setDialogOpen(false); }}
+          >
+            <div className="w-full max-w-sm rounded-lg border border-border bg-card p-6 shadow-lg">
+              <h2 className="text-lg font-semibold text-foreground">Link to Work Item</h2>
+              <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-3">
+                <input
+                  type="text"
+                  placeholder="Work item ID (e.g., 269688)"
+                  value={workItemId}
+                  onChange={(e) => setWorkItemId(e.target.value)}
+                  className="rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                  autoFocus
+                  disabled={loading}
+                />
+                <div className="flex justify-end gap-2">
+                  <button type="button" onClick={() => setDialogOpen(false)} className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground" disabled={loading}>Cancel</button>
+                  <button type="submit" disabled={!workItemId.trim() || loading} className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-50">{loading ? "Linking..." : "Link"}</button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )}
     </>
   );
 }

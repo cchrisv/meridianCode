@@ -1834,6 +1834,15 @@ export default function Sidebar() {
                   );
                 })}
                 {/* Ungrouped threads */}
+                {ungrouped.length > 0 && workItemGroups.size > 0 && (
+                  <SidebarMenuSubItem className="w-full">
+                    <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-muted-foreground/50">
+                      <span className="h-px flex-1 bg-border/50" />
+                      <span>Threads</span>
+                      <span className="h-px flex-1 bg-border/50" />
+                    </div>
+                  </SidebarMenuSubItem>
+                )}
                 {ungrouped.map((tid) => (
                   <SidebarThreadRow {...threadRowProps(tid)} />
                 ))}

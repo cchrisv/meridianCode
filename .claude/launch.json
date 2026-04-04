@@ -13,5 +13,6 @@
       "runtimeArgs": ["run", "dev:web"],
       "port": 5733
     }
-  ]
+  ],
+  "autoVerify": true
 }

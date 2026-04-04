@@ -42,6 +42,7 @@ import { WorkspaceEntriesLive } from "./workspace/Layers/WorkspaceEntries";
 import { WorkspaceFileSystemLive } from "./workspace/Layers/WorkspaceFileSystem";
 import { WorkspacePathsLive } from "./workspace/Layers/WorkspacePaths";
 import { ObservabilityLive } from "./observability/Layers/Observability";
+import { TicketServiceLive } from "./ticket/Layers/TicketServiceLive";
 
 const PtyAdapterLive = Layer.unwrap(
   Effect.gen(function* () {
@@ -194,6 +195,7 @@ const RuntimeServicesLive = Layer.empty.pipe(
   Layer.provideMerge(AnalyticsServiceLayerLive),
   Layer.provideMerge(OpenLive),
   Layer.provideMerge(ServerLifecycleEventsLive),
+  Layer.provideMerge(TicketServiceLive),
 );
 
 export const makeRoutesLayer = Layer.mergeAll(

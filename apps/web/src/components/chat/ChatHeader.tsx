@@ -9,11 +9,13 @@ import {
 import { memo, useState } from "react";
 import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon, LinkIcon } from "lucide-react";
 import { createPortal } from "react-dom";
+import { Popover, PopoverTrigger, PopoverPopup } from "../ui/popover";
 import { StageIndicator } from "../ticket/StageIndicator";
 import { ContextDrawer } from "../ticket/ContextDrawer";
 import { ensureNativeApi } from "../../nativeApi";
 import { newCommandId } from "../../lib/utils";
 import { toastManager } from "../ui/toast";
+import { getWsRpcClient } from "../../wsRpcClient";
 import GitActionsControl from "../GitActionsControl";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -49,7 +51,8 @@ interface ChatHeaderProps {
   onDeleteProjectScript: (scriptId: string) => Promise<void>;
   onToggleTerminal: () => void;
   onToggleDiff: () => void;
-  onOpenPrompts?: () => void;
+  /** Callback: load a named prompt and inject into composer */
+  onOpenPrompts?: (promptName: string) => void;
 }
 
 export const ChatHeader = memo(function ChatHeader({
@@ -108,25 +111,9 @@ export const ChatHeader = memo(function ChatHeader({
         )}
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2 @3xl/header-actions:gap-3">
-        {/* Meridian: Prompts button */}
+        {/* Meridian: Prompts popover */}
         {onOpenPrompts && (
-          <Tooltip>
-            <TooltipTrigger
-              render={
-                <Toggle
-                  className="shrink-0"
-                  pressed={false}
-                  onPressedChange={onOpenPrompts}
-                  aria-label="Open prompts"
-                  variant="outline"
-                  size="xs"
-                >
-                  <ZapIcon className="size-3" />
-                </Toggle>
-              }
-            />
-            <TooltipPopup side="bottom">Prompts</TooltipPopup>
-          </Tooltip>
+          <PromptsPopover onSelectPrompt={onOpenPrompts} />
         )}
         {/* Meridian: work item context button OR link button */}
         {workItemId ? (
@@ -258,6 +245,83 @@ function WorkItemContextButton({
         onClose={() => setContextOpen(false)}
       />
     </>
+  );
+}
+
+// ── Link Work Item Button ────────────────────────────────────────────
+
+// ── Prompts Popover ──────────────────────────────────────────────────
+
+interface PromptItem {
+  name: string;
+  label: string;
+  description: string;
+}
+
+function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => void }) {
+  const [prompts, setPrompts] = useState<PromptItem[]>([]);
+  const [loaded, setLoaded] = useState(false);
+
+  const loadPrompts = () => {
+    if (loaded) return;
+    const rpc = getWsRpcClient();
+    rpc.prompt
+      .list({})
+      .then((result) => {
+        setPrompts([...result.prompts]);
+        setLoaded(true);
+      })
+      .catch(() => setLoaded(true));
+  };
+
+  return (
+    <Popover onOpenChange={(open) => { if (open) loadPrompts(); }}>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <PopoverTrigger
+              render={
+                <Toggle
+                  className="shrink-0"
+                  pressed={false}
+                  aria-label="Prompts"
+                  variant="outline"
+                  size="xs"
+                />
+              }
+            >
+              <ZapIcon className="size-3" />
+            </PopoverTrigger>
+          }
+        />
+        <TooltipPopup side="bottom">Prompts</TooltipPopup>
+      </Tooltip>
+      <PopoverPopup side="bottom" align="start" className="w-72 p-0">
+        <div className="max-h-64 overflow-y-auto py-1">
+          {prompts.length === 0 && loaded && (
+            <div className="px-3 py-4 text-center text-xs text-muted-foreground">No prompts available</div>
+          )}
+          {prompts.length === 0 && !loaded && (
+            <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading...</div>
+          )}
+          {prompts.map((p) => (
+            <PopoverTrigger
+              key={p.name}
+              render={
+                <button
+                  type="button"
+                  className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-accent"
+                  onClick={() => onSelectPrompt(p.name)}
+                />
+              }
+            >
+              <span className="text-xs font-medium text-foreground">{p.label}</span>
+              <span className="text-[10px] text-muted-foreground">{p.description}</span>
+            </PopoverTrigger>
+          ))}
+        </div>
+      </PopoverPopup>
+    </Popover>
   );
 }
 

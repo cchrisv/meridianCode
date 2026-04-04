@@ -166,8 +166,7 @@ import { ProviderModelPicker } from "./chat/ProviderModelPicker";
 import { ComposerCommandItem, ComposerCommandMenu } from "./chat/ComposerCommandMenu";
 import { ComposerPendingApprovalActions } from "./chat/ComposerPendingApprovalActions";
 import { CompactComposerControlsMenu } from "./chat/CompactComposerControlsMenu";
-import { UtilityActionMenu } from "./ticket/UtilityActionMenu";
-import { UtilityWizardDialog } from "./ticket/UtilityWizardDialog";
+import { getWsRpcClient } from "../wsRpcClient";
 import { ComposerPrimaryActions } from "./chat/ComposerPrimaryActions";
 import { ComposerPendingApprovalPanel } from "./chat/ComposerPendingApprovalPanel";
 import { ComposerPendingUserInputPanel } from "./chat/ComposerPendingUserInputPanel";
@@ -659,8 +658,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const [isConnecting, _setIsConnecting] = useState(false);
   const [isRevertingCheckpoint, setIsRevertingCheckpoint] = useState(false);
   const [contextCompactPending, setContextCompactPending] = useState(false);
-  const [promptsOpen, setPromptsOpen] = useState(false);
-  const [selectedPrompt, setSelectedPrompt] = useState<import("./ticket/UtilityActionMenu").PromptItem | null>(null);
+  // Prompts are loaded directly into the composer via onOpenPrompts callback
   const [respondingRequestIds, setRespondingRequestIds] = useState<ApprovalRequestId[]>([]);
   const [respondingUserInputRequestIds, setRespondingUserInputRequestIds] = useState<
     ApprovalRequestId[]
@@ -4006,39 +4004,25 @@ export default function ChatView({ threadId }: ChatViewProps) {
           onDeleteProjectScript={deleteProjectScript}
           onToggleTerminal={toggleTerminalVisibility}
           onToggleDiff={onToggleDiff}
-          onOpenPrompts={() => setPromptsOpen(!promptsOpen)}
-        />
-        {/* Meridian: prompts dropdown anchored below header */}
-        {promptsOpen && (
-          <div className="relative">
-            <div className="absolute left-2 top-0 z-50">
-              <UtilityActionMenu
-                stage={activeThread?.workItemStage ?? null}
-                open={promptsOpen}
-                onClose={() => setPromptsOpen(false)}
-                onSelectPrompt={(prompt) => {
-                  setPromptsOpen(false);
-                  setSelectedPrompt(prompt);
-                }}
-              />
-            </div>
-          </div>
-        )}
-        {selectedPrompt && (
-          <UtilityWizardDialog
-            prompt={selectedPrompt}
-            workItemId={activeThread?.workItemId ?? null}
-            platform={null}
-            onClose={() => setSelectedPrompt(null)}
-            onSubmit={(content) => {
-              setSelectedPrompt(null);
-              promptRef.current = content;
-              setPrompt(content);
-              setComposerCursor(content.length);
+          onOpenPrompts={async (promptName: string) => {
+            // Load the prompt with auto-filled context from the current thread and inject into composer
+            try {
+              const rpc = getWsRpcClient();
+              const variables: Record<string, string> = {};
+              if (activeThread?.workItemId) {
+                variables.work_item_id = activeThread.workItemId;
+                variables.context_file = `core/.ai-artifacts/${activeThread.workItemId}/ticket-context.json`;
+              }
+              const result = await rpc.prompt.load({ name: promptName, variables });
+              promptRef.current = result.content;
+              setPrompt(result.content);
+              setComposerCursor(result.content.length);
               composerEditorRef.current?.focusAtEnd();
-            }}
-          />
-        )}
+            } catch (err) {
+              console.error("Failed to load prompt:", err);
+            }
+          }}
+        />
       </header>
 
       {/* Error banner */}

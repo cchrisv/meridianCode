@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { getWsRpcClient } from "../../wsRpcClient";
 import type { PromptItem } from "./UtilityActionMenu";
 
@@ -59,8 +60,8 @@ export function UtilityWizardDialog({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+  return createPortal(
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="w-full max-w-md rounded-lg border border-border bg-card p-6 shadow-lg">
         <h2 className="text-lg font-semibold text-foreground">{prompt.label}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{prompt.description}</p>
@@ -122,6 +123,7 @@ export function UtilityWizardDialog({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

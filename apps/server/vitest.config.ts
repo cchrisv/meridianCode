@@ -7,9 +7,17 @@ import { defineConfig, mergeConfig } from "vitest/config";
 import baseConfig from "../../vitest.config";
 
 const serverDir = path.dirname(fileURLToPath(import.meta.url));
-const copilotSdkDir = fs.realpathSync(
-  path.join(serverDir, "node_modules", "@github", "copilot-sdk"),
-);
+const copilotSdkDir = (() => {
+  const expectedPath = path.join(serverDir, "node_modules", "@github", "copilot-sdk");
+  try {
+    return fs.realpathSync(expectedPath);
+  } catch {
+    throw new Error(
+      `vitest.config: could not locate @github/copilot-sdk at ${expectedPath}. ` +
+        `Reinstall dependencies and verify the package manager created the expected node_modules entries.`,
+    );
+  }
+})();
 // Bun nests vscode-jsonrpc next to `@github/copilot-sdk` under the `.bun` package `node_modules/`.
 const vscodeJsonRpcNodeEntry = path.join(copilotSdkDir, "..", "..", "vscode-jsonrpc", "node.js");
 if (!fs.existsSync(vscodeJsonRpcNodeEntry)) {

@@ -8,7 +8,7 @@ NEVER references Salesforce, research patterns, comment mining.
 
 ## ADO Update Guardrails
 
-1. **Template-engine only** – NEVER generate raw HTML. Run `template-tools scaffold-phase` `[CLI]` to get a fill spec, then the AI fills slot values in the JSON `[GEN]` (there is NO `fill-slots` CLI command), saves to context `[IO]`, then `ado-tools update --from-context` `[CLI]` auto-renders, validates, and pushes. The AI only produces structured JSON, never HTML.
+1. **Template-engine only** – NEVER generate raw HTML. Run `template-tools scaffold-phase` `[CLI]` to get a fill spec, then the AI fills slot values in the JSON `[GEN]` (there is NO `fill-slots` CLI command), saves to context `[IO]`, then `ado-tools update --from-context` `[CLI]` auto-renders, validates, and pushes. The AI only produces structured JSON, never HTML. Note: `type: "html"` slots (see schema below) accept pre-rendered HTML from template-tools or CLI output only — never author new HTML directly.
 2. **Requirement type first for User Stories** – If a phase is filling User Story description or acceptance-criteria templates, determine `requirement_type` (`functional|technical`) before listing or scaffolding templates. Use stored `grooming.classification.requirement_type` when available; otherwise infer it from the requirement content.
 3. **Fill slots, not HTML** – When populating ADO fields that have templates, write filled slot values to `{{context_file}}.{{phase}}.filled_slots`, then let the CLI render and validate.
 4. **No unauthorized state changes** – per share-ado guardrails.
@@ -33,7 +33,7 @@ Every entry in `filled_slots` must be a typed FillSlot object — plain strings 
 | Slot type          | Required shape                                                                                 |
 | ------------------ | ---------------------------------------------------------------------------------------------- |
 | `text`             | `{ "variable": "slot_name", "type": "text", "value": "string" }`                               |
-| `html`             | `{ "variable": "slot_name", "type": "html", "value": "<p>...</p>" }`                           |
+| `html`             | `{ "variable": "slot_name", "type": "html", "value": "<p>...</p>" }` — accepts pre-rendered HTML from template-tools or CLI output only; never author new HTML directly. |
 | `list`             | `{ "variable": "slot_name", "type": "list", "items": ["item1", "item2"] }`                     |
 | `table`            | `{ "variable": "slot_name", "type": "table", "rows": [{ "col_key": "value" }] }`               |
 | `repeatable_block` | `{ "variable": "slot_name", "type": "repeatable_block", "blocks": [{ "slot_key": "value" }] }` |

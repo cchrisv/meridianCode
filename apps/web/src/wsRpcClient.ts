@@ -12,6 +12,15 @@ import { Effect, Stream } from "effect";
 import { type WsRpcProtocolClient } from "./rpc/protocol";
 import { WsTransport } from "./wsTransport";
 
+/**
+ * Effect-RPC keeps a generic service context on each method; the actual
+ * dependencies are satisfied at the WsTransport/socket level, not at the
+ * type level. This helper avoids repeating the verbose double-cast inline.
+ */
+function castRequest<T>(effect: Effect.Effect<T, any, any>): Effect.Effect<T, Error, never> {
+  return effect as unknown as Effect.Effect<T, Error, never>;
+}
+
 type RpcTag = keyof WsRpcProtocolClient & string;
 type RpcMethod<TTag extends RpcTag> = WsRpcProtocolClient[TTag];
 type RpcInput<TTag extends RpcTag> = Parameters<RpcMethod<TTag>>[0];
@@ -194,33 +203,15 @@ export function createWsRpcClient(transport = new WsTransport()): WsRpcClient {
       updateSettings: (patch) =>
         transport.request((client) => client[WS_METHODS.serverUpdateSettings]({ patch })),
       validateKnowledgeRoot: (input) =>
-        // Effect-RPC keeps a generic service context; socket runtime provides dependencies.
-        transport.request(
-          (client) =>
-            client[WS_METHODS.serverValidateKnowledgeRoot](input) as unknown as Effect.Effect<
-              any,
-              Error,
-              never
-            >,
+        transport.request((client) =>
+          castRequest(client[WS_METHODS.serverValidateKnowledgeRoot](input)),
         ),
       getKnowledgeStatus: () =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.serverGetKnowledgeStatus]({}) as unknown as Effect.Effect<
-              any,
-              Error,
-              never
-            >,
+        transport.request((client) =>
+          castRequest(client[WS_METHODS.serverGetKnowledgeStatus]({})),
         ),
       syncKnowledge: () =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.serverSyncKnowledge]({}) as unknown as Effect.Effect<
-              any,
-              Error,
-              never
-            >,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.serverSyncKnowledge]({}))),
       subscribeConfig: (listener) =>
         transport.subscribe((client) => client[WS_METHODS.subscribeServerConfig]({}), listener),
       subscribeLifecycle: (listener) =>
@@ -228,53 +219,22 @@ export function createWsRpcClient(transport = new WsTransport()): WsRpcClient {
     },
     knowledge: {
       listTree: () =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.knowledgeListTree]({}) as unknown as Effect.Effect<any, Error, never>,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.knowledgeListTree]({}))),
       readFile: (input) =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.knowledgeReadFile](input) as unknown as Effect.Effect<
-              any,
-              Error,
-              never
-            >,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.knowledgeReadFile](input))),
     },
     ticket: {
       import: (input) =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.ticketImport](input) as unknown as Effect.Effect<any, Error, never>,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.ticketImport](input))),
       list: (input) =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.ticketList](input) as unknown as Effect.Effect<any, Error, never>,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.ticketList](input))),
       getState: (input) =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.ticketGetState](input) as unknown as Effect.Effect<any, Error, never>,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.ticketGetState](input))),
       getContext: (input) =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.ticketGetContext](input) as unknown as Effect.Effect<
-              any,
-              Error,
-              never
-            >,
-        ),
+        transport.request((client) => castRequest(client[WS_METHODS.ticketGetContext](input))),
       transitionStage: (input) =>
-        transport.request(
-          (client) =>
-            client[WS_METHODS.ticketTransitionStage](input) as unknown as Effect.Effect<
-              any,
-              Error,
-              never
-            >,
+        transport.request((client) =>
+          castRequest(client[WS_METHODS.ticketTransitionStage](input)),
         ),
     },
     orchestration: {

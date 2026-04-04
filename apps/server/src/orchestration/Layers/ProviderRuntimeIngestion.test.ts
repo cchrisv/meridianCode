@@ -92,6 +92,7 @@ function createProviderServiceHarness() {
     startSession: () => unsupported(),
     sendTurn: () => unsupported(),
     interruptTurn: () => unsupported(),
+    compactThread: () => unsupported(),
     respondToRequest: () => unsupported(),
     respondToUserInput: () => unsupported(),
     stopSession: () => unsupported(),
@@ -228,7 +229,7 @@ describe("ProviderRuntimeIngestion", () => {
         title: "Provider Project",
         workspaceRoot,
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         createdAt,
@@ -242,7 +243,7 @@ describe("ProviderRuntimeIngestion", () => {
         projectId: asProjectId("project-1"),
         title: "Thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -260,7 +261,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: ThreadId.makeUnsafe("thread-1"),
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: createdAt,
@@ -270,7 +271,7 @@ describe("ProviderRuntimeIngestion", () => {
       }),
     );
     provider.setSession({
-      provider: "codex",
+      provider: "copilot",
       status: "ready",
       runtimeMode: "approval-required",
       threadId: ThreadId.makeUnsafe("thread-1"),
@@ -293,7 +294,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started"),
-      provider: "codex",
+      provider: "copilot",
       threadId: asThreadId("thread-1"),
       createdAt: now,
       turnId: asTurnId("turn-1"),
@@ -307,7 +308,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed"),
-      provider: "codex",
+      provider: "copilot",
       threadId: asThreadId("thread-1"),
       createdAt: new Date().toISOString(),
       turnId: asTurnId("turn-1"),
@@ -335,7 +336,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "session.state.changed",
       eventId: asEventId("evt-session-state-waiting"),
-      provider: "codex",
+      provider: "copilot",
       threadId: asThreadId("thread-1"),
       createdAt: waitingAt,
       payload: {
@@ -354,7 +355,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "session.state.changed",
       eventId: asEventId("evt-session-state-error"),
-      provider: "codex",
+      provider: "copilot",
       threadId: asThreadId("thread-1"),
       createdAt: new Date().toISOString(),
       payload: {
@@ -376,7 +377,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "session.state.changed",
       eventId: asEventId("evt-session-state-stopped"),
-      provider: "codex",
+      provider: "copilot",
       threadId: asThreadId("thread-1"),
       createdAt: new Date().toISOString(),
       payload: {
@@ -397,7 +398,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "session.state.changed",
       eventId: asEventId("evt-session-state-ready"),
-      provider: "codex",
+      provider: "copilot",
       threadId: asThreadId("thread-1"),
       createdAt: new Date().toISOString(),
       payload: {
@@ -423,7 +424,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-midturn-lifecycle"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-midturn-lifecycle"),
@@ -439,14 +440,14 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.started",
       eventId: asEventId("evt-thread-started-midturn-lifecycle"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
     });
     harness.emit({
       type: "session.started",
       eventId: asEventId("evt-session-started-midturn-lifecycle"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
     });
@@ -462,7 +463,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-midturn-lifecycle"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-midturn-lifecycle"),
@@ -487,7 +488,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: ThreadId.makeUnsafe("thread-1"),
           status: "ready",
-          providerName: "claudeAgent",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: seededAt,
@@ -500,7 +501,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-claude-placeholder"),
-      provider: "claudeAgent",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-claude-placeholder"),
@@ -516,7 +517,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-claude-placeholder"),
-      provider: "claudeAgent",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-claude-placeholder"),
@@ -536,7 +537,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-primary"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-primary"),
@@ -551,7 +552,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-aux"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-aux"),
@@ -569,7 +570,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-primary"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-primary"),
@@ -589,7 +590,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-guarded"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-guarded-main"),
@@ -605,7 +606,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-guarded-other"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-guarded-other"),
@@ -623,7 +624,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-guarded-main"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-guarded-main"),
@@ -643,7 +644,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-message-delta-1"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-2"),
@@ -656,7 +657,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-message-delta-2"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-2"),
@@ -669,7 +670,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.completed",
       eventId: asEventId("evt-message-completed"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-2"),
@@ -700,7 +701,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.completed",
       eventId: asEventId("evt-assistant-item-completed-no-delta"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-no-delta"),
@@ -732,7 +733,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.completed",
       eventId: asEventId("evt-plan-item-completed"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-plan-final"),
@@ -771,7 +772,7 @@ describe("ProviderRuntimeIngestion", () => {
         projectId: asProjectId("project-1"),
         title: "Plan Source",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: "plan",
@@ -789,7 +790,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: sourceThreadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: createdAt,
@@ -806,7 +807,7 @@ describe("ProviderRuntimeIngestion", () => {
         projectId: asProjectId("project-1"),
         title: "Plan Target",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -824,7 +825,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: targetThreadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: createdAt,
@@ -834,7 +835,7 @@ describe("ProviderRuntimeIngestion", () => {
       }),
     );
     harness.setProviderSession({
-      provider: "codex",
+      provider: "copilot",
       status: "ready",
       runtimeMode: "approval-required",
       threadId: targetThreadId,
@@ -846,7 +847,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.completed",
       eventId: asEventId("evt-plan-source-completed"),
-      provider: "codex",
+      provider: "copilot",
       createdAt,
       threadId: sourceThreadId,
       turnId: sourceTurnId,
@@ -916,7 +917,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-plan-target-started"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: targetThreadId,
       turnId: targetTurnId,
@@ -958,7 +959,7 @@ describe("ProviderRuntimeIngestion", () => {
         projectId: asProjectId("project-1"),
         title: "Plan Source",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: "plan",
@@ -976,7 +977,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: sourceThreadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: createdAt,
@@ -986,7 +987,7 @@ describe("ProviderRuntimeIngestion", () => {
       }),
     );
     harness.setProviderSession({
-      provider: "codex",
+      provider: "copilot",
       status: "running",
       runtimeMode: "approval-required",
       threadId: targetThreadId,
@@ -998,7 +999,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-already-running"),
-      provider: "codex",
+      provider: "copilot",
       createdAt,
       threadId: targetThreadId,
       turnId: activeTurnId,
@@ -1015,7 +1016,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.completed",
       eventId: asEventId("evt-plan-source-completed-guarded"),
-      provider: "codex",
+      provider: "copilot",
       createdAt,
       threadId: sourceThreadId,
       turnId: sourceTurnId,
@@ -1068,7 +1069,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-stale-plan-implementation"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: targetThreadId,
       turnId: staleTurnId,
@@ -1111,7 +1112,7 @@ describe("ProviderRuntimeIngestion", () => {
         projectId: asProjectId("project-1"),
         title: "Plan Source",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: "plan",
@@ -1129,7 +1130,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: sourceThreadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: createdAt,
@@ -1146,7 +1147,7 @@ describe("ProviderRuntimeIngestion", () => {
         projectId: asProjectId("project-1"),
         title: "Plan Target",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -1164,7 +1165,7 @@ describe("ProviderRuntimeIngestion", () => {
         session: {
           threadId: targetThreadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           updatedAt: createdAt,
@@ -1177,7 +1178,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.completed",
       eventId: asEventId("evt-plan-source-completed-unrelated"),
-      provider: "codex",
+      provider: "copilot",
       createdAt,
       threadId: sourceThreadId,
       turnId: sourceTurnId,
@@ -1228,7 +1229,7 @@ describe("ProviderRuntimeIngestion", () => {
     );
 
     harness.setProviderSession({
-      provider: "codex",
+      provider: "copilot",
       status: "running",
       runtimeMode: "approval-required",
       threadId: targetThreadId,
@@ -1240,7 +1241,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-unrelated-plan-implementation"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: targetThreadId,
       turnId: replayedTurnId,
@@ -1267,7 +1268,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-plan-buffer"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-plan-buffer"),
@@ -1282,7 +1283,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.delta",
       eventId: asEventId("evt-plan-delta-1"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-plan-buffer"),
@@ -1293,7 +1294,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.delta",
       eventId: asEventId("evt-plan-delta-2"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-plan-buffer"),
@@ -1304,7 +1305,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-plan-buffer"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-plan-buffer"),
@@ -1333,7 +1334,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-buffered"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-buffered"),
@@ -1347,7 +1348,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-message-delta-buffered"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-buffered"),
@@ -1372,7 +1373,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.completed",
       eventId: asEventId("evt-message-completed-buffered"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-buffered"),
@@ -1421,7 +1422,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-streaming-mode"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-streaming-mode"),
@@ -1436,7 +1437,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-message-delta-streaming-mode"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-streaming-mode"),
@@ -1463,7 +1464,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.completed",
       eventId: asEventId("evt-message-completed-streaming-mode"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-streaming-mode"),
@@ -1496,7 +1497,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-buffer-spill"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-buffer-spill"),
@@ -1511,7 +1512,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-message-delta-buffer-spill"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-buffer-spill"),
@@ -1524,7 +1525,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.completed",
       eventId: asEventId("evt-message-completed-buffer-spill"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-buffer-spill"),
@@ -1556,7 +1557,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-turn-started-for-complete-dedup"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-complete-dedup"),
@@ -1572,7 +1573,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-message-delta-for-complete-dedup"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-complete-dedup"),
@@ -1585,7 +1586,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.completed",
       eventId: asEventId("evt-message-completed-for-complete-dedup"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-complete-dedup"),
@@ -1598,7 +1599,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.completed",
       eventId: asEventId("evt-turn-completed-for-complete-dedup"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-complete-dedup"),
@@ -1642,7 +1643,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "request.opened",
       eventId: asEventId("evt-request-opened"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       requestId: ApprovalRequestId.makeUnsafe("req-open"),
@@ -1655,7 +1656,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "request.resolved",
       eventId: asEventId("evt-request-resolved"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       requestId: ApprovalRequestId.makeUnsafe("req-open"),
@@ -1708,7 +1709,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "runtime.error",
       eventId: asEventId("evt-runtime-error"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-3"),
@@ -1735,7 +1736,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "runtime.error",
       eventId: asEventId("evt-runtime-error-activity"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-runtime-error-activity"),
@@ -1766,7 +1767,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.started",
       eventId: asEventId("evt-warning-turn-started"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-warning"),
@@ -1776,7 +1777,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "runtime.warning",
       eventId: asEventId("evt-warning-runtime"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-warning"),
@@ -1810,7 +1811,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "session.started",
       eventId: asEventId("evt-session-started"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       message: "session started",
@@ -1818,14 +1819,14 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.started",
       eventId: asEventId("evt-thread-started"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
     });
     harness.emit({
       type: "item.started",
       eventId: asEventId("evt-tool-started"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-9"),
@@ -1862,7 +1863,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.metadata.updated",
       eventId: asEventId("evt-thread-metadata-updated"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       payload: {
@@ -1874,7 +1875,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.plan.updated",
       eventId: asEventId("evt-turn-plan-updated"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-p1"),
@@ -1890,7 +1891,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "item.updated",
       eventId: asEventId("evt-item-updated"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-p1"),
@@ -1907,7 +1908,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "runtime.warning",
       eventId: asEventId("evt-runtime-warning"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-p1"),
@@ -1920,7 +1921,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.diff.updated",
       eventId: asEventId("evt-turn-diff-updated"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-p1"),
@@ -1996,7 +1997,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.token-usage.updated",
       eventId: asEventId("evt-thread-token-usage-updated"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       payload: {
@@ -2048,7 +2049,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.token-usage.updated",
       eventId: asEventId("evt-thread-token-usage-updated-camel"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       payload: {
@@ -2101,7 +2102,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.token-usage.updated",
       eventId: asEventId("evt-thread-token-usage-updated-claude-window"),
-      provider: "claudeAgent",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       payload: {
@@ -2145,7 +2146,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "thread.state.changed",
       eventId: asEventId("evt-thread-compacted"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-1"),
@@ -2175,7 +2176,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "task.started",
       eventId: asEventId("evt-task-started"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-task-1"),
@@ -2188,7 +2189,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "task.progress",
       eventId: asEventId("evt-task-progress"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-task-1"),
@@ -2202,7 +2203,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "task.completed",
       eventId: asEventId("evt-task-completed"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-task-1"),
@@ -2215,7 +2216,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "turn.proposed.completed",
       eventId: asEventId("evt-task-proposed-plan-completed"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-task-1"),
@@ -2278,7 +2279,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "user-input.requested",
       eventId: asEventId("evt-user-input-requested"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-user-input"),
@@ -2303,7 +2304,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "user-input.resolved",
       eventId: asEventId("evt-user-input-resolved"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-user-input"),
@@ -2351,7 +2352,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "content.delta",
       eventId: asEventId("evt-invalid-delta"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: now,
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-invalid"),
@@ -2365,7 +2366,7 @@ describe("ProviderRuntimeIngestion", () => {
     harness.emit({
       type: "runtime.error",
       eventId: asEventId("evt-runtime-error-after-failure"),
-      provider: "codex",
+      provider: "copilot",
       createdAt: new Date().toISOString(),
       threadId: asThreadId("thread-1"),
       turnId: asTurnId("turn-after-failure"),

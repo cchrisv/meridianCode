@@ -13,15 +13,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PROVIDER_DISPLAY_NAMES,
+  type ModelSelection,
   type ProviderKind,
   type ServerProvider,
   type ServerProviderModel,
   ThreadId,
 } from "@t3tools/contracts";
 import { DEFAULT_UNIFIED_SETTINGS } from "@t3tools/contracts/settings";
+import { APP_BASE_NAME, APP_VERSION } from "../../branding";
 import { normalizeModelSlug } from "@t3tools/shared/model";
 import { Equal } from "effect";
-import { APP_VERSION } from "../../branding";
 import {
   canCheckForUpdate,
   getDesktopUpdateButtonTooltip,
@@ -58,6 +59,7 @@ import { Switch } from "../ui/switch";
 import { toastManager } from "../ui/toast";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import { ProjectFavicon } from "../ProjectFavicon";
+import { MeridianSettingsSection } from "./MeridianSettingsSection";
 import {
   useServerAvailableEditors,
   useServerKeybindingsConfigPath,
@@ -91,26 +93,20 @@ type InstallProviderSettings = {
   title: string;
   binaryPlaceholder: string;
   binaryDescription: ReactNode;
-  homePathKey?: "codexHomePath";
+  homePathKey?: "copilotConfigDir";
   homePlaceholder?: string;
   homeDescription?: ReactNode;
 };
 
 const PROVIDER_SETTINGS: readonly InstallProviderSettings[] = [
   {
-    provider: "codex",
-    title: "Codex",
-    binaryPlaceholder: "Codex binary path",
-    binaryDescription: "Path to the Codex binary",
-    homePathKey: "codexHomePath",
-    homePlaceholder: "CODEX_HOME",
-    homeDescription: "Optional custom Codex home and config directory.",
-  },
-  {
-    provider: "claudeAgent",
-    title: "Claude",
-    binaryPlaceholder: "Claude binary path",
-    binaryDescription: "Path to the Claude binary",
+    provider: "copilot",
+    title: "GitHub Copilot",
+    binaryPlaceholder: "Copilot CLI path",
+    binaryDescription: "Path to the Copilot CLI, or leave default to use the bundled binary.",
+    homePathKey: "copilotConfigDir",
+    homePlaceholder: "Config directory",
+    homeDescription: "Optional Copilot config directory (GITHUB_COPILOT_CONFIG_DIR).",
   },
 ] as const;
 
@@ -140,7 +136,8 @@ function getProviderSummary(provider: ServerProvider | undefined) {
     return {
       headline: "Disabled",
       detail:
-        provider.message ?? "This provider is installed but disabled for new sessions in T3 Code.",
+        provider.message ??
+        `This provider is installed but disabled for new sessions in ${APP_BASE_NAME}.`,
     };
   }
   if (!provider.installed) {
@@ -217,7 +214,7 @@ function ProviderLastChecked({ lastCheckedAt }: { lastCheckedAt: string | null }
   );
 }
 
-function SettingsSection({
+export function SettingsSection({
   title,
   icon,
   headerAction,
@@ -244,7 +241,7 @@ function SettingsSection({
   );
 }
 
-function SettingsRow({
+export function SettingsRow({
   title,
   description,
   status,
@@ -283,7 +280,7 @@ function SettingsRow({
   );
 }
 
-function SettingResetButton({ label, onClick }: { label: string; onClick: () => void }) {
+export function SettingResetButton({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <Tooltip>
       <TooltipTrigger
@@ -307,7 +304,7 @@ function SettingResetButton({ label, onClick }: { label: string; onClick: () => 
   );
 }
 
-function SettingsPageContainer({ children }: { children: ReactNode }) {
+export function SettingsPageContainer({ children }: { children: ReactNode }) {
   return (
     <div className="flex-1 overflow-y-auto p-6">
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-6">{children}</div>
@@ -457,6 +454,16 @@ export function useSettingsRestore(onRestored?: () => void) {
     return !Equal.equals(currentSettings, defaultSettings);
   });
 
+  const isMeridianDirty =
+    !Equal.equals(
+      settings.providers.copilot.skillDirectories,
+      DEFAULT_UNIFIED_SETTINGS.providers.copilot.skillDirectories,
+    ) ||
+    !Equal.equals(
+      settings.providers.copilot.disabledSkills,
+      DEFAULT_UNIFIED_SETTINGS.providers.copilot.disabledSkills,
+    );
+
   const changedSettingLabels = useMemo(
     () => [
       ...(theme !== "system" ? ["Theme"] : []),
@@ -479,11 +486,13 @@ export function useSettingsRestore(onRestored?: () => void) {
         ? ["Delete confirmation"]
         : []),
       ...(isGitWritingModelDirty ? ["Git writing model"] : []),
+      ...(isMeridianDirty ? ["Meridian Brain"] : []),
       ...(areProviderSettingsDirty ? ["Providers"] : []),
     ],
     [
       areProviderSettingsDirty,
       isGitWritingModelDirty,
+      isMeridianDirty,
       settings.confirmThreadArchive,
       settings.confirmThreadDelete,
       settings.defaultThreadEnvMode,
@@ -527,22 +536,18 @@ export function GeneralSettingsPanel() {
     Partial<Record<"keybindings" | "logsDirectory", string | null>>
   >({});
   const [openProviderDetails, setOpenProviderDetails] = useState<Record<ProviderKind, boolean>>({
-    codex: Boolean(
-      settings.providers.codex.binaryPath !== DEFAULT_UNIFIED_SETTINGS.providers.codex.binaryPath ||
-      settings.providers.codex.homePath !== DEFAULT_UNIFIED_SETTINGS.providers.codex.homePath ||
-      settings.providers.codex.customModels.length > 0,
-    ),
-    claudeAgent: Boolean(
-      settings.providers.claudeAgent.binaryPath !==
-        DEFAULT_UNIFIED_SETTINGS.providers.claudeAgent.binaryPath ||
-      settings.providers.claudeAgent.customModels.length > 0,
+    copilot: Boolean(
+      settings.providers.copilot.binaryPath !==
+        DEFAULT_UNIFIED_SETTINGS.providers.copilot.binaryPath ||
+      settings.providers.copilot.configDir !==
+        DEFAULT_UNIFIED_SETTINGS.providers.copilot.configDir ||
+      settings.providers.copilot.customModels.length > 0,
     ),
   });
   const [customModelInputByProvider, setCustomModelInputByProvider] = useState<
     Record<ProviderKind, string>
   >({
-    codex: "",
-    claudeAgent: "",
+    copilot: "",
   });
   const [customModelErrorByProvider, setCustomModelErrorByProvider] = useState<
     Partial<Record<ProviderKind, string | null>>
@@ -569,7 +574,6 @@ export function GeneralSettingsPanel() {
   const availableEditors = useServerAvailableEditors();
   const observability = useServerObservability();
   const serverProviders = useServerProviders();
-  const codexHomePath = settings.providers.codex.homePath;
   const logsDirectoryPath = observability?.logsDirectoryPath ?? null;
   const diagnosticsDescription = (() => {
     const exports: string[] = [];
@@ -733,7 +737,12 @@ export function GeneralSettingsPanel() {
     [settings, updateSettings],
   );
 
-  const providerCards = PROVIDER_SETTINGS.map((providerSettings) => {
+  const visibleProviderSettings = useMemo(
+    () => PROVIDER_SETTINGS.filter((row) => settings.providers[row.provider].enabled),
+    [settings.providers],
+  );
+
+  const providerCards = visibleProviderSettings.map((providerSettings) => {
     const liveProvider = serverProviders.find(
       (candidate) => candidate.provider === providerSettings.provider,
     );
@@ -781,7 +790,7 @@ export function GeneralSettingsPanel() {
       <SettingsSection title="General">
         <SettingsRow
           title="Theme"
-          description="Choose how T3 Code looks across the app."
+          description={`Choose how ${APP_BASE_NAME} looks across the app.`}
           resetAction={
             theme !== "system" ? (
               <SettingResetButton label="theme" onClick={() => setTheme("system")} />
@@ -1058,7 +1067,7 @@ export function GeneralSettingsPanel() {
                           provider: textGenProvider,
                           model: textGenModel,
                           ...(nextOptions ? { options: nextOptions } : {}),
-                        },
+                        } as ModelSelection,
                       },
                       serverProviders,
                     ),
@@ -1069,6 +1078,8 @@ export function GeneralSettingsPanel() {
           }
         />
       </SettingsSection>
+
+      <MeridianSettingsSection />
 
       <SettingsSection
         title="Providers"
@@ -1237,26 +1248,26 @@ export function GeneralSettingsPanel() {
                       </label>
                     </div>
 
-                    {providerCard.homePathKey ? (
+                    {providerCard.homePathKey === "copilotConfigDir" ? (
                       <div className="border-t border-border/60 px-4 py-3 sm:px-5">
                         <label
                           htmlFor={`provider-install-${providerCard.homePathKey}`}
                           className="block"
                         >
                           <span className="text-xs font-medium text-foreground">
-                            CODEX_HOME path
+                            Copilot config directory
                           </span>
                           <Input
                             id={`provider-install-${providerCard.homePathKey}`}
                             className="mt-1.5"
-                            value={codexHomePath}
+                            value={settings.providers.copilot.configDir}
                             onChange={(event) =>
                               updateSettings({
                                 providers: {
                                   ...settings.providers,
-                                  codex: {
-                                    ...settings.providers.codex,
-                                    homePath: event.target.value,
+                                  copilot: {
+                                    ...settings.providers.copilot,
+                                    configDir: event.target.value,
                                   },
                                 },
                               })
@@ -1382,11 +1393,7 @@ export function GeneralSettingsPanel() {
                             event.preventDefault();
                             addCustomModel(providerCard.provider);
                           }}
-                          placeholder={
-                            providerCard.provider === "codex"
-                              ? "gpt-6.7-codex-ultra-preview"
-                              : "claude-sonnet-5-0"
-                          }
+                          placeholder="gemini-3-pro-preview"
                           spellCheck={false}
                         />
                         <Button

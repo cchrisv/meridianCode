@@ -115,6 +115,11 @@ export interface ProviderAdapterShape<TError> {
   ) => Effect.Effect<ProviderThreadSnapshot, TError>;
 
   /**
+   * Request provider-native context compaction (conversation window), when supported.
+   */
+  readonly compactThread: (threadId: ThreadId) => Effect.Effect<void, TError>;
+
+  /**
    * Stop all sessions owned by this adapter.
    */
   readonly stopAll: () => Effect.Effect<void, TError>;

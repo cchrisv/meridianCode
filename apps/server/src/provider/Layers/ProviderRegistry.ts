@@ -6,19 +6,15 @@
 import type { ProviderKind, ServerProvider } from "@t3tools/contracts";
 import { Effect, Equal, Layer, PubSub, Ref, Stream } from "effect";
 
-import { ClaudeProviderLive } from "./ClaudeProvider";
-import { CodexProviderLive } from "./CodexProvider";
-import type { ClaudeProviderShape } from "../Services/ClaudeProvider";
-import { ClaudeProvider } from "../Services/ClaudeProvider";
-import type { CodexProviderShape } from "../Services/CodexProvider";
-import { CodexProvider } from "../Services/CodexProvider";
+import { CopilotProviderLive } from "./CopilotProvider.ts";
+import type { CopilotProviderShape } from "../Services/CopilotProvider.ts";
+import { CopilotProvider } from "../Services/CopilotProvider.ts";
 import { ProviderRegistry, type ProviderRegistryShape } from "../Services/ProviderRegistry";
 
 const loadProviders = (
-  codexProvider: CodexProviderShape,
-  claudeProvider: ClaudeProviderShape,
-): Effect.Effect<readonly [ServerProvider, ServerProvider]> =>
-  Effect.all([codexProvider.getSnapshot, claudeProvider.getSnapshot], {
+  copilotProvider: CopilotProviderShape,
+): Effect.Effect<readonly [ServerProvider]> =>
+  Effect.all([copilotProvider.getSnapshot], {
     concurrency: "unbounded",
   });
 
@@ -30,21 +26,20 @@ export const haveProvidersChanged = (
 export const ProviderRegistryLive = Layer.effect(
   ProviderRegistry,
   Effect.gen(function* () {
-    const codexProvider = yield* CodexProvider;
-    const claudeProvider = yield* ClaudeProvider;
+    const copilotProvider = yield* CopilotProvider;
     const changesPubSub = yield* Effect.acquireRelease(
       PubSub.unbounded<ReadonlyArray<ServerProvider>>(),
       PubSub.shutdown,
     );
     const providersRef = yield* Ref.make<ReadonlyArray<ServerProvider>>(
-      yield* loadProviders(codexProvider, claudeProvider),
+      yield* loadProviders(copilotProvider),
     );
 
     const syncProviders = Effect.fn("syncProviders")(function* (options?: {
       readonly publish?: boolean;
     }) {
       const previousProviders = yield* Ref.get(providersRef);
-      const providers = yield* loadProviders(codexProvider, claudeProvider);
+      const providers = yield* loadProviders(copilotProvider);
       yield* Ref.set(providersRef, providers);
 
       if (options?.publish !== false && haveProvidersChanged(previousProviders, providers)) {
@@ -54,25 +49,17 @@ export const ProviderRegistryLive = Layer.effect(
       return providers;
     });
 
-    yield* Stream.runForEach(codexProvider.streamChanges, () => syncProviders()).pipe(
-      Effect.forkScoped,
-    );
-    yield* Stream.runForEach(claudeProvider.streamChanges, () => syncProviders()).pipe(
+    yield* Stream.runForEach(copilotProvider.streamChanges, () => syncProviders()).pipe(
       Effect.forkScoped,
     );
 
     const refresh = Effect.fn("refresh")(function* (provider?: ProviderKind) {
       switch (provider) {
-        case "codex":
-          yield* codexProvider.refresh;
-          break;
-        case "claudeAgent":
-          yield* claudeProvider.refresh;
+        case "copilot":
+          yield* copilotProvider.refresh;
           break;
         default:
-          yield* Effect.all([codexProvider.refresh, claudeProvider.refresh], {
-            concurrency: "unbounded",
-          });
+          yield* copilotProvider.refresh;
           break;
       }
       return yield* syncProviders();
@@ -93,4 +80,6 @@ export const ProviderRegistryLive = Layer.effect(
       },
     } satisfies ProviderRegistryShape;
   }),
-).pipe(Layer.provideMerge(CodexProviderLive), Layer.provideMerge(ClaudeProviderLive));
+).pipe(
+  Layer.provideMerge(CopilotProviderLive),
+);

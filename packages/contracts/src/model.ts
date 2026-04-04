@@ -2,29 +2,17 @@ import { Schema } from "effect";
 import { TrimmedNonEmptyString } from "./baseSchemas";
 import type { ProviderKind } from "./orchestration";
 
-export const CODEX_REASONING_EFFORT_OPTIONS = ["xhigh", "high", "medium", "low"] as const;
-export type CodexReasoningEffort = (typeof CODEX_REASONING_EFFORT_OPTIONS)[number];
-export const CLAUDE_CODE_EFFORT_OPTIONS = ["low", "medium", "high", "max", "ultrathink"] as const;
-export type ClaudeCodeEffort = (typeof CLAUDE_CODE_EFFORT_OPTIONS)[number];
-export type ProviderReasoningEffort = CodexReasoningEffort | ClaudeCodeEffort;
+export const COPILOT_REASONING_EFFORT_OPTIONS = ["xhigh", "high", "medium", "low"] as const;
+export type CopilotReasoningEffort = (typeof COPILOT_REASONING_EFFORT_OPTIONS)[number];
+export type ProviderReasoningEffort = CopilotReasoningEffort;
 
-export const CodexModelOptions = Schema.Struct({
-  reasoningEffort: Schema.optional(Schema.Literals(CODEX_REASONING_EFFORT_OPTIONS)),
-  fastMode: Schema.optional(Schema.Boolean),
+export const CopilotModelOptions = Schema.Struct({
+  reasoningEffort: Schema.optional(Schema.Literals(COPILOT_REASONING_EFFORT_OPTIONS)),
 });
-export type CodexModelOptions = typeof CodexModelOptions.Type;
-
-export const ClaudeModelOptions = Schema.Struct({
-  thinking: Schema.optional(Schema.Boolean),
-  effort: Schema.optional(Schema.Literals(CLAUDE_CODE_EFFORT_OPTIONS)),
-  fastMode: Schema.optional(Schema.Boolean),
-  contextWindow: Schema.optional(Schema.String),
-});
-export type ClaudeModelOptions = typeof ClaudeModelOptions.Type;
+export type CopilotModelOptions = typeof CopilotModelOptions.Type;
 
 export const ProviderModelOptions = Schema.Struct({
-  codex: Schema.optional(CodexModelOptions),
-  claudeAgent: Schema.optional(ClaudeModelOptions),
+  copilot: Schema.optional(CopilotModelOptions),
 });
 export type ProviderModelOptions = typeof ProviderModelOptions.Type;
 
@@ -52,45 +40,40 @@ export const ModelCapabilities = Schema.Struct({
 export type ModelCapabilities = typeof ModelCapabilities.Type;
 
 export const DEFAULT_MODEL_BY_PROVIDER: Record<ProviderKind, string> = {
-  codex: "gpt-5.4",
-  claudeAgent: "claude-sonnet-4-6",
+  copilot: "claude-sonnet-4-6",
 };
 
-export const DEFAULT_MODEL = DEFAULT_MODEL_BY_PROVIDER.codex;
+export const DEFAULT_MODEL = DEFAULT_MODEL_BY_PROVIDER.copilot;
 
 /** Per-provider text generation model defaults. */
 export const DEFAULT_GIT_TEXT_GENERATION_MODEL_BY_PROVIDER: Record<ProviderKind, string> = {
-  codex: "gpt-5.4-mini",
-  claudeAgent: "claude-haiku-4-5",
+  copilot: "gpt-5.4-mini",
 };
 
 export const MODEL_SLUG_ALIASES_BY_PROVIDER: Record<ProviderKind, Record<string, string>> = {
-  codex: {
+  copilot: {
+    "4.1": "gpt-4.1",
     "5.4": "gpt-5.4",
+    "5.4-mini": "gpt-5.4-mini",
+    "5-mini": "gpt-5-mini",
+    "5.1": "gpt-5.1",
+    "5.1-codex": "gpt-5.1-codex",
+    "5.1-max": "gpt-5.1-codex-max",
+    "5.1-mini": "gpt-5.1-codex-mini",
+    "5.2": "gpt-5.2",
+    "5.2-codex": "gpt-5.2-codex",
     "5.3": "gpt-5.3-codex",
-    "gpt-5.3": "gpt-5.3-codex",
-    "5.3-spark": "gpt-5.3-codex-spark",
-    "gpt-5.3-spark": "gpt-5.3-codex-spark",
-  },
-  claudeAgent: {
-    opus: "claude-opus-4-6",
-    "opus-4.6": "claude-opus-4-6",
-    "claude-opus-4.6": "claude-opus-4-6",
-    "claude-opus-4-6-20251117": "claude-opus-4-6",
-    sonnet: "claude-sonnet-4-6",
-    "sonnet-4.6": "claude-sonnet-4-6",
-    "claude-sonnet-4.6": "claude-sonnet-4-6",
-    "claude-sonnet-4-6-20251117": "claude-sonnet-4-6",
     haiku: "claude-haiku-4-5",
-    "haiku-4.5": "claude-haiku-4-5",
-    "claude-haiku-4.5": "claude-haiku-4-5",
-    "claude-haiku-4-5-20251001": "claude-haiku-4-5",
+    sonnet: "claude-sonnet-4-6",
+    opus: "claude-opus-4-6",
+    gemini: "gemini-3-pro-preview",
+    "gemini-3.1": "gemini-3.1-pro",
+    raptor: "raptor-mini",
   },
 };
 
 // ── Provider display names ────────────────────────────────────────────
 
 export const PROVIDER_DISPLAY_NAMES: Record<ProviderKind, string> = {
-  codex: "Codex",
-  claudeAgent: "Claude",
+  copilot: "GitHub Copilot",
 };

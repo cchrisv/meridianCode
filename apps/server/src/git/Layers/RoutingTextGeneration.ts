@@ -1,11 +1,6 @@
 /**
- * RoutingTextGeneration – Dispatches text generation requests to either the
- * Codex CLI or Claude CLI implementation based on the provider in each
- * request input.
- *
- * When `modelSelection.provider` is `"claudeAgent"` the request is forwarded to
- * the Claude layer; for any other value (including the default `undefined`) it
- * falls through to the Codex layer.
+ * RoutingTextGeneration – Dispatches text generation requests to the
+ * GitHub Copilot text generation layer.
  *
  * @module RoutingTextGeneration
  */
@@ -13,22 +8,16 @@ import { Effect, Layer, ServiceMap } from "effect";
 
 import {
   TextGeneration,
-  type TextGenerationProvider,
   type TextGenerationShape,
 } from "../Services/TextGeneration.ts";
-import { CodexTextGenerationLive } from "./CodexTextGeneration.ts";
-import { ClaudeTextGenerationLive } from "./ClaudeTextGeneration.ts";
+import { CopilotTextGenerationLive } from "./CopilotTextGeneration.ts";
 
 // ---------------------------------------------------------------------------
-// Internal service tags so both concrete layers can coexist.
+// Internal service tag so the concrete layer can coexist.
 // ---------------------------------------------------------------------------
 
-class CodexTextGen extends ServiceMap.Service<CodexTextGen, TextGenerationShape>()(
-  "t3/git/Layers/RoutingTextGeneration/CodexTextGen",
-) {}
-
-class ClaudeTextGen extends ServiceMap.Service<ClaudeTextGen, TextGenerationShape>()(
-  "t3/git/Layers/RoutingTextGeneration/ClaudeTextGen",
+class CopilotTextGen extends ServiceMap.Service<CopilotTextGen, TextGenerationShape>()(
+  "t3/git/Layers/RoutingTextGeneration/CopilotTextGen",
 ) {}
 
 // ---------------------------------------------------------------------------
@@ -36,38 +25,27 @@ class ClaudeTextGen extends ServiceMap.Service<ClaudeTextGen, TextGenerationShap
 // ---------------------------------------------------------------------------
 
 const makeRoutingTextGeneration = Effect.gen(function* () {
-  const codex = yield* CodexTextGen;
-  const claude = yield* ClaudeTextGen;
-
-  const route = (provider?: TextGenerationProvider): TextGenerationShape =>
-    provider === "claudeAgent" ? claude : codex;
+  const copilot = yield* CopilotTextGen;
 
   return {
-    generateCommitMessage: (input) =>
-      route(input.modelSelection.provider).generateCommitMessage(input),
-    generatePrContent: (input) => route(input.modelSelection.provider).generatePrContent(input),
-    generateBranchName: (input) => route(input.modelSelection.provider).generateBranchName(input),
-    generateThreadTitle: (input) => route(input.modelSelection.provider).generateThreadTitle(input),
+    generateCommitMessage: (input) => copilot.generateCommitMessage(input),
+    generatePrContent: (input) => copilot.generatePrContent(input),
+    generateBranchName: (input) => copilot.generateBranchName(input),
+    generateThreadTitle: (input) => copilot.generateThreadTitle(input),
   } satisfies TextGenerationShape;
 });
 
-const InternalCodexLayer = Layer.effect(
-  CodexTextGen,
+const InternalCopilotLayer = Layer.effect(
+  CopilotTextGen,
   Effect.gen(function* () {
     const svc = yield* TextGeneration;
     return svc;
   }),
-).pipe(Layer.provide(CodexTextGenerationLive));
-
-const InternalClaudeLayer = Layer.effect(
-  ClaudeTextGen,
-  Effect.gen(function* () {
-    const svc = yield* TextGeneration;
-    return svc;
-  }),
-).pipe(Layer.provide(ClaudeTextGenerationLive));
+).pipe(Layer.provide(CopilotTextGenerationLive));
 
 export const RoutingTextGenerationLive = Layer.effect(
   TextGeneration,
   makeRoutingTextGeneration,
-).pipe(Layer.provide(InternalCodexLayer), Layer.provide(InternalClaudeLayer));
+).pipe(
+  Layer.provide(InternalCopilotLayer),
+);

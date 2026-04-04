@@ -15,9 +15,33 @@ function effort(value: string, isDefault = false) {
   };
 }
 
+const COPILOT_READY_PROVIDER: ServerProvider = {
+  provider: "copilot",
+  enabled: true,
+  installed: true,
+  version: "1.0.0",
+  status: "ready",
+  auth: { status: "authenticated" },
+  checkedAt: new Date().toISOString(),
+  models: [
+    {
+      slug: "gpt-5.4",
+      name: "GPT-5.4",
+      isCustom: false,
+      capabilities: {
+        reasoningEffortLevels: [effort("low"), effort("medium", true), effort("high")],
+        supportsFastMode: false,
+        supportsThinkingToggle: false,
+        contextWindowOptions: [],
+        promptInjectedEffortLevels: [],
+      },
+    },
+  ],
+};
+
 const TEST_PROVIDERS: ReadonlyArray<ServerProvider> = [
   {
-    provider: "codex",
+    provider: "copilot",
     enabled: true,
     installed: true,
     version: "0.116.0",
@@ -52,7 +76,7 @@ const TEST_PROVIDERS: ReadonlyArray<ServerProvider> = [
     ],
   },
   {
-    provider: "claudeAgent",
+    provider: "copilot",
     enabled: true,
     installed: true,
     version: "1.0.0",
@@ -112,7 +136,7 @@ const TEST_PROVIDERS: ReadonlyArray<ServerProvider> = [
 
 function buildCodexProvider(models: ServerProvider["models"]): ServerProvider {
   return {
-    provider: "codex",
+    provider: "copilot",
     enabled: true,
     installed: true,
     version: "0.116.0",
@@ -169,7 +193,7 @@ describe("ProviderModelPicker", () => {
 
   it("shows provider submenus when provider switching is allowed", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "copilot",
       model: "claude-opus-4-6",
       lockedProvider: null,
     });
@@ -190,7 +214,7 @@ describe("ProviderModelPicker", () => {
 
   it("opens provider submenus with a visible gap from the parent menu", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "copilot",
       model: "claude-opus-4-6",
       lockedProvider: null,
     });
@@ -235,9 +259,9 @@ describe("ProviderModelPicker", () => {
 
   it("shows models directly when the provider is locked mid-thread", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "copilot",
       model: "claude-opus-4-6",
-      lockedProvider: "claudeAgent",
+      lockedProvider: "copilot",
     });
 
     try {
@@ -303,7 +327,7 @@ describe("ProviderModelPicker", () => {
     ];
 
     const hidden = await mountPicker({
-      provider: "claudeAgent",
+      provider: "copilot",
       model: "claude-opus-4-6",
       lockedProvider: null,
       providers: providersWithoutSpark,
@@ -323,7 +347,7 @@ describe("ProviderModelPicker", () => {
     }
 
     const visible = await mountPicker({
-      provider: "claudeAgent",
+      provider: "copilot",
       model: "claude-opus-4-6",
       lockedProvider: null,
       providers: providersWithSpark,
@@ -343,9 +367,9 @@ describe("ProviderModelPicker", () => {
 
   it("dispatches the canonical slug when a model is selected", async () => {
     const mounted = await mountPicker({
-      provider: "claudeAgent",
+      provider: "copilot",
       model: "claude-opus-4-6",
-      lockedProvider: "claudeAgent",
+      lockedProvider: "copilot",
     });
 
     try {
@@ -353,7 +377,7 @@ describe("ProviderModelPicker", () => {
       await page.getByRole("menuitemradio", { name: "Claude Sonnet 4.6" }).click();
 
       expect(mounted.onProviderModelChange).toHaveBeenCalledWith(
-        "claudeAgent",
+        "copilot",
         "claude-sonnet-4-6",
       );
     } finally {
@@ -362,9 +386,9 @@ describe("ProviderModelPicker", () => {
   });
 
   it("shows disabled providers as non-selectable entries", async () => {
-    const disabledProviders = TEST_PROVIDERS.slice();
+    const disabledProviders = [...TEST_PROVIDERS, COPILOT_READY_PROVIDER];
     const claudeIndex = disabledProviders.findIndex(
-      (provider) => provider.provider === "claudeAgent",
+      (provider) => provider.provider === "copilot",
     );
     if (claudeIndex >= 0) {
       const claudeProvider = disabledProviders[claudeIndex]!;
@@ -372,10 +396,11 @@ describe("ProviderModelPicker", () => {
         ...claudeProvider,
         enabled: false,
         status: "disabled",
+        installed: false,
       };
     }
     const mounted = await mountPicker({
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5-codex",
       lockedProvider: null,
       providers: disabledProviders,
@@ -395,9 +420,49 @@ describe("ProviderModelPicker", () => {
     }
   });
 
+  it("shows models only when exactly one provider is ready", async () => {
+    const onlyCopilotReady: ReadonlyArray<ServerProvider> = [
+      {
+        ...TEST_PROVIDERS[0]!,
+        enabled: false,
+        status: "disabled",
+        installed: false,
+        models: [],
+      },
+      COPILOT_READY_PROVIDER,
+      {
+        ...TEST_PROVIDERS[1]!,
+        enabled: false,
+        status: "disabled",
+        installed: false,
+        models: [],
+      },
+    ];
+    const mounted = await mountPicker({
+      provider: "copilot",
+      model: "gpt-5.4",
+      lockedProvider: null,
+      providers: onlyCopilotReady,
+    });
+
+    try {
+      await page.getByRole("button").click();
+
+      await vi.waitFor(() => {
+        const text = document.body.textContent ?? "";
+        expect(text).toContain("GPT-5.4");
+        expect(text).not.toContain("Codex");
+        expect(text).not.toContain("GitHub Copilot");
+        expect(text).not.toContain("Disabled");
+      });
+    } finally {
+      await mounted.cleanup();
+    }
+  });
+
   it("accepts outline trigger styling", async () => {
     const mounted = await mountPicker({
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5-codex",
       lockedProvider: null,
       triggerVariant: "outline",

@@ -1,4 +1,5 @@
 import {
+  type CopilotModelOptions,
   type ProviderKind,
   type ProviderModelOptions,
   type ServerProviderModel,
@@ -8,10 +9,7 @@ import { isClaudeUltrathinkPrompt, resolveEffort } from "@t3tools/shared/model";
 import type { ReactNode } from "react";
 import { getProviderModelCapabilities } from "../../providerModels";
 import { TraitsMenuContent, TraitsPicker } from "./TraitsPicker";
-import {
-  normalizeClaudeModelOptionsWithCapabilities,
-  normalizeCodexModelOptionsWithCapabilities,
-} from "@t3tools/shared/model";
+import { normalizeCopilotModelOptionsWithCapabilities } from "@t3tools/shared/model";
 
 export type ComposerProviderStateInput = {
   provider: ProviderKind;
@@ -58,21 +56,16 @@ function getProviderStateFromCapabilities(
   const providerOptions = modelOptions?.[provider];
 
   // Resolve effort
-  const rawEffort = providerOptions
-    ? "effort" in providerOptions
-      ? providerOptions.effort
-      : "reasoningEffort" in providerOptions
-        ? providerOptions.reasoningEffort
-        : null
-    : null;
+  const rawEffort = providerOptions?.reasoningEffort ?? null;
 
   const promptEffort = resolveEffort(caps, rawEffort) ?? null;
 
   // Normalize options for dispatch
-  const normalizedOptions =
-    provider === "codex"
-      ? normalizeCodexModelOptionsWithCapabilities(caps, providerOptions)
-      : normalizeClaudeModelOptionsWithCapabilities(caps, providerOptions);
+  const normalizedOptions: ProviderModelOptions[ProviderKind] | undefined =
+    normalizeCopilotModelOptionsWithCapabilities(
+      caps,
+      providerOptions as CopilotModelOptions | undefined,
+    );
 
   // Ultrathink styling (driven by capabilities data, not provider identity)
   const ultrathinkActive =
@@ -91,7 +84,7 @@ function getProviderStateFromCapabilities(
 }
 
 const composerProviderRegistry: Record<ProviderKind, ProviderRegistryEntry> = {
-  codex: {
+  copilot: {
     getState: (input) => getProviderStateFromCapabilities(input),
     renderTraitsMenuContent: ({
       threadId,
@@ -102,7 +95,7 @@ const composerProviderRegistry: Record<ProviderKind, ProviderRegistryEntry> = {
       onPromptChange,
     }) => (
       <TraitsMenuContent
-        provider="codex"
+        provider="copilot"
         models={models}
         threadId={threadId}
         model={model}
@@ -113,39 +106,7 @@ const composerProviderRegistry: Record<ProviderKind, ProviderRegistryEntry> = {
     ),
     renderTraitsPicker: ({ threadId, model, models, modelOptions, prompt, onPromptChange }) => (
       <TraitsPicker
-        provider="codex"
-        models={models}
-        threadId={threadId}
-        model={model}
-        modelOptions={modelOptions}
-        prompt={prompt}
-        onPromptChange={onPromptChange}
-      />
-    ),
-  },
-  claudeAgent: {
-    getState: (input) => getProviderStateFromCapabilities(input),
-    renderTraitsMenuContent: ({
-      threadId,
-      model,
-      models,
-      modelOptions,
-      prompt,
-      onPromptChange,
-    }) => (
-      <TraitsMenuContent
-        provider="claudeAgent"
-        models={models}
-        threadId={threadId}
-        model={model}
-        modelOptions={modelOptions}
-        prompt={prompt}
-        onPromptChange={onPromptChange}
-      />
-    ),
-    renderTraitsPicker: ({ threadId, model, models, modelOptions, prompt, onPromptChange }) => (
-      <TraitsPicker
-        provider="claudeAgent"
+        provider="copilot"
         models={models}
         threadId={threadId}
         model={model}

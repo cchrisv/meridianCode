@@ -148,43 +148,7 @@ export function buildLegacyServerSettingsMigrationPatch(legacySettings: Record<s
     patch.textGenerationModelSelection = legacySettings.textGenerationModelSelection;
   }
 
-  if (typeof legacySettings.codexBinaryPath === "string") {
-    patch.providers ??= {};
-    patch.providers.codex ??= {};
-    patch.providers.codex.binaryPath = legacySettings.codexBinaryPath;
-  }
-
-  if (typeof legacySettings.codexHomePath === "string") {
-    patch.providers ??= {};
-    patch.providers.codex ??= {};
-    patch.providers.codex.homePath = legacySettings.codexHomePath;
-  }
-
-  if (Array.isArray(legacySettings.customCodexModels)) {
-    patch.providers ??= {};
-    patch.providers.codex ??= {};
-    patch.providers.codex.customModels = normalizeCustomModelSlugs(
-      legacySettings.customCodexModels,
-      new Set<string>(),
-      "codex",
-    );
-  }
-
-  if (Predicate.isString(legacySettings.claudeBinaryPath)) {
-    patch.providers ??= {};
-    patch.providers.claudeAgent ??= {};
-    patch.providers.claudeAgent.binaryPath = legacySettings.claudeBinaryPath;
-  }
-
-  if (Array.isArray(legacySettings.customClaudeModels)) {
-    patch.providers ??= {};
-    patch.providers.claudeAgent ??= {};
-    patch.providers.claudeAgent.customModels = normalizeCustomModelSlugs(
-      legacySettings.customClaudeModels,
-      new Set<string>(),
-      "claudeAgent",
-    );
-  }
+  // Legacy codex/claude settings are no longer migrated (copilot-only).
 
   return patch;
 }

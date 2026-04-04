@@ -21,22 +21,22 @@ it.layer(NodeServices.layer)("server settings", (it) => {
     Effect.sync(() => {
       const decodePatch = Schema.decodeUnknownSync(ServerSettingsPatch);
 
-      assert.deepEqual(decodePatch({ providers: { codex: { binaryPath: "/tmp/codex" } } }), {
-        providers: { codex: { binaryPath: "/tmp/codex" } },
+      assert.deepEqual(decodePatch({ providers: { copilot: { binaryPath: "/tmp/copilot" } } }), {
+        providers: { copilot: { binaryPath: "/tmp/copilot" } },
       });
 
       assert.deepEqual(
         decodePatch({
           textGenerationModelSelection: {
             options: {
-              fastMode: false,
+              reasoningEffort: "high",
             },
           },
         }),
         {
           textGenerationModelSelection: {
             options: {
-              fastMode: false,
+              reasoningEffort: "high",
             },
           },
         },
@@ -50,92 +50,80 @@ it.layer(NodeServices.layer)("server settings", (it) => {
 
       yield* serverSettings.updateSettings({
         providers: {
-          codex: {
-            binaryPath: "/usr/local/bin/codex",
-            homePath: "/Users/julius/.codex",
-          },
-          claudeAgent: {
-            binaryPath: "/usr/local/bin/claude",
-            customModels: ["claude-custom"],
+          copilot: {
+            enabled: true,
+            binaryPath: "/usr/local/bin/copilot",
+            configDir: "/Users/julius/.copilot",
           },
         },
         textGenerationModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: DEFAULT_SERVER_SETTINGS.textGenerationModelSelection.model,
           options: {
             reasoningEffort: "high",
-            fastMode: true,
           },
         },
       });
 
       const next = yield* serverSettings.updateSettings({
         providers: {
-          codex: {
-            binaryPath: "/opt/homebrew/bin/codex",
-          },
-        },
-        textGenerationModelSelection: {
-          options: {
-            fastMode: false,
+          copilot: {
+            binaryPath: "/opt/homebrew/bin/copilot",
           },
         },
       });
 
-      assert.deepEqual(next.providers.codex, {
+      assert.deepEqual(next.providers.copilot, {
         enabled: true,
-        binaryPath: "/opt/homebrew/bin/codex",
-        homePath: "/Users/julius/.codex",
+        binaryPath: "/opt/homebrew/bin/copilot",
+        configDir: "/Users/julius/.copilot",
         customModels: [],
-      });
-      assert.deepEqual(next.providers.claudeAgent, {
-        enabled: true,
-        binaryPath: "/usr/local/bin/claude",
-        customModels: ["claude-custom"],
+        skillDirectories: [],
+        disabledSkills: [],
       });
       assert.deepEqual(next.textGenerationModelSelection, {
-        provider: "codex",
+        provider: "copilot",
         model: DEFAULT_SERVER_SETTINGS.textGenerationModelSelection.model,
         options: {
           reasoningEffort: "high",
-          fastMode: false,
         },
       });
     }).pipe(Effect.provide(makeServerSettingsLayer())),
   );
 
-  it.effect("preserves model when switching providers via textGenerationModelSelection", () =>
+  it.effect("preserves model when updating textGenerationModelSelection options", () =>
     Effect.gen(function* () {
       const serverSettings = yield* ServerSettingsService;
 
-      // Start with Claude text generation selection
       yield* serverSettings.updateSettings({
-        textGenerationModelSelection: {
-          provider: "claudeAgent",
-          model: "claude-sonnet-4-6",
-          options: {
-            effort: "high",
-          },
+        providers: {
+          copilot: { enabled: true },
         },
-      });
-
-      // Switch to Codex — the stale Claude "effort" in options must not
-      // cause the update to lose the selected model.
-      const next = yield* serverSettings.updateSettings({
         textGenerationModelSelection: {
-          provider: "codex",
-          model: "gpt-5.4",
+          provider: "copilot",
+          model: "claude-sonnet-4-6",
           options: {
             reasoningEffort: "high",
           },
         },
       });
 
+      // Switching model — stale options must not cause the update to lose the selected model.
+      const next = yield* serverSettings.updateSettings({
+        textGenerationModelSelection: {
+          provider: "copilot",
+          model: "gpt-5.4",
+          options: {
+            reasoningEffort: "medium",
+          },
+        },
+      });
+
       assert.deepEqual(next.textGenerationModelSelection, {
-        provider: "codex",
+        provider: "copilot",
         model: "gpt-5.4",
         options: {
-          reasoningEffort: "high",
+          reasoningEffort: "medium",
         },
       });
     }).pipe(Effect.provide(makeServerSettingsLayer())),
@@ -147,26 +135,21 @@ it.layer(NodeServices.layer)("server settings", (it) => {
 
       const next = yield* serverSettings.updateSettings({
         providers: {
-          codex: {
-            binaryPath: "  /opt/homebrew/bin/codex  ",
-            homePath: "   ",
-          },
-          claudeAgent: {
-            binaryPath: "  /opt/homebrew/bin/claude  ",
+          copilot: {
+            enabled: true,
+            binaryPath: "  /opt/homebrew/bin/copilot  ",
+            configDir: "   ",
           },
         },
       });
 
-      assert.deepEqual(next.providers.codex, {
+      assert.deepEqual(next.providers.copilot, {
         enabled: true,
-        binaryPath: "/opt/homebrew/bin/codex",
-        homePath: "",
+        binaryPath: "/opt/homebrew/bin/copilot",
+        configDir: "",
         customModels: [],
-      });
-      assert.deepEqual(next.providers.claudeAgent, {
-        enabled: true,
-        binaryPath: "/opt/homebrew/bin/claude",
-        customModels: [],
+        skillDirectories: [],
+        disabledSkills: [],
       });
     }).pipe(Effect.provide(makeServerSettingsLayer())),
   );
@@ -195,17 +178,13 @@ it.layer(NodeServices.layer)("server settings", (it) => {
 
       const next = yield* serverSettings.updateSettings({
         providers: {
-          codex: {
+          copilot: {
             binaryPath: "   ",
-          },
-          claudeAgent: {
-            binaryPath: "",
           },
         },
       });
 
-      assert.equal(next.providers.codex.binaryPath, "codex");
-      assert.equal(next.providers.claudeAgent.binaryPath, "claude");
+      assert.equal(next.providers.copilot.binaryPath, "copilot");
     }).pipe(Effect.provide(makeServerSettingsLayer())),
   );
 
@@ -220,13 +199,13 @@ it.layer(NodeServices.layer)("server settings", (it) => {
           otlpMetricsUrl: "http://localhost:4318/v1/metrics",
         },
         providers: {
-          codex: {
-            binaryPath: "/opt/homebrew/bin/codex",
+          copilot: {
+            binaryPath: "/opt/homebrew/bin/copilot",
           },
         },
       });
 
-      assert.equal(next.providers.codex.binaryPath, "/opt/homebrew/bin/codex");
+      assert.equal(next.providers.copilot.binaryPath, "/opt/homebrew/bin/copilot");
 
       const raw = yield* fileSystem.readFileString(serverConfig.settingsPath);
       assert.deepEqual(JSON.parse(raw), {
@@ -235,8 +214,8 @@ it.layer(NodeServices.layer)("server settings", (it) => {
           otlpMetricsUrl: "http://localhost:4318/v1/metrics",
         },
         providers: {
-          codex: {
-            binaryPath: "/opt/homebrew/bin/codex",
+          copilot: {
+            binaryPath: "/opt/homebrew/bin/copilot",
           },
         },
       });

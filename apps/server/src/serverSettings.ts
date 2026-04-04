@@ -40,6 +40,7 @@ import {
 } from "effect";
 import * as Semaphore from "effect/Semaphore";
 import { ServerConfig } from "./config";
+import { resolveBundledMeridianBrainPath } from "./knowledge/bundledMeridianBrainPath.ts";
 import { type DeepPartial, deepMerge } from "@t3tools/shared/Struct";
 import { fromLenientJson } from "@t3tools/shared/schemaJson";
 
@@ -91,7 +92,7 @@ export class ServerSettingsService extends ServiceMap.Service<
 
 const ServerSettingsJson = fromLenientJson(ServerSettings);
 
-const PROVIDER_ORDER: readonly ProviderKind[] = ["codex", "claudeAgent"];
+const PROVIDER_ORDER: readonly ProviderKind[] = ["copilot"];
 
 /**
  * Ensure the `textGenerationModelSelection` points to an enabled provider.
@@ -99,6 +100,21 @@ const PROVIDER_ORDER: readonly ProviderKind[] = ["codex", "claudeAgent"];
  * provider with its default model.  This is applied at read-time so the
  * persisted preference is preserved for when a provider is re-enabled.
  */
+/** Team knowledge always comes from the bundled `meridianBrain` tree; persisted `globalKnowledgeRoot` is ignored. */
+export function applyBundledKnowledgeRoot(settings: ServerSettings): ServerSettings {
+  return {
+    ...settings,
+    globalKnowledgeRoot: resolveBundledMeridianBrainPath(),
+  };
+}
+
+function stripGlobalKnowledgeRootForPersistence(settings: ServerSettings): ServerSettings {
+  return {
+    ...settings,
+    globalKnowledgeRoot: "",
+  };
+}
+
 function resolveTextGenerationProvider(settings: ServerSettings): ServerSettings {
   const selection = settings.textGenerationModelSelection;
   if (settings.providers[selection.provider].enabled) {
@@ -309,7 +325,10 @@ const makeServerSettings = Effect.gen(function* () {
   return {
     start,
     ready: Deferred.await(startedDeferred),
-    getSettings: getSettingsFromCache.pipe(Effect.map(resolveTextGenerationProvider)),
+    getSettings: getSettingsFromCache.pipe(
+      Effect.map(applyBundledKnowledgeRoot),
+      Effect.map(resolveTextGenerationProvider),
+    ),
     updateSettings: (patch) =>
       writeSemaphore.withPermits(1)(
         Effect.gen(function* () {
@@ -324,14 +343,18 @@ const makeServerSettings = Effect.gen(function* () {
                 }),
             ),
           );
-          yield* writeSettingsAtomically(next);
-          yield* Cache.set(settingsCache, cacheKey, next);
-          yield* emitChange(next);
-          return resolveTextGenerationProvider(next);
+          const persisted = stripGlobalKnowledgeRootForPersistence(next);
+          yield* writeSettingsAtomically(persisted);
+          yield* Cache.set(settingsCache, cacheKey, persisted);
+          yield* emitChange(persisted);
+          return resolveTextGenerationProvider(applyBundledKnowledgeRoot(persisted));
         }),
       ),
     get streamChanges() {
-      return Stream.fromPubSub(changesPubSub).pipe(Stream.map(resolveTextGenerationProvider));
+      return Stream.fromPubSub(changesPubSub).pipe(
+        Stream.map(applyBundledKnowledgeRoot),
+        Stream.map(resolveTextGenerationProvider),
+      );
     },
   } satisfies ServerSettingsShape;
 });

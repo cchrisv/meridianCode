@@ -6,6 +6,7 @@ import {
   type OrchestrationEvent,
   ProviderKind,
   type OrchestrationSession,
+  PROVIDER_SEND_TURN_MAX_INPUT_CHARS,
   ThreadId,
   type ProviderSession,
   type RuntimeMode,
@@ -25,6 +26,7 @@ import {
   ProviderCommandReactor,
   type ProviderCommandReactorShape,
 } from "../Services/ProviderCommandReactor.ts";
+import { loadGlobalKnowledgeText } from "../../knowledge/globalKnowledgeLoader.ts";
 import { ServerSettingsService } from "../../serverSettings.ts";
 
 type ProviderIntentEvent = Extract<
@@ -36,7 +38,8 @@ type ProviderIntentEvent = Extract<
       | "thread.turn-interrupt-requested"
       | "thread.approval-response-requested"
       | "thread.user-input-response-requested"
-      | "thread.session-stop-requested";
+      | "thread.session-stop-requested"
+      | "thread.context-compact-requested";
   }
 >;
 
@@ -172,6 +175,7 @@ const make = Effect.gen(function* () {
     readonly kind:
       | "provider.turn.start.failed"
       | "provider.turn.interrupt.failed"
+      | "provider.context.compact.failed"
       | "provider.approval.respond.failed"
       | "provider.user-input.respond.failed"
       | "provider.session.stop.failed";
@@ -308,7 +312,6 @@ const make = Effect.gen(function* () {
       const shouldRestartForModelChange = modelChanged && sessionModelSwitch === "restart-session";
       const previousModelSelection = threadModelSelections.get(threadId);
       const shouldRestartForModelSelectionChange =
-        currentProvider === "claudeAgent" &&
         requestedModelSelection !== undefined &&
         !Equal.equals(previousModelSelection, requestedModelSelection);
 
@@ -401,9 +404,33 @@ const make = Effect.gen(function* () {
           : requestedModelSelection
         : input.modelSelection;
 
+    let mergedInput = normalizedInput;
+    if (normalizedInput && requestedModelSelection.provider !== "copilot") {
+      const { globalKnowledgeRoot } = yield* serverSettingsService.getSettings;
+      const root = globalKnowledgeRoot.trim();
+      if (root.length > 0) {
+        const slice = yield* Effect.promise(() => loadGlobalKnowledgeText(root));
+        if (slice.length > 0) {
+          const separator = "\n\n---\n\n";
+          const candidate = `${slice}${separator}${normalizedInput}`;
+          if (candidate.length > PROVIDER_SEND_TURN_MAX_INPUT_CHARS) {
+            const reserve = normalizedInput.length + separator.length + 80;
+            const maxSlice = Math.max(0, PROVIDER_SEND_TURN_MAX_INPUT_CHARS - reserve);
+            const clipped =
+              maxSlice > 0
+                ? `${slice.slice(0, maxSlice)}\n\n[meridian instructions truncated]\n\n`
+                : "";
+            mergedInput = `${clipped}${normalizedInput}`;
+          } else {
+            mergedInput = candidate;
+          }
+        }
+      }
+    }
+
     yield* providerService.sendTurn({
       threadId: input.threadId,
-      ...(normalizedInput ? { input: normalizedInput } : {}),
+      ...(mergedInput ? { input: mergedInput } : {}),
       ...(normalizedAttachments.length > 0 ? { attachments: normalizedAttachments } : {}),
       ...(modelForTurn !== undefined ? { modelSelection: modelForTurn } : {}),
       ...(input.interactionMode !== undefined ? { interactionMode: input.interactionMode } : {}),
@@ -611,6 +638,39 @@ const make = Effect.gen(function* () {
     yield* providerService.interruptTurn({ threadId: event.payload.threadId });
   });
 
+  const processContextCompactRequested = Effect.fn("processContextCompactRequested")(function* (
+    event: Extract<ProviderIntentEvent, { type: "thread.context-compact-requested" }>,
+  ) {
+    const thread = yield* resolveThread(event.payload.threadId);
+    if (!thread) {
+      return;
+    }
+    const hasSession = thread.session && thread.session.status !== "stopped";
+    if (!hasSession) {
+      return yield* appendProviderFailureActivity({
+        threadId: event.payload.threadId,
+        kind: "provider.context.compact.failed",
+        summary: "Context compaction failed",
+        detail: "No active provider session is bound to this thread.",
+        turnId: null,
+        createdAt: event.payload.createdAt,
+      });
+    }
+
+    yield* providerService.compactThread({ threadId: event.payload.threadId }).pipe(
+      Effect.catchCause((cause) =>
+        appendProviderFailureActivity({
+          threadId: event.payload.threadId,
+          kind: "provider.context.compact.failed",
+          summary: "Context compaction failed",
+          detail: Cause.pretty(cause),
+          turnId: null,
+          createdAt: event.payload.createdAt,
+        }),
+      ),
+    );
+  });
+
   const processApprovalResponseRequested = Effect.fn("processApprovalResponseRequested")(function* (
     event: Extract<ProviderIntentEvent, { type: "thread.approval-response-requested" }>,
   ) {
@@ -762,6 +822,9 @@ const make = Effect.gen(function* () {
       case "thread.turn-interrupt-requested":
         yield* processTurnInterruptRequested(event);
         return;
+      case "thread.context-compact-requested":
+        yield* processContextCompactRequested(event);
+        return;
       case "thread.approval-response-requested":
         yield* processApprovalResponseRequested(event);
         return;
@@ -795,6 +858,7 @@ const make = Effect.gen(function* () {
         event.type === "thread.runtime-mode-set" ||
         event.type === "thread.turn-start-requested" ||
         event.type === "thread.turn-interrupt-requested" ||
+        event.type === "thread.context-compact-requested" ||
         event.type === "thread.approval-response-requested" ||
         event.type === "thread.user-input-response-requested" ||
         event.type === "thread.session-stop-requested"

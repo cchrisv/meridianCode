@@ -122,17 +122,13 @@ describe("WsRpcAtomClient", () => {
       enableAssistantStreaming: true,
       defaultThreadEnvMode: "worktree" as const,
       textGenerationModelSelection: {
-        provider: "codex" as const,
+        provider: "copilot" as const,
         model: "gpt-5.4",
       },
       providers: {
-        codex: {
-          ...DEFAULT_SERVER_SETTINGS.providers.codex,
-          homePath: "/tmp/codex-home",
-        },
-        claudeAgent: {
-          ...DEFAULT_SERVER_SETTINGS.providers.claudeAgent,
-          enabled: false,
+        copilot: {
+          ...DEFAULT_SERVER_SETTINGS.providers.copilot,
+          configDir: "/tmp/copilot-config",
         },
       },
     };
@@ -172,17 +168,13 @@ describe("WsRpcAtomClient", () => {
       enableAssistantStreaming: true,
       defaultThreadEnvMode: "worktree" as const,
       textGenerationModelSelection: {
-        provider: "codex" as const,
+        provider: "copilot" as const,
         model: "gpt-5.4",
       },
       providers: {
-        codex: {
-          ...DEFAULT_SERVER_SETTINGS.providers.codex,
-          homePath: "/tmp/codex-home",
-        },
-        claudeAgent: {
-          ...DEFAULT_SERVER_SETTINGS.providers.claudeAgent,
-          enabled: false,
+        copilot: {
+          ...DEFAULT_SERVER_SETTINGS.providers.copilot,
+          configDir: "/tmp/copilot-config",
         },
       },
     };

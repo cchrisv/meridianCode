@@ -170,7 +170,7 @@ const autoBootstrapWelcome = Effect.gen(function* () {
         nextProjectId = ProjectId.makeUnsafe(crypto.randomUUID());
         const bootstrapProjectTitle = path.basename(serverConfig.cwd) || "project";
         nextProjectDefaultModelSelection = {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         };
         yield* orchestrationEngine.dispatch({
@@ -185,7 +185,7 @@ const autoBootstrapWelcome = Effect.gen(function* () {
       } else {
         nextProjectId = existingProject.value.id;
         nextProjectDefaultModelSelection = existingProject.value.defaultModelSelection ?? {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         };
       }

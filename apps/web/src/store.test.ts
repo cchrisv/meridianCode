@@ -26,7 +26,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     projectId: ProjectId.makeUnsafe("project-1"),
     title: "Thread",
     modelSelection: {
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5-codex",
     },
     runtimeMode: DEFAULT_RUNTIME_MODE,
@@ -57,7 +57,7 @@ function makeState(thread: Thread): AppState {
         name: "Project",
         cwd: "/tmp/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5-codex",
         },
         scripts: [],
@@ -103,7 +103,7 @@ function makeReadModelThread(overrides: Partial<OrchestrationReadModel["threads"
     projectId: ProjectId.makeUnsafe("project-1"),
     title: "Thread",
     modelSelection: {
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5.3-codex",
     },
     runtimeMode: DEFAULT_RUNTIME_MODE,
@@ -134,7 +134,7 @@ function makeReadModel(thread: OrchestrationReadModel["threads"][number]): Orche
         title: "Project",
         workspaceRoot: "/tmp/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5.3-codex",
         },
         createdAt: "2026-02-27T00:00:00.000Z",
@@ -155,7 +155,7 @@ function makeReadModelProject(
     title: "Project",
     workspaceRoot: "/tmp/project",
     defaultModelSelection: {
-      provider: "codex",
+      provider: "copilot",
       model: "gpt-5.3-codex",
     },
     createdAt: "2026-02-27T00:00:00.000Z",
@@ -183,7 +183,7 @@ describe("store read model sync", () => {
     const readModel = makeReadModel(
       makeReadModelThread({
         modelSelection: {
-          provider: "claudeAgent",
+          provider: "copilot",
           model: "claude-opus-4-6",
         },
       }),
@@ -194,18 +194,18 @@ describe("store read model sync", () => {
     expect(next.threads[0]?.modelSelection.model).toBe("claude-opus-4-6");
   });
 
-  it("resolves claude aliases when session provider is claudeAgent", () => {
+  it("resolves model aliases when session provider is copilot", () => {
     const initialState = makeState(makeThread());
     const readModel = makeReadModel(
       makeReadModelThread({
         modelSelection: {
-          provider: "claudeAgent",
+          provider: "copilot",
           model: "sonnet",
         },
         session: {
           threadId: ThreadId.makeUnsafe("thread-1"),
           status: "ready",
-          providerName: "claudeAgent",
+          providerName: "copilot",
           runtimeMode: "approval-required",
           activeTurnId: null,
           lastError: null,
@@ -259,8 +259,8 @@ describe("store read model sync", () => {
           name: "Project 2",
           cwd: "/tmp/project-2",
           defaultModelSelection: {
-            provider: "codex",
-            model: DEFAULT_MODEL_BY_PROVIDER.codex,
+            provider: "copilot",
+            model: DEFAULT_MODEL_BY_PROVIDER.copilot,
           },
           scripts: [],
         },
@@ -269,8 +269,8 @@ describe("store read model sync", () => {
           name: "Project 1",
           cwd: "/tmp/project-1",
           defaultModelSelection: {
-            provider: "codex",
-            model: DEFAULT_MODEL_BY_PROVIDER.codex,
+            provider: "copilot",
+            model: DEFAULT_MODEL_BY_PROVIDER.copilot,
           },
           scripts: [],
         },
@@ -361,8 +361,8 @@ describe("incremental orchestration updates", () => {
           name: "Project",
           cwd: "/tmp/project",
           defaultModelSelection: {
-            provider: "codex",
-            model: DEFAULT_MODEL_BY_PROVIDER.codex,
+            provider: "copilot",
+            model: DEFAULT_MODEL_BY_PROVIDER.copilot,
           },
           scripts: [],
         },
@@ -380,8 +380,8 @@ describe("incremental orchestration updates", () => {
         title: "Project Recreated",
         workspaceRoot: "/tmp/project",
         defaultModelSelection: {
-          provider: "codex",
-          model: DEFAULT_MODEL_BY_PROVIDER.codex,
+          provider: "copilot",
+          model: DEFAULT_MODEL_BY_PROVIDER.copilot,
         },
         scripts: [],
         createdAt: "2026-02-27T00:00:01.000Z",
@@ -410,8 +410,8 @@ describe("incremental orchestration updates", () => {
           name: "Project 1",
           cwd: "/tmp/project-1",
           defaultModelSelection: {
-            provider: "codex",
-            model: DEFAULT_MODEL_BY_PROVIDER.codex,
+            provider: "copilot",
+            model: DEFAULT_MODEL_BY_PROVIDER.copilot,
           },
           scripts: [],
         },
@@ -420,8 +420,8 @@ describe("incremental orchestration updates", () => {
           name: "Project 2",
           cwd: "/tmp/project-2",
           defaultModelSelection: {
-            provider: "codex",
-            model: DEFAULT_MODEL_BY_PROVIDER.codex,
+            provider: "copilot",
+            model: DEFAULT_MODEL_BY_PROVIDER.copilot,
           },
           scripts: [],
         },
@@ -441,8 +441,8 @@ describe("incremental orchestration updates", () => {
         projectId: recreatedProjectId,
         title: "Recovered thread",
         modelSelection: {
-          provider: "codex",
-          model: DEFAULT_MODEL_BY_PROVIDER.codex,
+          provider: "copilot",
+          model: DEFAULT_MODEL_BY_PROVIDER.copilot,
         },
         runtimeMode: DEFAULT_RUNTIME_MODE,
         interactionMode: DEFAULT_INTERACTION_MODE,
@@ -520,7 +520,7 @@ describe("incremental orchestration updates", () => {
           session: {
             threadId: thread.id,
             status: "running",
-            providerName: "codex",
+            providerName: "copilot",
             runtimeMode: "full-access",
             activeTurnId: TurnId.makeUnsafe("turn-1"),
             lastError: null,
@@ -798,7 +798,7 @@ describe("incremental orchestration updates", () => {
         session: {
           threadId: thread.id,
           status: "running",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "full-access",
           activeTurnId: TurnId.makeUnsafe("turn-3"),
           lastError: null,

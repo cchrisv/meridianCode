@@ -124,7 +124,7 @@ function createBaseServerConfig(): ServerConfig {
     issues: [],
     providers: [
       {
-        provider: "codex",
+        provider: "copilot",
         enabled: true,
         installed: true,
         version: "0.116.0",
@@ -248,10 +248,10 @@ function createSnapshotForTargetUser(options: {
     projects: [
       {
         id: PROJECT_ID,
-        title: "Project",
+        title: "Feature",
         workspaceRoot: "/repo/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5",
         },
         scripts: [],
@@ -266,7 +266,7 @@ function createSnapshotForTargetUser(options: {
         projectId: PROJECT_ID,
         title: "Browser test thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -285,7 +285,7 @@ function createSnapshotForTargetUser(options: {
         session: {
           threadId: THREAD_ID,
           status: options.sessionStatus ?? "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,
@@ -303,7 +303,7 @@ function buildFixture(snapshot: OrchestrationReadModel): TestFixture {
     serverConfig: createBaseServerConfig(),
     welcome: {
       cwd: "/repo/project",
-      projectName: "Project",
+      projectName: "Feature",
       bootstrapProjectId: PROJECT_ID,
       bootstrapThreadId: THREAD_ID,
     },
@@ -324,7 +324,7 @@ function addThreadToSnapshot(
         projectId: PROJECT_ID,
         title: "New thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -343,7 +343,7 @@ function addThreadToSnapshot(
         session: {
           threadId,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,
@@ -371,7 +371,7 @@ function createThreadCreatedEvent(threadId: ThreadId, sequence: number): Orchest
       projectId: PROJECT_ID,
       title: "New thread",
       modelSelection: {
-        provider: "codex",
+        provider: "copilot",
         model: "gpt-5",
       },
       runtimeMode: "full-access",
@@ -2234,26 +2234,25 @@ describe("ChatView timeline estimator parity (full app)", () => {
     }
   });
 
-  it("snapshots sticky codex settings into a new draft thread", async () => {
+  it("snapshots sticky copilot settings into a new draft thread", async () => {
     useComposerDraftStore.setState({
       stickyModelSelectionByProvider: {
-        codex: {
-          provider: "codex",
+        copilot: {
+          provider: "copilot",
           model: "gpt-5.3-codex",
           options: {
             reasoningEffort: "medium",
-            fastMode: true,
           },
         },
       },
-      stickyActiveProvider: "codex",
+      stickyActiveProvider: "copilot",
     });
 
     const mounted = await mountChatView({
       viewport: DEFAULT_VIEWPORT,
       snapshot: createSnapshotForTargetUser({
-        targetMessageId: "msg-user-sticky-codex-traits-test" as MessageId,
-        targetText: "sticky codex traits test",
+        targetMessageId: "msg-user-sticky-copilot-traits-test" as MessageId,
+        targetText: "sticky copilot traits test",
       }),
     });
 
@@ -2272,41 +2271,38 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
       expect(useComposerDraftStore.getState().draftsByThreadId[newThreadId]).toMatchObject({
         modelSelectionByProvider: {
-          codex: {
-            provider: "codex",
+          copilot: {
+            provider: "copilot",
             model: "gpt-5.3-codex",
-            options: {
-              fastMode: true,
-            },
+            options: {},
           },
         },
-        activeProvider: "codex",
+        activeProvider: "copilot",
       });
     } finally {
       await mounted.cleanup();
     }
   });
 
-  it("hydrates the provider alongside a sticky claude model", async () => {
+  it("hydrates the provider alongside a sticky copilot model", async () => {
     useComposerDraftStore.setState({
       stickyModelSelectionByProvider: {
-        claudeAgent: {
-          provider: "claudeAgent",
+        copilot: {
+          provider: "copilot",
           model: "claude-opus-4-6",
           options: {
-            effort: "max",
-            fastMode: true,
+            reasoningEffort: "high",
           },
         },
       },
-      stickyActiveProvider: "claudeAgent",
+      stickyActiveProvider: "copilot",
     });
 
     const mounted = await mountChatView({
       viewport: DEFAULT_VIEWPORT,
       snapshot: createSnapshotForTargetUser({
-        targetMessageId: "msg-user-sticky-claude-model-test" as MessageId,
-        targetText: "sticky claude model test",
+        targetMessageId: "msg-user-sticky-copilot-model-test" as MessageId,
+        targetText: "sticky copilot model test",
       }),
     });
 
@@ -2319,22 +2315,21 @@ describe("ChatView timeline estimator parity (full app)", () => {
       const newThreadPath = await waitForURL(
         mounted.router,
         (path) => UUID_ROUTE_RE.test(path),
-        "Route should have changed to a new sticky claude draft thread UUID.",
+        "Route should have changed to a new sticky copilot draft thread UUID.",
       );
       const newThreadId = newThreadPath.slice(1) as ThreadId;
 
       expect(useComposerDraftStore.getState().draftsByThreadId[newThreadId]).toMatchObject({
         modelSelectionByProvider: {
-          claudeAgent: {
-            provider: "claudeAgent",
+          copilot: {
+            provider: "copilot",
             model: "claude-opus-4-6",
             options: {
-              effort: "max",
-              fastMode: true,
+              reasoningEffort: "high",
             },
           },
         },
-        activeProvider: "claudeAgent",
+        activeProvider: "copilot",
       });
     } finally {
       await mounted.cleanup();
@@ -2345,8 +2340,8 @@ describe("ChatView timeline estimator parity (full app)", () => {
     const mounted = await mountChatView({
       viewport: DEFAULT_VIEWPORT,
       snapshot: createSnapshotForTargetUser({
-        targetMessageId: "msg-user-default-codex-traits-test" as MessageId,
-        targetText: "default codex traits test",
+        targetMessageId: "msg-user-default-copilot-traits-test" as MessageId,
+        targetText: "default copilot traits test",
       }),
     });
 
@@ -2372,23 +2367,22 @@ describe("ChatView timeline estimator parity (full app)", () => {
   it("prefers draft state over sticky composer settings and defaults", async () => {
     useComposerDraftStore.setState({
       stickyModelSelectionByProvider: {
-        codex: {
-          provider: "codex",
+        copilot: {
+          provider: "copilot",
           model: "gpt-5.3-codex",
           options: {
             reasoningEffort: "medium",
-            fastMode: true,
           },
         },
       },
-      stickyActiveProvider: "codex",
+      stickyActiveProvider: "copilot",
     });
 
     const mounted = await mountChatView({
       viewport: DEFAULT_VIEWPORT,
       snapshot: createSnapshotForTargetUser({
-        targetMessageId: "msg-user-draft-codex-traits-precedence-test" as MessageId,
-        targetText: "draft codex traits precedence test",
+        targetMessageId: "msg-user-draft-copilot-traits-precedence-test" as MessageId,
+        targetText: "draft copilot traits precedence test",
       }),
     });
 
@@ -2407,23 +2401,20 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
       expect(useComposerDraftStore.getState().draftsByThreadId[threadId]).toMatchObject({
         modelSelectionByProvider: {
-          codex: {
-            provider: "codex",
+          copilot: {
+            provider: "copilot",
             model: "gpt-5.3-codex",
-            options: {
-              fastMode: true,
-            },
+            options: {},
           },
         },
-        activeProvider: "codex",
+        activeProvider: "copilot",
       });
 
       useComposerDraftStore.getState().setModelSelection(threadId, {
-        provider: "codex",
+        provider: "copilot",
         model: "gpt-5.4",
         options: {
           reasoningEffort: "low",
-          fastMode: true,
         },
       });
 
@@ -2436,16 +2427,15 @@ describe("ChatView timeline estimator parity (full app)", () => {
       );
       expect(useComposerDraftStore.getState().draftsByThreadId[threadId]).toMatchObject({
         modelSelectionByProvider: {
-          codex: {
-            provider: "codex",
+          copilot: {
+            provider: "copilot",
             model: "gpt-5.4",
             options: {
               reasoningEffort: "low",
-              fastMode: true,
             },
           },
         },
-        activeProvider: "codex",
+        activeProvider: "copilot",
       });
     } finally {
       await mounted.cleanup();

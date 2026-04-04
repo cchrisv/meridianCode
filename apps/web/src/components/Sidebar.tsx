@@ -5,7 +5,6 @@ import {
   FolderIcon,
   GitPullRequestIcon,
   PlusIcon,
-  SettingsIcon,
   SquarePenIcon,
   TerminalIcon,
   TriangleAlertIcon,
@@ -78,6 +77,7 @@ import { useHandleNewThread } from "../hooks/useHandleNewThread";
 import { useThreadActions } from "../hooks/useThreadActions";
 import { toastManager } from "./ui/toast";
 import { formatRelativeTimeLabel } from "../timestampFormat";
+import { SidebarGithubAccount } from "./SidebarGithubAccount";
 import { SettingsSidebarNav } from "./settings/SettingsSidebarNav";
 import {
   getArm64IntelBuildWarningDescription,
@@ -540,19 +540,18 @@ function SidebarThreadRow(props: SidebarThreadRowProps) {
   );
 }
 
-function T3Wordmark() {
+/** Interim wordmark per Meridian brand guide (approved SVG lockup can replace this block). */
+function MeridianWordmark() {
   return (
-    <svg
-      aria-label="T3"
-      className="h-2.5 w-auto shrink-0 text-foreground"
-      viewBox="15.5309 37 94.3941 56.96"
-      xmlns="http://www.w3.org/2000/svg"
+    <span
+      aria-label="Meridian Code"
+      className="flex min-w-0 shrink items-baseline gap-1.5 text-left"
     >
-      <path
-        d="M33.4509 93V47.56H15.5309V37H64.3309V47.56H46.4109V93H33.4509ZM86.7253 93.96C82.832 93.96 78.9653 93.4533 75.1253 92.44C71.2853 91.3733 68.032 89.88 65.3653 87.96L70.4053 78.04C72.5386 79.5867 75.0186 80.8133 77.8453 81.72C80.672 82.6267 83.5253 83.08 86.4053 83.08C89.6586 83.08 92.2186 82.44 94.0853 81.16C95.952 79.88 96.8853 78.12 96.8853 75.88C96.8853 73.7467 96.0586 72.0667 94.4053 70.84C92.752 69.6133 90.0853 69 86.4053 69H80.4853V60.44L96.0853 42.76L97.5253 47.4H68.1653V37H107.365V45.4L91.8453 63.08L85.2853 59.32H89.0453C95.9253 59.32 101.125 60.8667 104.645 63.96C108.165 67.0533 109.925 71.0267 109.925 75.88C109.925 79.0267 109.099 81.9867 107.445 84.76C105.792 87.48 103.259 89.6933 99.8453 91.4C96.432 93.1067 92.0586 93.96 86.7253 93.96Z"
-        fill="currentColor"
-      />
-    </svg>
+      <span className="truncate text-xs font-bold tracking-[0.12em] text-[#3c3c43] sm:text-sm dark:text-white">
+        MERIDIAN
+      </span>
+      <span className="truncate text-xs font-semibold text-muted-foreground sm:text-sm">Code</span>
+    </span>
   );
 }
 
@@ -582,12 +581,12 @@ function ProjectSortMenu({
         >
           <ArrowUpDownIcon className="size-3.5" />
         </TooltipTrigger>
-        <TooltipPopup side="right">Sort projects</TooltipPopup>
+        <TooltipPopup side="right">Sort features</TooltipPopup>
       </Tooltip>
       <MenuPopup align="end" side="bottom" className="min-w-44">
         <MenuGroup>
           <div className="px-2 py-1 sm:text-xs font-medium text-muted-foreground">
-            Sort projects
+            Sort features
           </div>
           <MenuRadioGroup
             value={projectSortOrder}
@@ -899,8 +898,8 @@ export default function Sidebar() {
           title,
           workspaceRoot: cwd,
           defaultModelSelection: {
-            provider: "codex",
-            model: DEFAULT_MODEL_BY_PROVIDER.codex,
+            provider: "copilot",
+            model: DEFAULT_MODEL_BY_PROVIDER.copilot,
           },
           createdAt,
         });
@@ -909,12 +908,12 @@ export default function Sidebar() {
         }).catch(() => undefined);
       } catch (error) {
         const description =
-          error instanceof Error ? error.message : "An error occurred while adding the project.";
+          error instanceof Error ? error.message : "An error occurred while adding the feature.";
         setIsAddingProject(false);
         if (shouldBrowseForProjectImmediately) {
           toastManager.add({
             type: "error",
-            title: "Failed to add project",
+            title: "Failed to add feature",
             description,
           });
         } else {
@@ -1241,8 +1240,8 @@ export default function Sidebar() {
 
       const clicked = await api.contextMenu.show(
         [
-          { id: "copy-path", label: "Copy Project Path" },
-          { id: "delete", label: "Remove project", destructive: true },
+          { id: "copy-path", label: "Copy feature path" },
+          { id: "delete", label: "Remove feature", destructive: true },
         ],
         position,
       );
@@ -1256,13 +1255,13 @@ export default function Sidebar() {
       if (projectThreadIds.length > 0) {
         toastManager.add({
           type: "warning",
-          title: "Project is not empty",
-          description: "Delete all threads in this project before removing it.",
+          title: "Feature is not empty",
+          description: "Delete all threads in this feature before removing it.",
         });
         return;
       }
 
-      const confirmed = await api.dialogs.confirm(`Remove project "${project.name}"?`);
+      const confirmed = await api.dialogs.confirm(`Remove feature "${project.name}"?`);
       if (!confirmed) return;
 
       try {
@@ -1277,8 +1276,8 @@ export default function Sidebar() {
           projectId,
         });
       } catch (error) {
-        const message = error instanceof Error ? error.message : "Unknown error removing project.";
-        console.error("Failed to remove project", { projectId, error });
+        const message = error instanceof Error ? error.message : "Unknown error removing feature.";
+        console.error("Failed to remove feature", { projectId, error });
         toastManager.add({
           type: "error",
           title: `Failed to remove "${project.name}"`,
@@ -1975,10 +1974,7 @@ export default function Sidebar() {
               className="ml-1 flex min-w-0 flex-1 cursor-pointer items-center gap-1 rounded-md outline-hidden ring-ring transition-colors hover:text-foreground focus-visible:ring-2"
               to="/"
             >
-              <T3Wordmark />
-              <span className="truncate text-sm font-medium tracking-tight text-muted-foreground">
-                Code
-              </span>
+              <MeridianWordmark />
               <span className="rounded-full bg-muted/50 px-1.5 py-0.5 text-[8px] font-medium uppercase tracking-[0.18em] text-muted-foreground/60">
                 {APP_STAGE_LABEL}
               </span>
@@ -2035,7 +2031,7 @@ export default function Sidebar() {
             <SidebarGroup className="px-2 py-2">
               <div className="mb-1 flex items-center justify-between pl-2 pr-1.5">
                 <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground/60">
-                  Projects
+                  Features
                 </span>
                 <div className="flex items-center gap-1">
                   <ProjectSortMenu
@@ -2054,7 +2050,7 @@ export default function Sidebar() {
                         <button
                           type="button"
                           aria-label={
-                            shouldShowProjectPathEntry ? "Cancel add project" : "Add project"
+                            shouldShowProjectPathEntry ? "Cancel add feature" : "Add feature"
                           }
                           aria-pressed={shouldShowProjectPathEntry}
                           className="inline-flex size-5 cursor-pointer items-center justify-center rounded-md text-muted-foreground/60 transition-colors hover:bg-accent hover:text-foreground"
@@ -2069,7 +2065,7 @@ export default function Sidebar() {
                       />
                     </TooltipTrigger>
                     <TooltipPopup side="right">
-                      {shouldShowProjectPathEntry ? "Cancel add project" : "Add project"}
+                      {shouldShowProjectPathEntry ? "Cancel add feature" : "Add feature"}
                     </TooltipPopup>
                   </Tooltip>
                 </div>
@@ -2095,7 +2091,7 @@ export default function Sidebar() {
                           ? "border-red-500/70 focus:border-red-500"
                           : "border-border focus:border-ring"
                       }`}
-                      placeholder="/path/to/project"
+                      placeholder="/path/to/feature"
                       value={newCwd}
                       onChange={(event) => {
                         setNewCwd(event.target.value);
@@ -2164,27 +2160,16 @@ export default function Sidebar() {
 
               {projects.length === 0 && !shouldShowProjectPathEntry && (
                 <div className="px-2 pt-4 text-center text-xs text-muted-foreground/60">
-                  No projects yet
+                  No features yet
                 </div>
               )}
             </SidebarGroup>
           </SidebarContent>
 
           <SidebarSeparator />
-          <SidebarFooter className="p-2">
+          <SidebarFooter className="flex flex-col gap-2 p-2">
             <SidebarUpdatePill />
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  size="sm"
-                  className="gap-2 px-2 py-1.5 text-muted-foreground/70 hover:bg-accent hover:text-foreground"
-                  onClick={() => void navigate({ to: "/settings" })}
-                >
-                  <SettingsIcon className="size-3.5" />
-                  <span className="text-xs">Settings</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
+            <SidebarGithubAccount />
           </SidebarFooter>
         </>
       )}

@@ -46,7 +46,7 @@ function createBaseServerConfig(): ServerConfig {
     issues: [],
     providers: [
       {
-        provider: "codex",
+        provider: "copilot",
         enabled: true,
         installed: true,
         version: "0.116.0",
@@ -67,10 +67,16 @@ function createBaseServerConfig(): ServerConfig {
       ...DEFAULT_SERVER_SETTINGS,
       enableAssistantStreaming: false,
       defaultThreadEnvMode: "local" as const,
-      textGenerationModelSelection: { provider: "codex" as const, model: "gpt-5.4-mini" },
+      textGenerationModelSelection: { provider: "copilot" as const, model: "gpt-5.4-mini" },
       providers: {
-        codex: { enabled: true, binaryPath: "", homePath: "", customModels: [] },
-        claudeAgent: { enabled: true, binaryPath: "", customModels: [] },
+        copilot: {
+          enabled: true,
+          binaryPath: "",
+          configDir: "",
+          customModels: [],
+          skillDirectories: [],
+          disabledSkills: [],
+        },
       },
     },
   };
@@ -82,10 +88,10 @@ function createMinimalSnapshot(): OrchestrationReadModel {
     projects: [
       {
         id: PROJECT_ID,
-        title: "Project",
+        title: "Feature",
         workspaceRoot: "/repo/project",
         defaultModelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5",
         },
         scripts: [],
@@ -100,7 +106,7 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         projectId: PROJECT_ID,
         title: "Test thread",
         modelSelection: {
-          provider: "codex",
+          provider: "copilot",
           model: "gpt-5",
         },
         interactionMode: "default",
@@ -129,7 +135,7 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         session: {
           threadId: THREAD_ID,
           status: "ready",
-          providerName: "codex",
+          providerName: "copilot",
           runtimeMode: "full-access",
           activeTurnId: null,
           lastError: null,
@@ -147,7 +153,7 @@ function buildFixture(): TestFixture {
     serverConfig: createBaseServerConfig(),
     welcome: {
       cwd: "/repo/project",
-      projectName: "Project",
+      projectName: "Feature",
       bootstrapProjectId: PROJECT_ID,
       bootstrapThreadId: THREAD_ID,
     },

@@ -29,7 +29,7 @@ layer("OrchestrationEventStore", (it) => {
         causationEventId: null,
         correlationId: CommandId.makeUnsafe("cmd-store-roundtrip"),
         metadata: {
-          adapterKey: "codex",
+          adapterKey: "copilot",
         },
         payload: {
           projectId: ProjectId.makeUnsafe("project-roundtrip"),
@@ -61,7 +61,7 @@ layer("OrchestrationEventStore", (it) => {
       );
       assert.equal(replayed.length, 1);
       assert.equal(replayed[0]?.type, "project.created");
-      assert.equal(replayed[0]?.metadata.adapterKey, "codex");
+      assert.equal(replayed[0]?.metadata.adapterKey, "copilot");
     }),
   );
 

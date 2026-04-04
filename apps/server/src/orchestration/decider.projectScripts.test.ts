@@ -137,7 +137,7 @@ describe("decider project scripts", () => {
           projectId: asProjectId("project-1"),
           title: "Thread",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -163,11 +163,10 @@ describe("decider project scripts", () => {
             attachments: [],
           },
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5.3-codex",
             options: {
               reasoningEffort: "high",
-              fastMode: true,
             },
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -192,11 +191,10 @@ describe("decider project scripts", () => {
       threadId: ThreadId.makeUnsafe("thread-1"),
       messageId: asMessageId("message-user-1"),
       modelSelection: {
-        provider: "codex",
+        provider: "copilot",
         model: "gpt-5.3-codex",
         options: {
           reasoningEffort: "high",
-          fastMode: true,
         },
       },
       runtimeMode: "approval-required",
@@ -246,7 +244,7 @@ describe("decider project scripts", () => {
           projectId: asProjectId("project-1"),
           title: "Thread",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,
@@ -328,7 +326,7 @@ describe("decider project scripts", () => {
           projectId: asProjectId("project-1"),
           title: "Thread",
           modelSelection: {
-            provider: "codex",
+            provider: "copilot",
             model: "gpt-5-codex",
           },
           interactionMode: DEFAULT_PROVIDER_INTERACTION_MODE,

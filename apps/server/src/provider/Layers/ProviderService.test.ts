@@ -17,6 +17,7 @@ import {
   ThreadId,
   TurnId,
 } from "@t3tools/contracts";
+import { APP_BASE_NAME } from "@t3tools/shared/branding";
 import { it, assert, vi } from "@effect/vitest";
 import { assertFailure } from "@effect/vitest/utils";
 
@@ -65,7 +66,7 @@ type LegacyProviderRuntimeEvent = {
   readonly [key: string]: unknown;
 };
 
-function makeFakeCodexAdapter(provider: ProviderKind = "codex") {
+function makeFakeAdapter(provider: ProviderKind = "copilot") {
   const sessions = new Map<ThreadId, ProviderSession>();
   const runtimeEventPubSub = Effect.runSync(PubSub.unbounded<ProviderRuntimeEvent>());
 
@@ -110,6 +111,10 @@ function makeFakeCodexAdapter(provider: ProviderKind = "codex") {
   const interruptTurn = vi.fn(
     (_threadId: ThreadId, _turnId?: TurnId): Effect.Effect<void, ProviderAdapterError> =>
       Effect.void,
+  );
+
+  const compactThread = vi.fn(
+    (_threadId: ThreadId): Effect.Effect<void, ProviderAdapterError> => Effect.void,
   );
 
   const respondToRequest = vi.fn(
@@ -183,6 +188,7 @@ function makeFakeCodexAdapter(provider: ProviderKind = "codex") {
     startSession,
     sendTurn,
     interruptTurn,
+    compactThread,
     respondToRequest,
     respondToUserInput,
     stopSession,
@@ -216,6 +222,7 @@ function makeFakeCodexAdapter(provider: ProviderKind = "codex") {
     startSession,
     sendTurn,
     interruptTurn,
+    compactThread,
     respondToRequest,
     respondToUserInput,
     stopSession,
@@ -242,16 +249,13 @@ const hasMetricSnapshot = (
   );
 
 function makeProviderServiceLayer() {
-  const codex = makeFakeCodexAdapter();
-  const claude = makeFakeCodexAdapter("claudeAgent");
+  const copilot = makeFakeAdapter();
   const registry: typeof ProviderAdapterRegistry.Service = {
     getByProvider: (provider) =>
-      provider === "codex"
-        ? Effect.succeed(codex.adapter)
-        : provider === "claudeAgent"
-          ? Effect.succeed(claude.adapter)
-          : Effect.fail(new ProviderUnsupportedError({ provider })),
-    listProviders: () => Effect.succeed(["codex", "claudeAgent"]),
+      provider === "copilot"
+        ? Effect.succeed(copilot.adapter)
+        : Effect.fail(new ProviderUnsupportedError({ provider })),
+    listProviders: () => Effect.succeed(["copilot"]),
   };
 
   const providerAdapterLayer = Layer.succeed(ProviderAdapterRegistry, registry);
@@ -276,29 +280,25 @@ function makeProviderServiceLayer() {
   );
 
   return {
-    codex,
-    claude,
+    copilot,
     layer,
   };
 }
 
 it.effect("ProviderServiceLive rejects new sessions for disabled providers", () =>
   Effect.gen(function* () {
-    const codex = makeFakeCodexAdapter();
-    const claude = makeFakeCodexAdapter("claudeAgent");
+    const copilot = makeFakeAdapter();
     const registry: typeof ProviderAdapterRegistry.Service = {
       getByProvider: (provider) =>
-        provider === "codex"
-          ? Effect.succeed(codex.adapter)
-          : provider === "claudeAgent"
-            ? Effect.succeed(claude.adapter)
-            : Effect.fail(new ProviderUnsupportedError({ provider })),
-      listProviders: () => Effect.succeed(["codex", "claudeAgent"]),
+        provider === "copilot"
+          ? Effect.succeed(copilot.adapter)
+          : Effect.fail(new ProviderUnsupportedError({ provider })),
+      listProviders: () => Effect.succeed(["copilot"]),
     };
     const providerAdapterLayer = Layer.succeed(ProviderAdapterRegistry, registry);
     const serverSettingsLayer = ServerSettingsService.layerTest({
       providers: {
-        claudeAgent: {
+        copilot: {
           enabled: false,
         },
       },
@@ -318,7 +318,7 @@ it.effect("ProviderServiceLive rejects new sessions for disabled providers", () 
       Effect.gen(function* () {
         const provider = yield* ProviderService;
         return yield* provider.startSession(asThreadId("thread-disabled"), {
-          provider: "claudeAgent",
+          provider: "copilot",
           threadId: asThreadId("thread-disabled"),
           runtimeMode: "full-access",
         });
@@ -326,8 +326,11 @@ it.effect("ProviderServiceLive rejects new sessions for disabled providers", () 
     );
 
     assert.instanceOf(failure, ProviderValidationError);
-    assert.include(failure.issue, "Provider 'claudeAgent' is disabled in T3 Code settings.");
-    assert.equal(claude.startSession.mock.calls.length, 0);
+    assert.include(
+      failure.issue,
+      `Provider 'copilot' is disabled in ${APP_BASE_NAME} settings.`,
+    );
+    assert.equal(copilot.startSession.mock.calls.length, 0);
   }).pipe(Effect.provide(NodeServices.layer)),
 );
 
@@ -337,13 +340,13 @@ it.effect("ProviderServiceLive keeps persisted resumable sessions on startup", (
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "t3-provider-service-"));
     const dbPath = path.join(tempDir, "orchestration.sqlite");
 
-    const codex = makeFakeCodexAdapter();
+    const copilot = makeFakeAdapter();
     const registry: typeof ProviderAdapterRegistry.Service = {
       getByProvider: (provider) =>
-        provider === "codex"
-          ? Effect.succeed(codex.adapter)
+        provider === "copilot"
+          ? Effect.succeed(copilot.adapter)
           : Effect.fail(new ProviderUnsupportedError({ provider })),
-      listProviders: () => Effect.succeed(["codex"]),
+      listProviders: () => Effect.succeed(["copilot"]),
     };
 
     const persistenceLayer = makeSqlitePersistenceLive(dbPath);
@@ -355,7 +358,7 @@ it.effect("ProviderServiceLive keeps persisted resumable sessions on startup", (
     yield* Effect.gen(function* () {
       const directory = yield* ProviderSessionDirectory;
       yield* directory.upsert({
-        provider: "codex",
+        provider: "copilot",
         threadId: ThreadId.makeUnsafe("thread-stale"),
       });
     }).pipe(Effect.provide(directoryLayer));
@@ -375,7 +378,7 @@ it.effect("ProviderServiceLive keeps persisted resumable sessions on startup", (
       const directory = yield* ProviderSessionDirectory;
       return yield* directory.getProvider(asThreadId("thread-stale"));
     }).pipe(Effect.provide(directoryLayer));
-    assert.equal(persistedProvider, "codex");
+    assert.equal(persistedProvider, "copilot");
 
     const runtime = yield* Effect.gen(function* () {
       const repository = yield* ProviderSessionRuntimeRepository;
@@ -408,13 +411,13 @@ it.effect(
         Layer.provide(persistenceLayer),
       );
 
-      const firstCodex = makeFakeCodexAdapter();
+      const firstCopilot = makeFakeAdapter();
       const firstRegistry: typeof ProviderAdapterRegistry.Service = {
         getByProvider: (provider) =>
-          provider === "codex"
-            ? Effect.succeed(firstCodex.adapter)
+          provider === "copilot"
+            ? Effect.succeed(firstCopilot.adapter)
             : Effect.fail(new ProviderUnsupportedError({ provider })),
-        listProviders: () => Effect.succeed(["codex"]),
+        listProviders: () => Effect.succeed(["copilot"]),
       };
 
       const firstDirectoryLayer = ProviderSessionDirectoryLive.pipe(
@@ -437,12 +440,12 @@ it.effect(
         const provider = yield* ProviderService;
         const threadId = asThreadId("thread-1");
         const session = yield* provider.startSession(threadId, {
-          provider: "codex",
+          provider: "copilot",
           cwd: "/tmp/project",
           runtimeMode: "full-access",
           threadId,
         });
-        firstCodex.updateSession(threadId, (existing) => ({
+        firstCopilot.updateSession(threadId, (existing) => ({
           ...existing,
           status: "ready",
           resumeCursor: updatedResumeCursor,
@@ -461,13 +464,13 @@ it.effect(
         assert.deepEqual(persistedAfterStopAll.value.resumeCursor, updatedResumeCursor);
       }
 
-      const secondCodex = makeFakeCodexAdapter();
+      const secondCopilot = makeFakeAdapter();
       const secondRegistry: typeof ProviderAdapterRegistry.Service = {
         getByProvider: (provider) =>
-          provider === "codex"
-            ? Effect.succeed(secondCodex.adapter)
+          provider === "copilot"
+            ? Effect.succeed(secondCopilot.adapter)
             : Effect.fail(new ProviderUnsupportedError({ provider })),
-        listProviders: () => Effect.succeed(["codex"]),
+        listProviders: () => Effect.succeed(["copilot"]),
       };
       const secondDirectoryLayer = ProviderSessionDirectoryLive.pipe(
         Layer.provide(runtimeRepositoryLayer),
@@ -479,8 +482,8 @@ it.effect(
         Layer.provide(AnalyticsService.layerTest),
       );
 
-      secondCodex.startSession.mockClear();
-      secondCodex.rollbackThread.mockClear();
+      secondCopilot.startSession.mockClear();
+      secondCopilot.rollbackThread.mockClear();
 
       yield* Effect.gen(function* () {
         const provider = yield* ProviderService;
@@ -490,8 +493,8 @@ it.effect(
         });
       }).pipe(Effect.provide(secondProviderLayer));
 
-      assert.equal(secondCodex.startSession.mock.calls.length, 1);
-      const resumedStartInput = secondCodex.startSession.mock.calls[0]?.[0];
+      assert.equal(secondCopilot.startSession.mock.calls.length, 1);
+      const resumedStartInput = secondCopilot.startSession.mock.calls[0]?.[0];
       assert.equal(typeof resumedStartInput === "object" && resumedStartInput !== null, true);
       if (resumedStartInput && typeof resumedStartInput === "object") {
         const startPayload = resumedStartInput as {
@@ -500,13 +503,13 @@ it.effect(
           resumeCursor?: unknown;
           threadId?: string;
         };
-        assert.equal(startPayload.provider, "codex");
+        assert.equal(startPayload.provider, "copilot");
         assert.equal(startPayload.cwd, "/tmp/project");
         assert.deepEqual(startPayload.resumeCursor, updatedResumeCursor);
         assert.equal(startPayload.threadId, startedSession.threadId);
       }
-      assert.equal(secondCodex.rollbackThread.mock.calls.length, 1);
-      const rollbackCall = secondCodex.rollbackThread.mock.calls[0];
+      assert.equal(secondCopilot.rollbackThread.mock.calls.length, 1);
+      const rollbackCall = secondCopilot.rollbackThread.mock.calls[0];
       assert.equal(typeof rollbackCall?.[0], "string");
       assert.equal(rollbackCall?.[1], 1);
 
@@ -520,12 +523,12 @@ routing.layer("ProviderServiceLive routing", (it) => {
       const provider = yield* ProviderService;
 
       const session = yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         cwd: "/tmp/project",
         runtimeMode: "full-access",
       });
-      assert.equal(session.provider, "codex");
+      assert.equal(session.provider, "copilot");
 
       const sessions = yield* provider.listSessions();
       assert.equal(sessions.length, 1);
@@ -535,17 +538,17 @@ routing.layer("ProviderServiceLive routing", (it) => {
         input: "hello",
         attachments: [],
       });
-      assert.equal(routing.codex.sendTurn.mock.calls.length, 1);
+      assert.equal(routing.copilot.sendTurn.mock.calls.length, 1);
 
       yield* provider.interruptTurn({ threadId: session.threadId });
-      assert.deepEqual(routing.codex.interruptTurn.mock.calls, [[session.threadId, undefined]]);
+      assert.deepEqual(routing.copilot.interruptTurn.mock.calls, [[session.threadId, undefined]]);
 
       yield* provider.respondToRequest({
         threadId: session.threadId,
         requestId: asRequestId("req-1"),
         decision: "accept",
       });
-      assert.deepEqual(routing.codex.respondToRequest.mock.calls, [
+      assert.deepEqual(routing.copilot.respondToRequest.mock.calls, [
         [session.threadId, asRequestId("req-1"), "accept"],
       ]);
 
@@ -556,7 +559,7 @@ routing.layer("ProviderServiceLive routing", (it) => {
           sandbox_mode: "workspace-write",
         },
       });
-      assert.deepEqual(routing.codex.respondToUserInput.mock.calls, [
+      assert.deepEqual(routing.copilot.respondToUserInput.mock.calls, [
         [
           session.threadId,
           asRequestId("req-user-input-1"),
@@ -594,22 +597,22 @@ routing.layer("ProviderServiceLive routing", (it) => {
       const provider = yield* ProviderService;
 
       const initial = yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         cwd: "/tmp/project",
         runtimeMode: "full-access",
       });
-      yield* routing.codex.stopSession(initial.threadId);
-      routing.codex.startSession.mockClear();
-      routing.codex.rollbackThread.mockClear();
+      yield* routing.copilot.stopSession(initial.threadId);
+      routing.copilot.startSession.mockClear();
+      routing.copilot.rollbackThread.mockClear();
 
       yield* provider.rollbackConversation({
         threadId: initial.threadId,
         numTurns: 1,
       });
 
-      assert.equal(routing.codex.startSession.mock.calls.length, 1);
-      const resumedStartInput = routing.codex.startSession.mock.calls[0]?.[0];
+      assert.equal(routing.copilot.startSession.mock.calls.length, 1);
+      const resumedStartInput = routing.copilot.startSession.mock.calls[0]?.[0];
       assert.equal(typeof resumedStartInput === "object" && resumedStartInput !== null, true);
       if (resumedStartInput && typeof resumedStartInput === "object") {
         const startPayload = resumedStartInput as {
@@ -618,36 +621,37 @@ routing.layer("ProviderServiceLive routing", (it) => {
           resumeCursor?: unknown;
           threadId?: string;
         };
-        assert.equal(startPayload.provider, "codex");
+        assert.equal(startPayload.provider, "copilot");
         assert.equal(startPayload.cwd, "/tmp/project");
         assert.deepEqual(startPayload.resumeCursor, initial.resumeCursor);
         assert.equal(startPayload.threadId, initial.threadId);
       }
-      assert.equal(routing.codex.rollbackThread.mock.calls.length, 1);
-      const rollbackCall = routing.codex.rollbackThread.mock.calls[0];
+      assert.equal(routing.copilot.rollbackThread.mock.calls.length, 1);
+      const rollbackCall = routing.copilot.rollbackThread.mock.calls[0];
       assert.equal(rollbackCall?.[1], 1);
     }),
   );
 
-  it.effect("routes explicit claudeAgent provider session starts to the claude adapter", () =>
+  it.effect("routes explicit copilot provider session starts to the copilot adapter", () =>
     Effect.gen(function* () {
       const provider = yield* ProviderService;
+      routing.copilot.startSession.mockClear();
 
-      const session = yield* provider.startSession(asThreadId("thread-claude"), {
-        provider: "claudeAgent",
-        threadId: asThreadId("thread-claude"),
-        cwd: "/tmp/project-claude",
+      const session = yield* provider.startSession(asThreadId("thread-copilot-explicit"), {
+        provider: "copilot",
+        threadId: asThreadId("thread-copilot-explicit"),
+        cwd: "/tmp/project-copilot",
         runtimeMode: "full-access",
       });
 
-      assert.equal(session.provider, "claudeAgent");
-      assert.equal(routing.claude.startSession.mock.calls.length, 1);
-      const startInput = routing.claude.startSession.mock.calls[0]?.[0];
+      assert.equal(session.provider, "copilot");
+      assert.equal(routing.copilot.startSession.mock.calls.length, 1);
+      const startInput = routing.copilot.startSession.mock.calls[0]?.[0];
       assert.equal(typeof startInput === "object" && startInput !== null, true);
       if (startInput && typeof startInput === "object") {
         const startPayload = startInput as { provider?: string; cwd?: string };
-        assert.equal(startPayload.provider, "claudeAgent");
-        assert.equal(startPayload.cwd, "/tmp/project-claude");
+        assert.equal(startPayload.provider, "copilot");
+        assert.equal(startPayload.cwd, "/tmp/project-copilot");
       }
     }),
   );
@@ -657,15 +661,15 @@ routing.layer("ProviderServiceLive routing", (it) => {
       const provider = yield* ProviderService;
 
       const initial = yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         cwd: "/tmp/project-send-turn",
         runtimeMode: "full-access",
       });
 
-      yield* routing.codex.stopAll();
-      routing.codex.startSession.mockClear();
-      routing.codex.sendTurn.mockClear();
+      yield* routing.copilot.stopAll();
+      routing.copilot.startSession.mockClear();
+      routing.copilot.sendTurn.mockClear();
 
       yield* provider.sendTurn({
         threadId: initial.threadId,
@@ -673,8 +677,8 @@ routing.layer("ProviderServiceLive routing", (it) => {
         attachments: [],
       });
 
-      assert.equal(routing.codex.startSession.mock.calls.length, 1);
-      const resumedStartInput = routing.codex.startSession.mock.calls[0]?.[0];
+      assert.equal(routing.copilot.startSession.mock.calls.length, 1);
+      const resumedStartInput = routing.copilot.startSession.mock.calls[0]?.[0];
       assert.equal(typeof resumedStartInput === "object" && resumedStartInput !== null, true);
       if (resumedStartInput && typeof resumedStartInput === "object") {
         const startPayload = resumedStartInput as {
@@ -683,45 +687,43 @@ routing.layer("ProviderServiceLive routing", (it) => {
           resumeCursor?: unknown;
           threadId?: string;
         };
-        assert.equal(startPayload.provider, "codex");
+        assert.equal(startPayload.provider, "copilot");
         assert.equal(startPayload.cwd, "/tmp/project-send-turn");
         assert.deepEqual(startPayload.resumeCursor, initial.resumeCursor);
         assert.equal(startPayload.threadId, initial.threadId);
       }
-      assert.equal(routing.codex.sendTurn.mock.calls.length, 1);
+      assert.equal(routing.copilot.sendTurn.mock.calls.length, 1);
     }),
   );
 
-  it.effect("recovers stale claudeAgent sessions for sendTurn using persisted cwd", () =>
+  it.effect("recovers stale sessions for sendTurn using persisted cwd and modelSelection", () =>
     Effect.gen(function* () {
       const provider = yield* ProviderService;
 
-      const initial = yield* provider.startSession(asThreadId("thread-claude-send-turn"), {
-        provider: "claudeAgent",
-        threadId: asThreadId("thread-claude-send-turn"),
-        cwd: "/tmp/project-claude-send-turn",
+      const initial = yield* provider.startSession(asThreadId("thread-copilot-model-send"), {
+        provider: "copilot",
+        threadId: asThreadId("thread-copilot-model-send"),
+        cwd: "/tmp/project-copilot-model-send",
         modelSelection: {
-          provider: "claudeAgent",
-          model: "claude-opus-4-6",
-          options: {
-            effort: "max",
-          },
+          provider: "copilot",
+          model: "gpt-4o",
+          options: {},
         },
         runtimeMode: "full-access",
       });
 
-      yield* routing.claude.stopAll();
-      routing.claude.startSession.mockClear();
-      routing.claude.sendTurn.mockClear();
+      yield* routing.copilot.stopAll();
+      routing.copilot.startSession.mockClear();
+      routing.copilot.sendTurn.mockClear();
 
       yield* provider.sendTurn({
         threadId: initial.threadId,
-        input: "resume with claude",
+        input: "resume with copilot",
         attachments: [],
       });
 
-      assert.equal(routing.claude.startSession.mock.calls.length, 1);
-      const resumedStartInput = routing.claude.startSession.mock.calls[0]?.[0];
+      assert.equal(routing.copilot.startSession.mock.calls.length, 1);
+      const resumedStartInput = routing.copilot.startSession.mock.calls[0]?.[0];
       assert.equal(typeof resumedStartInput === "object" && resumedStartInput !== null, true);
       if (resumedStartInput && typeof resumedStartInput === "object") {
         const startPayload = resumedStartInput as {
@@ -731,19 +733,17 @@ routing.layer("ProviderServiceLive routing", (it) => {
           resumeCursor?: unknown;
           threadId?: string;
         };
-        assert.equal(startPayload.provider, "claudeAgent");
-        assert.equal(startPayload.cwd, "/tmp/project-claude-send-turn");
+        assert.equal(startPayload.provider, "copilot");
+        assert.equal(startPayload.cwd, "/tmp/project-copilot-model-send");
         assert.deepEqual(startPayload.modelSelection, {
-          provider: "claudeAgent",
-          model: "claude-opus-4-6",
-          options: {
-            effort: "max",
-          },
+          provider: "copilot",
+          model: "gpt-4o",
+          options: {},
         });
         assert.deepEqual(startPayload.resumeCursor, initial.resumeCursor);
         assert.equal(startPayload.threadId, initial.threadId);
       }
-      assert.equal(routing.claude.sendTurn.mock.calls.length, 1);
+      assert.equal(routing.copilot.sendTurn.mock.calls.length, 1);
     }),
   );
 
@@ -752,18 +752,18 @@ routing.layer("ProviderServiceLive routing", (it) => {
       const provider = yield* ProviderService;
 
       yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         runtimeMode: "full-access",
       });
       yield* provider.startSession(asThreadId("thread-2"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-2"),
         runtimeMode: "full-access",
       });
 
-      yield* routing.codex.stopAll();
-      yield* routing.claude.stopAll();
+      yield* routing.copilot.stopAll();
+      yield* routing.copilot.stopAll();
 
       const remaining = yield* provider.listSessions();
       assert.equal(remaining.length, 0);
@@ -776,7 +776,7 @@ routing.layer("ProviderServiceLive routing", (it) => {
       const runtimeRepository = yield* ProviderSessionRuntimeRepository;
 
       const session = yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         runtimeMode: "full-access",
       });
@@ -822,13 +822,13 @@ routing.layer("ProviderServiceLive routing", (it) => {
         Layer.provide(persistenceLayer),
       );
 
-      const firstClaude = makeFakeCodexAdapter("claudeAgent");
+      const firstCopilot = makeFakeAdapter();
       const firstRegistry: typeof ProviderAdapterRegistry.Service = {
         getByProvider: (provider) =>
-          provider === "claudeAgent"
-            ? Effect.succeed(firstClaude.adapter)
+          provider === "copilot"
+            ? Effect.succeed(firstCopilot.adapter)
             : Effect.fail(new ProviderUnsupportedError({ provider })),
-        listProviders: () => Effect.succeed(["claudeAgent"]),
+        listProviders: () => Effect.succeed(["copilot"]),
       };
       const firstDirectoryLayer = ProviderSessionDirectoryLive.pipe(
         Layer.provide(runtimeRepositoryLayer),
@@ -842,10 +842,10 @@ routing.layer("ProviderServiceLive routing", (it) => {
 
       const initial = yield* Effect.gen(function* () {
         const provider = yield* ProviderService;
-        return yield* provider.startSession(asThreadId("thread-claude-start"), {
-          provider: "claudeAgent",
-          threadId: asThreadId("thread-claude-start"),
-          cwd: "/tmp/project-claude-start",
+        return yield* provider.startSession(asThreadId("thread-copilot-start"), {
+          provider: "copilot",
+          threadId: asThreadId("thread-copilot-start"),
+          cwd: "/tmp/project-copilot-start",
           runtimeMode: "full-access",
         });
       }).pipe(Effect.provide(firstProviderLayer));
@@ -855,13 +855,13 @@ routing.layer("ProviderServiceLive routing", (it) => {
         yield* provider.listSessions();
       }).pipe(Effect.provide(firstProviderLayer));
 
-      const secondClaude = makeFakeCodexAdapter("claudeAgent");
+      const secondCopilot = makeFakeAdapter();
       const secondRegistry: typeof ProviderAdapterRegistry.Service = {
         getByProvider: (provider) =>
-          provider === "claudeAgent"
-            ? Effect.succeed(secondClaude.adapter)
+          provider === "copilot"
+            ? Effect.succeed(secondCopilot.adapter)
             : Effect.fail(new ProviderUnsupportedError({ provider })),
-        listProviders: () => Effect.succeed(["claudeAgent"]),
+        listProviders: () => Effect.succeed(["copilot"]),
       };
       const secondDirectoryLayer = ProviderSessionDirectoryLive.pipe(
         Layer.provide(runtimeRepositoryLayer),
@@ -873,20 +873,20 @@ routing.layer("ProviderServiceLive routing", (it) => {
         Layer.provide(AnalyticsService.layerTest),
       );
 
-      secondClaude.startSession.mockClear();
+      secondCopilot.startSession.mockClear();
 
       yield* Effect.gen(function* () {
         const provider = yield* ProviderService;
         yield* provider.startSession(initial.threadId, {
-          provider: "claudeAgent",
+          provider: "copilot",
           threadId: initial.threadId,
-          cwd: "/tmp/project-claude-start",
+          cwd: "/tmp/project-copilot-start",
           runtimeMode: "full-access",
         });
       }).pipe(Effect.provide(secondProviderLayer));
 
-      assert.equal(secondClaude.startSession.mock.calls.length, 1);
-      const resumedStartInput = secondClaude.startSession.mock.calls[0]?.[0];
+      assert.equal(secondCopilot.startSession.mock.calls.length, 1);
+      const resumedStartInput = secondCopilot.startSession.mock.calls[0]?.[0];
       assert.equal(typeof resumedStartInput === "object" && resumedStartInput !== null, true);
       if (resumedStartInput && typeof resumedStartInput === "object") {
         const startPayload = resumedStartInput as {
@@ -895,8 +895,8 @@ routing.layer("ProviderServiceLive routing", (it) => {
           resumeCursor?: unknown;
           threadId?: string;
         };
-        assert.equal(startPayload.provider, "claudeAgent");
-        assert.equal(startPayload.cwd, "/tmp/project-claude-start");
+        assert.equal(startPayload.provider, "copilot");
+        assert.equal(startPayload.cwd, "/tmp/project-copilot-start");
         assert.deepEqual(startPayload.resumeCursor, initial.resumeCursor);
         assert.equal(startPayload.threadId, initial.threadId);
       }
@@ -912,7 +912,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
     Effect.gen(function* () {
       const provider = yield* ProviderService;
       const session = yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         runtimeMode: "full-access",
       });
@@ -926,14 +926,14 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       const completedEvent: LegacyProviderRuntimeEvent = {
         type: "turn.completed",
         eventId: asEventId("evt-1"),
-        provider: "codex",
+        provider: "copilot",
         createdAt: new Date().toISOString(),
         threadId: session.threadId,
         turnId: asTurnId("turn-1"),
         status: "completed",
       };
 
-      fanout.codex.emit(completedEvent);
+      fanout.copilot.emit(completedEvent);
       yield* sleep(50);
 
       const events = yield* Ref.get(eventsRef);
@@ -950,7 +950,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
     Effect.gen(function* () {
       const provider = yield* ProviderService;
       const session = yield* provider.startSession(asThreadId("thread-seq"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-seq"),
         runtimeMode: "full-access",
       });
@@ -962,30 +962,30 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       );
       yield* sleep(50);
 
-      fanout.codex.emit({
+      fanout.copilot.emit({
         type: "tool.started",
         eventId: asEventId("evt-seq-1"),
-        provider: "codex",
+        provider: "copilot",
         createdAt: new Date().toISOString(),
         threadId: session.threadId,
         turnId: asTurnId("turn-1"),
         toolKind: "command",
         title: "Ran command",
       });
-      fanout.codex.emit({
+      fanout.copilot.emit({
         type: "tool.completed",
         eventId: asEventId("evt-seq-2"),
-        provider: "codex",
+        provider: "copilot",
         createdAt: new Date().toISOString(),
         threadId: session.threadId,
         turnId: asTurnId("turn-1"),
         toolKind: "command",
         title: "Ran command",
       });
-      fanout.codex.emit({
+      fanout.copilot.emit({
         type: "turn.completed",
         eventId: asEventId("evt-seq-3"),
-        provider: "codex",
+        provider: "copilot",
         createdAt: new Date().toISOString(),
         threadId: session.threadId,
         turnId: asTurnId("turn-1"),
@@ -1005,7 +1005,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
     Effect.gen(function* () {
       const provider = yield* ProviderService;
       const session = yield* provider.startSession(asThreadId("thread-1"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-1"),
         runtimeMode: "full-access",
       });
@@ -1030,7 +1030,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
         {
           type: "tool.completed",
           eventId: asEventId("evt-ordered-1"),
-          provider: "codex",
+          provider: "copilot",
           createdAt: new Date().toISOString(),
           threadId: session.threadId,
           turnId: asTurnId("turn-1"),
@@ -1041,7 +1041,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
         {
           type: "message.delta",
           eventId: asEventId("evt-ordered-2"),
-          provider: "codex",
+          provider: "copilot",
           createdAt: new Date().toISOString(),
           threadId: session.threadId,
           turnId: asTurnId("turn-1"),
@@ -1050,7 +1050,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
         {
           type: "turn.completed",
           eventId: asEventId("evt-ordered-3"),
-          provider: "codex",
+          provider: "copilot",
           createdAt: new Date().toISOString(),
           threadId: session.threadId,
           turnId: asTurnId("turn-1"),
@@ -1059,7 +1059,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       ];
 
       for (const event of events) {
-        fanout.codex.emit(event);
+        fanout.copilot.emit(event);
       }
       const failingResult = yield* Effect.result(Fiber.join(failingFiber));
       assert.equal(failingResult._tag, "Failure");
@@ -1077,7 +1077,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       const provider = yield* ProviderService;
 
       const session = yield* provider.startSession(asThreadId("thread-metrics"), {
-        provider: "claudeAgent",
+        provider: "copilot",
         threadId: asThreadId("thread-metrics"),
         cwd: "/tmp/project",
         runtimeMode: "full-access",
@@ -1106,7 +1106,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
 
       assert.equal(
         hasMetricSnapshot(snapshots, "t3_provider_turns_total", {
-          provider: "claudeAgent",
+          provider: "copilot",
           operation: "interrupt",
           outcome: "success",
         }),
@@ -1114,7 +1114,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       );
       assert.equal(
         hasMetricSnapshot(snapshots, "t3_provider_turns_total", {
-          provider: "claudeAgent",
+          provider: "copilot",
           operation: "approval-response",
           outcome: "success",
         }),
@@ -1122,7 +1122,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       );
       assert.equal(
         hasMetricSnapshot(snapshots, "t3_provider_turns_total", {
-          provider: "claudeAgent",
+          provider: "copilot",
           operation: "user-input-response",
           outcome: "success",
         }),
@@ -1130,7 +1130,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       );
       assert.equal(
         hasMetricSnapshot(snapshots, "t3_provider_turns_total", {
-          provider: "claudeAgent",
+          provider: "copilot",
           operation: "rollback",
           outcome: "success",
         }),
@@ -1138,7 +1138,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
       );
       assert.equal(
         hasMetricSnapshot(snapshots, "t3_provider_sessions_total", {
-          provider: "claudeAgent",
+          provider: "copilot",
           operation: "stop",
           outcome: "success",
         }),
@@ -1154,7 +1154,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
         const provider = yield* ProviderService;
 
         const session = yield* provider.startSession(asThreadId("thread-send-metrics"), {
-          provider: "claudeAgent",
+          provider: "copilot",
           threadId: asThreadId("thread-send-metrics"),
           cwd: "/tmp/project-send-metrics",
           runtimeMode: "full-access",
@@ -1170,7 +1170,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
 
         assert.equal(
           hasMetricSnapshot(snapshots, "t3_provider_turns_total", {
-            provider: "claudeAgent",
+            provider: "copilot",
             operation: "send",
             outcome: "success",
           }),
@@ -1178,7 +1178,7 @@ fanout.layer("ProviderServiceLive fanout", (it) => {
         );
         assert.equal(
           hasMetricSnapshot(snapshots, "t3_provider_turn_duration", {
-            provider: "claudeAgent",
+            provider: "copilot",
             operation: "send",
           }),
           true,
@@ -1219,11 +1219,11 @@ validation.layer("ProviderServiceLive validation", (it) => {
       const provider = yield* ProviderService;
       const runtimeRepository = yield* ProviderSessionRuntimeRepository;
 
-      validation.codex.startSession.mockImplementationOnce((input: ProviderSessionStartInput) =>
+      validation.copilot.startSession.mockImplementationOnce((input: ProviderSessionStartInput) =>
         Effect.sync(() => {
           const now = new Date().toISOString();
           return {
-            provider: "codex",
+            provider: "copilot",
             status: "ready",
             threadId: input.threadId,
             runtimeMode: input.runtimeMode,
@@ -1235,7 +1235,7 @@ validation.layer("ProviderServiceLive validation", (it) => {
       );
 
       const session = yield* provider.startSession(asThreadId("thread-missing"), {
-        provider: "codex",
+        provider: "copilot",
         threadId: asThreadId("thread-missing"),
         cwd: "/tmp/project",
         runtimeMode: "full-access",

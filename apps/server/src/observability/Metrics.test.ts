@@ -78,7 +78,7 @@ describe("withMetrics", () => {
       let provider = "unknown";
 
       yield* Effect.sync(() => {
-        provider = "codex";
+        provider = "copilot";
       }).pipe(
         withMetrics({
           counter,
@@ -93,7 +93,7 @@ describe("withMetrics", () => {
       const snapshots = yield* Metric.snapshot;
       assert.equal(
         hasMetricSnapshot(snapshots, "with_metrics_lazy_total", {
-          provider: "codex",
+          provider: "copilot",
           operation: "lazy",
           outcome: "success",
         }),
@@ -101,7 +101,7 @@ describe("withMetrics", () => {
       );
       assert.equal(
         hasMetricSnapshot(snapshots, "with_metrics_lazy_duration", {
-          provider: "codex",
+          provider: "copilot",
           operation: "lazy",
         }),
         true,

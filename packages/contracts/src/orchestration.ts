@@ -351,6 +351,16 @@ const ThreadDeleteCommand = Schema.Struct({
   threadId: ThreadId,
 });
 
+/** Link (or re-link) a thread to an ADO work item. */
+const ThreadLinkWorkItemCommand = Schema.Struct({
+  type: Schema.Literal("thread.linkWorkItem"),
+  commandId: CommandId,
+  threadId: ThreadId,
+  workItemId: TrimmedNonEmptyString,
+  workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+  copilotPhase: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+});
+
 const ThreadArchiveCommand = Schema.Struct({
   type: Schema.Literal("thread.archive"),
   commandId: CommandId,
@@ -493,6 +503,7 @@ const DispatchableClientOrchestrationCommand = Schema.Union([
   ThreadCheckpointRevertCommand,
   ThreadSessionStopCommand,
   ThreadContextCompactCommand,
+  ThreadLinkWorkItemCommand,
 ]);
 export type DispatchableClientOrchestrationCommand =
   typeof DispatchableClientOrchestrationCommand.Type;
@@ -515,6 +526,7 @@ export const ClientOrchestrationCommand = Schema.Union([
   ThreadCheckpointRevertCommand,
   ThreadSessionStopCommand,
   ThreadContextCompactCommand,
+  ThreadLinkWorkItemCommand,
 ]);
 export type ClientOrchestrationCommand = typeof ClientOrchestrationCommand.Type;
 
@@ -624,6 +636,7 @@ export const OrchestrationEventType = Schema.Literals([
   "thread.proposed-plan-upserted",
   "thread.turn-diff-completed",
   "thread.activity-appended",
+  "thread.work-item-linked",
 ]);
 export type OrchestrationEventType = typeof OrchestrationEventType.Type;
 
@@ -674,6 +687,14 @@ export const ThreadCreatedPayload = Schema.Struct({
   workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Copilot phase. */
   copilotPhase: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+});
+
+export const ThreadWorkItemLinkedPayload = Schema.Struct({
+  threadId: ThreadId,
+  workItemId: TrimmedNonEmptyString,
+  workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+  copilotPhase: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+  updatedAt: IsoDateTime,
 });
 
 export const ThreadDeletedPayload = Schema.Struct({
@@ -848,6 +869,11 @@ export const OrchestrationEvent = Schema.Union([
     ...EventBaseFields,
     type: Schema.Literal("thread.created"),
     payload: ThreadCreatedPayload,
+  }),
+  Schema.Struct({
+    ...EventBaseFields,
+    type: Schema.Literal("thread.work-item-linked"),
+    payload: ThreadWorkItemLinkedPayload,
   }),
   Schema.Struct({
     ...EventBaseFields,

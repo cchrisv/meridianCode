@@ -698,6 +698,20 @@ export function applyOrchestrationEvent(state: AppState, event: OrchestrationEve
       };
     }
 
+    case "thread.work-item-linked": {
+      const threads = state.threads.map((thread) =>
+        thread.id === event.payload.threadId
+          ? {
+              ...thread,
+              workItemId: event.payload.workItemId ?? thread.workItemId,
+              workItemStage: event.payload.workItemStage ?? thread.workItemStage,
+              copilotPhase: event.payload.copilotPhase ?? thread.copilotPhase,
+            }
+          : thread,
+      );
+      return threads === state.threads ? state : { ...state, threads };
+    }
+
     case "thread.deleted": {
       const threads = state.threads.filter((thread) => thread.id !== event.payload.threadId);
       if (threads.length === state.threads.length) {

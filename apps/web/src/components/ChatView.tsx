@@ -4130,6 +4130,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
                   {/* Meridian utility action bar */}
                   <MeridianComposerBar
                     workItemId={activeThread?.workItemId ?? null}
+                    threadId={activeThread?.id ?? null}
                     stage={activeThread?.workItemStage ?? null}
                     platform={null}
                     onSendPrompt={(content) => {

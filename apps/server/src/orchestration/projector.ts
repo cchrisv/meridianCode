@@ -284,6 +284,22 @@ export function projectEvent(
         };
       });
 
+    case "thread.work-item-linked":
+      return Effect.succeed({
+        ...nextBase,
+        threads: nextBase.threads.map((t) =>
+          t.id === event.payload.threadId
+            ? {
+                ...t,
+                workItemId: event.payload.workItemId,
+                workItemStage: event.payload.workItemStage ?? t.workItemStage,
+                copilotPhase: event.payload.copilotPhase ?? t.copilotPhase,
+                updatedAt: event.payload.updatedAt,
+              }
+            : t,
+        ),
+      });
+
     case "thread.deleted":
       return decodeForEvent(ThreadDeletedPayload, event.payload, event.type, "payload").pipe(
         Effect.map((payload) => ({

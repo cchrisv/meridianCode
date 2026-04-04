@@ -539,6 +539,21 @@ const makeOrchestrationProjectionPipeline = Effect.fn("makeOrchestrationProjecti
           return;
         }
 
+        case "thread.work-item-linked": {
+          const existingRow = yield* projectionThreadRepository.getById({
+            threadId: event.payload.threadId,
+          });
+          if (Option.isNone(existingRow)) return;
+          yield* projectionThreadRepository.upsert({
+            ...existingRow.value,
+            workItemId: event.payload.workItemId,
+            workItemStage: event.payload.workItemStage ?? existingRow.value.workItemStage,
+            copilotPhase: event.payload.copilotPhase ?? existingRow.value.copilotPhase,
+            updatedAt: event.payload.updatedAt,
+          });
+          return;
+        }
+
         case "thread.deleted": {
           attachmentSideEffects.deletedThreadIds.add(event.payload.threadId);
           const existingRow = yield* projectionThreadRepository.getById({

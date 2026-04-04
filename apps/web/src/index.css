@@ -63,66 +63,81 @@
 
 :root {
   color-scheme: light;
-  --radius: 0.625rem;
-  --background: var(--color-white);
-  --foreground: var(--color-neutral-800);
-  --card: var(--color-white);
-  --card-foreground: var(--color-neutral-800);
-  --popover: var(--color-white);
-  --popover-foreground: var(--color-neutral-800);
-  --primary: oklch(0.488 0.217 264);
-  --primary-foreground: var(--color-white);
-  --secondary: --alpha(var(--color-black) / 4%);
-  --secondary-foreground: var(--color-neutral-800);
-  --muted: --alpha(var(--color-black) / 4%);
-  --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-black));
-  --accent: --alpha(var(--color-black) / 4%);
-  --accent-foreground: var(--color-neutral-800);
-  --destructive: var(--color-red-500);
-  --border: --alpha(var(--color-black) / 8%);
-  --input: --alpha(var(--color-black) / 10%);
-  --ring: oklch(0.488 0.217 264);
-  --destructive-foreground: var(--color-red-700);
-  --info: var(--color-blue-500);
-  --info-foreground: var(--color-blue-700);
-  --success: var(--color-emerald-500);
-  --success-foreground: var(--color-emerald-700);
-  --warning: var(--color-amber-500);
-  --warning-foreground: var(--color-amber-700);
+  /* Meridian: cards ~8px radius per brand guide */
+  --radius: 0.5rem;
+  --meridian-red: #da1a32;
+  --meridian-red-dark: #a30606;
+  --meridian-yellow: #fdbf38;
+  --meridian-gray: #3c3c43;
+  --meridian-teal: #008484;
+  --meridian-blue: #007db6;
+  --meridian-blue-dark: #135f96;
+  --meridian-alert-red: #c2172d;
+  --meridian-success: #108a27;
+  --meridian-barely-gray: #f5f5f5;
+  --meridian-light-gray: #e9e9e9;
+  --meridian-medium-gray: #adadad;
+
+  --background: #ffffff;
+  --foreground: var(--meridian-gray);
+  --card: #ffffff;
+  --card-foreground: var(--meridian-gray);
+  --popover: #ffffff;
+  --popover-foreground: var(--meridian-gray);
+  --primary: var(--meridian-red);
+  --primary-foreground: #ffffff;
+  --secondary: color-mix(in srgb, var(--meridian-gray) 6%, transparent);
+  --secondary-foreground: var(--meridian-gray);
+  --muted: var(--meridian-barely-gray);
+  --muted-foreground: color-mix(in srgb, var(--meridian-medium-gray) 88%, var(--meridian-gray));
+  --accent: color-mix(in srgb, var(--meridian-teal) 10%, var(--meridian-barely-gray));
+  --accent-foreground: var(--meridian-gray);
+  --destructive: var(--meridian-alert-red);
+  --border: var(--meridian-light-gray);
+  --input: color-mix(in srgb, var(--meridian-gray) 12%, transparent);
+  --ring: var(--meridian-teal);
+  --destructive-foreground: #ffffff;
+  --info: var(--meridian-blue);
+  --info-foreground: #ffffff;
+  --success: var(--meridian-success);
+  --success-foreground: #ffffff;
+  --warning: var(--meridian-yellow);
+  --warning-foreground: #000000;
 
   @variant dark {
     color-scheme: dark;
-    --background: color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white));
-    --foreground: var(--color-neutral-100);
-    --card: color-mix(in srgb, var(--background) 98%, var(--color-white));
-    --card-foreground: var(--color-neutral-100);
-    --popover: color-mix(in srgb, var(--background) 98%, var(--color-white));
-    --popover-foreground: var(--color-neutral-100);
-    --primary: oklch(0.588 0.217 264);
-    --primary-foreground: var(--color-white);
-    --secondary: --alpha(var(--color-white) / 4%);
-    --secondary-foreground: var(--color-neutral-100);
-    --muted: --alpha(var(--color-white) / 4%);
-    --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white));
-    --accent: --alpha(var(--color-white) / 4%);
-    --accent-foreground: var(--color-neutral-100);
-    --destructive: color-mix(in srgb, var(--color-red-500) 90%, var(--color-white));
-    --border: --alpha(var(--color-white) / 6%);
-    --input: --alpha(var(--color-white) / 8%);
-    --ring: oklch(0.588 0.217 264);
-    --destructive-foreground: var(--color-red-400);
-    --info: var(--color-blue-500);
-    --info-foreground: var(--color-blue-400);
-    --success: var(--color-emerald-500);
-    --success-foreground: var(--color-emerald-400);
-    --warning: var(--color-amber-500);
-    --warning-foreground: var(--color-amber-400);
+    /* Deep base (avoid large % of #3c3c43 — it reads as washed-out UI gray). */
+    --background: #09090b;
+    --foreground: #fafafa;
+    --card: #111114;
+    --card-foreground: #fafafa;
+    --popover: #141418;
+    --popover-foreground: #fafafa;
+    --primary: var(--meridian-red);
+    --primary-foreground: #ffffff;
+    --secondary: --alpha(var(--color-white) / 6%);
+    --secondary-foreground: #fafafa;
+    --muted: --alpha(var(--color-white) / 6%);
+    --muted-foreground: #a1a1aa;
+    --accent: --alpha(var(--meridian-teal) / 16%);
+    --accent-foreground: #fafafa;
+    --destructive: var(--meridian-alert-red);
+    --border: --alpha(var(--color-white) / 9%);
+    --input: --alpha(var(--color-white) / 11%);
+    --ring: var(--meridian-teal);
+    --destructive-foreground: #ffffff;
+    --info: var(--meridian-blue);
+    --info-foreground: #ffffff;
+    --success: var(--meridian-success);
+    --success-foreground: #ffffff;
+    --warning: var(--meridian-yellow);
+    --warning-foreground: #000000;
   }
 }
 
 body {
   font-family:
-    "DM Sans",
+    "Inter",
     -apple-system,
     BlinkMacSystemFont,
     "Segoe UI",
@@ -131,6 +146,40 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100vh;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.055;
+  background:
+    radial-gradient(
+      ellipse 115% 85% at 0% -15%,
+      color-mix(in srgb, var(--meridian-red) 55%, transparent),
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 95% 70% at 100% 5%,
+      color-mix(in srgb, var(--meridian-yellow) 45%, transparent),
+      transparent 48%
+    );
+}
+
+.dark body::before {
+  opacity: 0.028;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    opacity: 0.045;
+  }
+
+  .dark body::before {
+    opacity: 0.02;
+  }
 }
 
 html,
@@ -143,6 +192,11 @@ body,
   overflow-x: hidden;
   overflow-x: clip;
   overscroll-behavior-y: none;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 body::after {
@@ -160,7 +214,8 @@ pre,
 code,
 textarea,
 input {
-  font-family: "SF Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-family:
+    "JetBrains Mono", "SF Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 /* Window drag region (frameless titlebar) */

@@ -10,4 +10,11 @@ export default defineConfig({
       },
     ],
   },
+  test: {
+    // Unit tests assume upstream-style defaults (Codex + Claude enabled). Runtime defaults stay
+    // Copilot-first unless `T3_LEGACY_PROVIDERS` is set in the real process environment.
+    env: {
+      T3_LEGACY_PROVIDERS: "1",
+    },
+  },
 });

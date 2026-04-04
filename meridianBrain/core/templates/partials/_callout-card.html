@@ -1,0 +1,15 @@
+{# Callout Card Macro Renders a colored callout with icon, title, and body content. Parameters: bg -
+Background color (e.g. "#fff3e0") borderColor - Left border accent color (e.g. "#ff9800") icon -
+Emoji icon (e.g. "📊") title - Callout title text titleColor - Optional title text color (defaults
+to borderColor darkened) #} {% macro calloutCard(bg, borderColor, icon, title, titleColor) -%}
+<div
+  style="background: {{ bg }}; border-left: 4px solid {{ borderColor }}; border-radius: 0 8px 8px 0; padding: 14px; margin-bottom: 20px;"
+>
+  <div
+    style="font-weight: 600; color: {{ titleColor if titleColor else borderColor }}; margin-bottom: 6px;"
+  >
+    {{ icon }} {{ title }}
+  </div>
+  <div style="font-size: 13px; color: #333; line-height: 1.6">{{ caller() }}</div>
+</div>
+{%- endmacro %}

@@ -1,0 +1,62 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_callout-card.html" import
+calloutCard %}
+<div style="font-size: 14px; color: #333">
+  {# PLANNED WORK HEADER - Green #} {% if primary_focus_summary %} {{ gradientHeader("Planned Work
+  Summary", "🎯", "#2e7d32", "#1b5e20") }} {% call contentCard() %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">
+    <strong>Focus:</strong> {{ primary_focus_summary }}
+  </div>
+  {% endcall %} {% endif %} {# IMMEDIATE (THIS WEEK) - Blue #} {% if immediate_items and
+  immediate_items | length > 0 %} {{ gradientHeader("Immediate (This Week)", "📍", "#1565c0",
+  "#0d47a1") }} {% call contentCard() %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for item in immediate_items -%}
+    <li>
+      <strong style="color: #1976d2">#{{ item.id }}</strong> {{ item.title }} — {{ item.detail }}
+    </li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {% endif %} {# NEAR-TERM (NEXT 2-4 WEEKS) - Indigo #} {% if near_term_items and
+  near_term_items | length > 0 %} {{ gradientHeader("Near-term (Next 2-4 Weeks)", "📆", "#303f9f",
+  "#1a237e") }} {% call contentCard() %} {% if near_term_context -%}
+  <div style="font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.6">
+    {{ near_term_context }}
+  </div>
+  {%- endif %}
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+    <tr style="background: #f8f9fa; border-bottom: 1px solid #eee">
+      <td style="padding: 10px; font-weight: 600; width: 80px">ID</td>
+      <td style="padding: 10px; font-weight: 600">Story</td>
+      <td style="padding: 10px; font-weight: 600; text-align: center; width: 50px">SP</td>
+      <td style="padding: 10px; font-weight: 600">Notes</td>
+    </tr>
+    {% for item in near_term_items -%}
+    <tr style="border-bottom: 1px solid #eee">
+      <td style="padding: 10px"><strong style="color: #1976d2">#{{ item.id }}</strong></td>
+      <td style="padding: 10px">{{ item.title }}</td>
+      <td style="padding: 10px; text-align: center">{{ item.points }}</td>
+      <td style="padding: 10px; color: #666">{{ item.notes }}</td>
+    </tr>
+    {% endfor -%}
+  </table>
+  {% endcall %} {% endif %} {# UPCOMING (1-2 MONTHS) - Blue-gray #} {% if upcoming_items and
+  upcoming_items | length > 0 %} {{ gradientHeader("Upcoming (1-2 Months)", "🔮", "#546e7a",
+  "#37474f") }} {% call contentCard() %} {% if upcoming_context -%}
+  <div style="font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.6">
+    {{ upcoming_context }}
+  </div>
+  {%- endif %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for item in upcoming_items -%}
+    <li>
+      <strong style="color: #333">#{{ item.id }}</strong> {{ item.title }} — {{ item.detail }}
+    </li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {% endif %} {# LEADERSHIP HELP CALLOUT #} {% if leadership_asks and leadership_asks
+  | length > 0 %} {% call calloutCard("#e3f2fd", "#2196f3", "🤝", "Where Leadership Can Help",
+  "#1565c0") %} {% for ask in leadership_asks -%}
+  <strong>{{ ask.category }}:</strong> {{ ask.detail }} {% if not loop.last %}<br /><br />{% endif
+  %} {% endfor -%} {% endcall %} {% endif %}
+</div>

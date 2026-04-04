@@ -1,0 +1,68 @@
+{# Wiki Base Macros Shared components for Azure DevOps Wiki page templates. #} {# Wiki page title
+header with gradient #} {% macro wikiHeader(id, title) -%}
+<div
+  style="
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  "
+>
+  <span style="font-weight: 700; color: #fff; font-size: 15px">#{{ id }} — {{ title }}</span>
+</div>
+
+[[_TOC_]] {%- endmacro %} {# Section heading with gradient accent bar (## level — 6px) #} {% macro
+sectionHeading(emoji, title, color1, color2) -%} ## {{ emoji }} {{ title }}
+<div
+  style="height: 6px; background: linear-gradient(135deg, {{ color1 }} 0%, {{ color2 }} 100%); border-radius: 3px; margin: 0 0 16px 0;"
+></div>
+{%- endmacro %} {# Sub-section heading with gradient accent bar (### level — 4px) #} {% macro
+subSectionHeading(emoji, title, color1, color2) -%} ### {{ emoji }} {{ title }}
+<div
+  style="height: 4px; background: linear-gradient(135deg, {{ color1 }} 0%, {{ color2 }} 100%); border-radius: 2px; margin: 0 0 12px 0;"
+></div>
+{%- endmacro %} {# Wiki content card (white background, standard styling) #} {% macro wikiCard() -%}
+<div
+  style="
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+    font-size: 13px;
+    color: #333;
+  "
+>
+  {{ caller() }}
+</div>
+{%- endmacro %} {# Placeholder card for content not yet populated #} {% macro
+placeholderCard(message) -%}
+<div
+  style="
+    background: #fff;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+    font-size: 13px;
+    color: #999;
+    text-align: center;
+  "
+>
+  <em>{{ message }}</em>
+</div>
+{%- endmacro %} {# Wiki callout card (colored, for info/warning/success/critical) #} {% macro
+wikiCallout(bg, borderColor, icon, title, titleColor) -%}
+<div
+  style="background: {{ bg }}; border-left: 4px solid {{ borderColor }}; border-radius: 0 8px 8px 0; padding: 14px; margin-bottom: 16px; font-family: 'Segoe UI', sans-serif; font-size: 13px;"
+>
+  <div
+    style="font-weight: 600; color: {{ titleColor if titleColor else borderColor }}; margin-bottom: 6px;"
+  >
+    {{ icon }} {{ title }}
+  </div>
+  <div style="color: #333; line-height: 1.6">{{ caller() }}</div>
+</div>
+{%- endmacro %}

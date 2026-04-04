@@ -1,3 +1,5 @@
+import * as NodePath from "node:path";
+
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { it, describe, expect } from "@effect/vitest";
 import { Effect, FileSystem, Layer, Path } from "effect";
@@ -56,7 +58,9 @@ it.layer(TestLayer)("ProjectFaviconResolverLive", (it) => {
         const resolved = yield* resolver.resolvePath(cwd);
 
         expect(resolved).not.toBeNull();
-        expect(resolved).toContain("public/brand/logo.svg");
+        expect(NodePath.normalize(resolved!).replace(/\\/g, "/")).toContain(
+          "public/brand/logo.svg",
+        );
       }),
     );
 

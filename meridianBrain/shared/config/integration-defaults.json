@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "meridian_meta": {
+    "lifecycle": "wip",
+    "consumers": [],
+    "note": "Stub for future integration-tools defaults. Not loaded by Meridian CLI or prompts today."
+  },
+  "description": "Optional defaults for integration registry tooling (Meridian shared/config)."
+}

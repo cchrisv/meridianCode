@@ -1,0 +1,1355 @@
+{% from "partials/_wiki-base.html" import sectionHeading, subSectionHeading, wikiCard, wikiCallout
+%} {% from "partials/_callout-card.html" import calloutCard %} {% from "partials/_badge.html" import
+badge %} {{ sectionHeading("✅", "Quality & Validation", "#00796b", "#004d40") }} {{
+subSectionHeading("✅", "How We'll Know We're Successful", "#26a69a", "#00796b") }} {% call
+wikiCard() %}
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  👤 What Users Should Experience
+</div>
+<ol style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.8">
+  {% for item in user_success_criteria %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ol>
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  ⚙️ What the System Must Do
+</div>
+<ol
+  start="{{ (user_success_criteria | length) + 1 }}"
+  style="margin: 0; padding-left: 20px; line-height: 1.8"
+>
+  {% for item in system_success_criteria %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ol>
+{% endcall %} {{ subSectionHeading("🎯", "Testing Strategy & Coverage", "#26a69a", "#00796b") }} {%
+call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.7">{{ testing_philosophy_narrative | safe }}</p>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  📊 Scope
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 50%">
+      ✅ In Scope
+    </td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 50%">
+      ❌ Out of Scope
+    </td>
+  </tr>
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6; vertical-align: top">
+      <ul style="margin: 0; padding-left: 16px; line-height: 1.8">
+        {% for item in in_scope_items %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; vertical-align: top">
+      <ul style="margin: 0; padding-left: 16px; line-height: 1.8">
+        {% for item in out_scope_items %}
+        <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </td>
+  </tr>
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  🧪 Test Type Applicability
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test Type</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 10%">Applies</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 15%">Owner</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Justification</td>
+  </tr>
+  {% for tt in test_types %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 600">{{ tt.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">{{ tt.applies }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ tt.owner }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ tt.justification }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  🎯 Entry Points
+</div>
+<ul style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.8">
+  {% for ep in entry_points %}
+  <li>{{ ep }}</li>
+  {% endfor %}
+</ul>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  📁 Suite Organization
+</div>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Category</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Count</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test IDs</td>
+  </tr>
+  {% for suite in suite_organization %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ suite.icon }} {{ suite.category }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ suite.count }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ suite.ids }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("📋", "AC-Centric Test Coverage Matrix", "#26a69a", "#00796b") }}
+{% call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">AC ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Acceptance Criteria</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Happy Path Tests</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Unhappy Path Tests</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Coverage</td>
+  </tr>
+  {% for ac in ac_coverage_matrix %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ ac.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ ac.description }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ ac.happy_tests }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ ac.unhappy_tests }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ ac.coverage_badge | safe }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% call calloutCard("#e8f5e9", "#4caf50", "📖", "Path Type Legend", "#2e7d32") %}
+<strong>✓ Happy Path:</strong> Validates AC works as expected under normal conditions &nbsp;|&nbsp;
+<strong>✗ Negative:</strong> Validates error handling, invalid inputs, permission failures
+&nbsp;|&nbsp; <strong>⚡ Edge Case:</strong> Validates boundary conditions, bulk operations, timing
+&nbsp;|&nbsp; <strong>🔒 Security:</strong> Validates access controls, data isolation, FLS/CRUD
+&nbsp;|&nbsp; <strong>⚙️ Automation:</strong> Validates order-of-execution, recursion guards,
+idempotency &nbsp;|&nbsp; <strong>🔄 Integration:</strong> Validates external system interactions,
+retry logic, async behavior {% endcall %} {% endcall %} {{ subSectionHeading("📊", "Test Data
+Matrix", "#26a69a", "#00796b") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ test_data_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Row ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Persona</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">
+      Profile / Permissions
+    </td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Record Context</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Key Conditions</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Notes</td>
+  </tr>
+  {% for row in test_data_rows %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.icon }} {{ row.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.persona }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.profile_permissions }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.record_context }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.key_conditions }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.notes }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {% for persona in personas %} #### {{ persona.icon }} {{ persona.row_id }}: {{
+persona.name }} {% call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr>
+    <td
+      style="
+        padding: 8px;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
+        width: 30%;
+        background: #f8f9fa;
+      "
+    >
+      Role/Title
+    </td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ persona.role }}</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+      Profile
+    </td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ persona.profile }}</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+      Permission Sets
+    </td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ persona.permission_sets }}</td>
+  </tr>
+  <tr>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+      Record Access
+    </td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ persona.record_access }}</td>
+  </tr>
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  🔧 Test User Setup
+</div>
+<div
+  style="
+    background: #f5f5f5;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 12px;
+    font-family: monospace;
+    font-size: 12px;
+    margin-bottom: 16px;
+    line-height: 1.6;
+  "
+>
+  Username: {{ persona.username }}<br />
+  Profile: {{ persona.profile }}<br />
+  Permission Sets: {{ persona.permission_sets }}<br />
+  Role: {{ persona.role_hierarchy }}
+</div>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  📋 Required Test Records
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Object</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Record Name</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Key Field Values</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Purpose</td>
+  </tr>
+  {% for rec in persona.test_records %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.object }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.name }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.fields }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.purpose }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+{% if persona.feature_flags %}
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  🏁 Feature Flag Configuration
+</div>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Flag Name</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Value</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Reason</td>
+  </tr>
+  {% for flag in persona.feature_flags %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ flag.name }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6"><code>{{ flag.value }}</code></td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ flag.reason }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endif %} {% endcall %} {% endfor %} {# ======== Macro for Master Summary Table (reused by P1, P2,
+P3, Regression, UAT, Smoke) ======== #} {% macro masterSummaryTable(tests, columns) %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    {% for col in columns %}
+    <td
+      style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6;{% if col.width %} width: {{ col.width }};{% endif %}{% if col.align %} text-align: {{ col.align }};{% endif %}"
+    >
+      {{ col.header }}
+    </td>
+    {% endfor %}
+  </tr>
+  {% for test in tests %}
+  <tr>
+    {% for col in columns %}
+    <td
+      style="padding: 10px; border: 1px solid #dee2e6;{% if col.align %} text-align: {{ col.align }};{% endif %}{% if col.key == 'steps' %} line-height: 1.8;{% endif %}"
+    >
+      {{ test[col.key] | safe }}
+    </td>
+    {% endfor %}
+  </tr>
+  {% endfor %}
+</table>
+{% endmacro %} {# ======== Macro for Individual Test Case Detail Card ======== #} {% macro
+testCaseDetailCard(tc) %} #### {{ tc.id }}: {{ tc.full_title }}
+
+<div
+  style="background: #fff; border-left: 4px solid {{ tc.border_color | default('#4caf50') }}; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; font-family: 'Segoe UI', sans-serif; font-size: 13px; color: #333;"
+>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+    {% for meta in tc.metadata %}
+    <tr>
+      <td
+        style="
+          padding: 8px;
+          font-weight: 600;
+          border: 1px solid #dee2e6;
+          width: 25%;
+          background: #f8f9fa;
+        "
+      >
+        {{ meta.label }}
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ meta.value | safe }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div
+    style="
+      border-left: 4px solid #26a69a;
+      background: #e0f2f1;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 0 0 16px 0;
+    "
+  >
+    <div style="font-weight: 600; color: #00796b; margin-bottom: 4px">💡 Expected Behavior</div>
+    <div style="line-height: 1.6">{{ tc.expected_behavior | safe }}</div>
+  </div>
+
+  {% if tc.preconditions %}
+  <div
+    style="
+      font-weight: 600;
+      color: #00796b;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+    "
+  >
+    📋 Pre-conditions & Setup
+  </div>
+  <ul style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.8">
+    {% for pre in tc.preconditions %}
+    <li>☐ {{ pre }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% if tc.steps %}
+  <div
+    style="
+      font-weight: 600;
+      color: #00796b;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+    "
+  >
+    🔢 Step-by-Step Execution
+  </div>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+    <tr style="background: #f8f9fa">
+      <td
+        style="
+          padding: 10px;
+          font-weight: 600;
+          border: 1px solid #dee2e6;
+          width: 6%;
+          text-align: center;
+        "
+      >
+        Step
+      </td>
+      <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 30%">Action</td>
+      <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">
+        Input/Data
+      </td>
+      <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 33%">
+        Expected Result
+      </td>
+      <td
+        style="
+          padding: 10px;
+          font-weight: 600;
+          border: 1px solid #dee2e6;
+          width: 6%;
+          text-align: center;
+        "
+      >
+        ✓
+      </td>
+    </tr>
+    {% for step in tc.steps %}
+    <tr>
+      <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">{{ loop.index }}</td>
+      <td style="padding: 10px; border: 1px solid #dee2e6">{{ step.action }}</td>
+      <td style="padding: 10px; border: 1px solid #dee2e6">{{ step.input }}</td>
+      <td style="padding: 10px; border: 1px solid #dee2e6">{{ step.expected }}</td>
+      <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">☐</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %} {% if tc.verification_checklist %}
+  <div
+    style="
+      font-weight: 600;
+      color: #00796b;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+    "
+  >
+    ✅ Verification Checklist
+  </div>
+  <ul style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.8">
+    {% for item in tc.verification_checklist %}
+    <li>☐ <strong>{{ item.label }}:</strong> {{ item.check }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  <div
+    style="
+      border-left: 4px solid #dc3545;
+      background: #fce4ec;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 0 0 16px 0;
+    "
+  >
+    <div style="font-weight: 600; color: #c62828; margin-bottom: 4px">🚨 If This Fails</div>
+    <div style="line-height: 1.6">{{ tc.failure_guidance | safe }}</div>
+  </div>
+
+  {% if tc.telemetry %}
+  <div
+    style="
+      font-weight: 600;
+      color: #00796b;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+    "
+  >
+    📊 Telemetry & Logs
+  </div>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+    <tr style="background: #f8f9fa">
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Log Type</td>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">What to Look For</td>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Where to Find It</td>
+    </tr>
+    {% for log in tc.telemetry %}
+    <tr>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ log.type }}</td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ log.pattern }}</td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ log.location }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %} {% if tc.cleanup %}
+  <div
+    style="
+      font-weight: 600;
+      color: #00796b;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+    "
+  >
+    🧹 Cleanup
+  </div>
+  <ul style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.8">
+    {% for item in tc.cleanup %}
+    <li>☐ {{ item }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %} {% if tc.dev_validation %}
+  <div
+    style="
+      background: #e3f2fd;
+      border-left: 4px solid #1565c0;
+      border-radius: 0 8px 8px 0;
+      padding: 14px;
+      margin-bottom: 12px;
+    "
+  >
+    <div style="font-weight: 600; color: #1565c0; margin-bottom: 6px">👨‍💻 Developer Validation</div>
+    <div style="line-height: 1.6">
+      {% if tc.dev_validation.unit_test_pattern %}
+      <p style="margin: 0 0 8px 0"><strong>Unit Test Pattern:</strong></p>
+      <div
+        style="
+          background: #f5f5f5;
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          padding: 10px;
+          font-family: monospace;
+          font-size: 12px;
+          margin-bottom: 12px;
+          line-height: 1.5;
+          white-space: pre-wrap;
+        "
+      >
+        {{ tc.dev_validation.unit_test_pattern }}
+      </div>
+      {% endif %} {% if tc.dev_validation.assertions %}
+      <p style="margin: 0 0 8px 0"><strong>Assertions to Implement:</strong></p>
+      <ul style="margin: 0 0 8px 0; padding-left: 20px">
+        {% for assertion in tc.dev_validation.assertions %}
+        <li><code>{{ assertion }}</code></li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% if tc.dev_validation.mocks %}
+      <p style="margin: 0 0 8px 0"><strong>Mocks Required:</strong></p>
+      <ul style="margin: 0 0 8px 0; padding-left: 20px">
+        {% for mock in tc.dev_validation.mocks %}
+        <li>{{ mock }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% if tc.dev_validation.integration_checks %}
+      <p style="margin: 0"><strong>Integration Points to Verify:</strong></p>
+      <ul style="margin: 0; padding-left: 20px">
+        {% for check in tc.dev_validation.integration_checks %}
+        <li>{{ check }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %} {% if tc.qa_validation %}
+  <div
+    style="
+      background: #f3e5f5;
+      border-left: 4px solid #7b1fa2;
+      border-radius: 0 8px 8px 0;
+      padding: 14px;
+      margin-bottom: 0;
+    "
+  >
+    <div style="font-weight: 600; color: #7b1fa2; margin-bottom: 6px">🔍 QA Validation</div>
+    <div style="line-height: 1.6">
+      {% if tc.qa_validation.nav_steps %}
+      <p style="margin: 0 0 8px 0"><strong>Step-by-Step Navigation:</strong></p>
+      <ol style="margin: 0 0 12px 0; padding-left: 20px">
+        {% for step in tc.qa_validation.nav_steps %}
+        <li>{{ step }}</li>
+        {% endfor %}
+      </ol>
+      {% endif %} {% if tc.qa_validation.data_query %}
+      <p style="margin: 0 0 8px 0"><strong>Data Verification Query:</strong></p>
+      <div
+        style="
+          background: #f5f5f5;
+          border: 1px solid #dee2e6;
+          border-radius: 4px;
+          padding: 10px;
+          font-family: monospace;
+          font-size: 12px;
+          margin-bottom: 12px;
+          line-height: 1.5;
+          white-space: pre-wrap;
+        "
+      >
+        {{ tc.qa_validation.data_query }}
+      </div>
+      {% endif %} {% if tc.qa_validation.visual_checks %}
+      <p style="margin: 0 0 8px 0"><strong>Visual Checkpoints:</strong></p>
+      <ul style="margin: 0 0 8px 0; padding-left: 20px">
+        {% for check in tc.qa_validation.visual_checks %}
+        <li>☐ {{ check }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %} {% if tc.qa_validation.env_prereqs %}
+      <p style="margin: 0">
+        <strong>Environment Prerequisites:</strong> {{ tc.qa_validation.env_prereqs }}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endmacro %} {{ subSectionHeading("🔴", "P1 Critical Path Tests", "#26a69a", "#00796b") }} {% call
+wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">
+  These tests validate the core functionality that must work for the feature to be considered
+  successful. Failure of any P1 test is a release blocker.
+</p>
+{{ masterSummaryTable(p1_tests, p1_columns) }} {% endcall %} {% for tc in p1_test_details %} {{
+testCaseDetailCard(tc) }} {% endfor %} {{ subSectionHeading("🟡", "P2 Important Tests", "#26a69a",
+"#00796b") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">
+  These tests cover important alternate paths and key negative scenarios. They should pass before
+  release but may not block deployment in exceptional circumstances.
+</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test Scenario</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Path Type</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Covers AC</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Data Row</td>
+  </tr>
+  {% for test in p2_tests %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.scenario }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.path_type_badge | safe }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.covers_ac }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.data_row }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {% for tc in p2_test_details %} {{ testCaseDetailCard(tc) }} {% endfor %} {{
+subSectionHeading("🟢", "P3 Additional Coverage", "#26a69a", "#00796b") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">
+  These tests provide additional coverage for edge cases and long-tail scenarios. They improve
+  confidence but are not required for release.
+</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test Scenario</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Path Type</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Covers AC</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Data Row</td>
+  </tr>
+  {% for test in p3_tests %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.scenario }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.path_type_badge | safe }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.covers_ac }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ test.data_row }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {% for tc in p3_test_details %} {{ testCaseDetailCard(tc) }} {% endfor %} {{
+subSectionHeading("🔄", "Business Process Coverage", "#26a69a", "#00796b") }} {% call wikiCard() %}
+{% call wikiCallout("#e0f2f1", "#00796b", "🔄", "End-to-End Business Processes") %} Each business
+process touched by this change has been mapped and tested end-to-end, from trigger event through
+intermediate steps to final outcome. {% endcall %}
+
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Process</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Trigger → Outcome</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Actors</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Mapped ACs</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test Case IDs</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Coverage</td>
+  </tr>
+  {% for bp in business_processes %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 600">{{ bp.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ bp.trigger }} → {{ bp.outcome }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ bp.actors }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ bp.acs }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ bp.tests }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ bp.coverage_badge | safe }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("⚠️", "Critical Scenarios", "#26a69a", "#00796b") }} {% call
+wikiCard() %} {% call calloutCard("#ffebee", "#dc3545", "🚨", "High-Risk Scenarios", "#c62828") %}
+These scenarios represent the highest risk areas of this change. Every 🔴 critical scenario is
+covered by at least one P1 test; every 🟡 important scenario by at least one P2 test. {% endcall %}
+
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">Scenario</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 10%">Risk</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">Impact</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 15%">
+      Test Case IDs
+    </td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">
+      Mitigation
+    </td>
+  </tr>
+  {% for cs in critical_scenarios %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ cs.scenario }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ cs.risk_badge | safe }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ cs.impact }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ cs.tests }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ cs.mitigation }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("🔁", "Regression Tests", "#26a69a", "#00796b") }} {% call
+wikiCard() %} {% call wikiCallout("#e0f2f1", "#00796b", "🔁", "Regression Verification") %} These
+tests verify that existing functionality adjacent to this change still works correctly after
+deployment. They answer "did we break anything?" — not "does the new thing work?" {% endcall %} {{
+masterSummaryTable(regression_tests, regression_columns) }} {% endcall %} {% for tc in
+regression_test_details %} {{ testCaseDetailCard(tc) }} {% endfor %} {{ subSectionHeading("🧪", "UAT
+Validation Scripts", "#26a69a", "#00796b") }} {% call wikiCard() %} {% call wikiCallout("#e0f2f1",
+"#00796b", "💡", "Audience") %} These scripts are designed for business stakeholders who validate
+the feature meets their needs. Both happy path (it works) and unhappy path (errors are handled
+gracefully) scripts are included. {% endcall %} {% endcall %} #### ✓ Happy Path UAT Scripts {% call
+wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 10%">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">Scenario</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 35%">
+      Steps (Business Language)
+    </td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">
+      Expected Result
+    </td>
+    <td
+      style="
+        padding: 10px;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
+        width: 5%;
+        text-align: center;
+      "
+    >
+      ✓
+    </td>
+  </tr>
+  {% for uat in uat_happy_tests %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ uat.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ uat.title }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; line-height: 1.8">
+      {{ uat.steps_inline | safe }}
+    </td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ uat.expected_result }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">☐</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {% for uat in uat_happy_details %} #### {{ uat.id }}: {{ uat.title }}
+
+<div
+  style="
+    background: #fff;
+    border-left: 4px solid #4caf50;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+    font-size: 13px;
+    color: #333;
+  "
+>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px">
+    <tr>
+      <td
+        style="
+          padding: 8px;
+          font-weight: 600;
+          border: 1px solid #dee2e6;
+          width: 25%;
+          background: #f8f9fa;
+        "
+      >
+        Persona
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.persona }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        Path Type
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ badge("✓ Happy", "#4caf50") }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        Covers AC
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.covers_ac }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        Data Requirements
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.data_reqs }}</td>
+    </tr>
+  </table>
+
+  <div style="font-weight: 600; color: #00796b; margin-bottom: 8px">Test Steps:</div>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px">
+    <tr style="background: #f8f9fa">
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; width: 8%">Step</td>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">
+        Action (Business Language)
+      </td>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">What You Should See</td>
+    </tr>
+    {% for step in uat.steps %}
+    <tr>
+      <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center">{{ loop.index }}</td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ step.action }}</td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ step.expected }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div style="margin-bottom: 8px">✅ <strong>Pass if:</strong> {{ uat.pass_criteria }}</div>
+  <div>❌ <strong>Fail if:</strong> {{ uat.fail_criteria }}</div>
+</div>
+{% endfor %} #### ✗ Unhappy Path UAT Scripts {% call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 10%">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">
+      What Could Go Wrong
+    </td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 35%">Steps</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 25%">
+      Expected Error Behavior
+    </td>
+    <td
+      style="
+        padding: 10px;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
+        width: 5%;
+        text-align: center;
+      "
+    >
+      ✓
+    </td>
+  </tr>
+  {% for uat in uat_unhappy_tests %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ uat.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ uat.what_could_go_wrong }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; line-height: 1.8">
+      {{ uat.steps_inline | safe }}
+    </td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ uat.expected_error }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">☐</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {% for uat in uat_unhappy_details %} #### {{ uat.id }}: {{ uat.title }}
+
+<div
+  style="
+    background: #fff;
+    border-left: 4px solid #dc3545;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+    font-size: 13px;
+    color: #333;
+  "
+>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px">
+    <tr>
+      <td
+        style="
+          padding: 8px;
+          font-weight: 600;
+          border: 1px solid #dee2e6;
+          width: 25%;
+          background: #f8f9fa;
+        "
+      >
+        Persona
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.persona }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        Path Type
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ badge("✗ Unhappy", "#dc3545") }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        What Could Go Wrong
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.what_could_go_wrong }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        Covers AC
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.covers_ac }}</td>
+    </tr>
+    <tr>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; background: #f8f9fa">
+        Data Requirements
+      </td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ uat.data_reqs }}</td>
+    </tr>
+  </table>
+
+  <div style="font-weight: 600; color: #00796b; margin-bottom: 8px">Test Steps:</div>
+  <table style="width: 100%; border-collapse: collapse; margin-bottom: 12px">
+    <tr style="background: #f8f9fa">
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; width: 8%">Step</td>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">
+        Action (Business Language)
+      </td>
+      <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">What You Should See</td>
+    </tr>
+    {% for step in uat.steps %}
+    <tr>
+      <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center">{{ loop.index }}</td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ step.action }}</td>
+      <td style="padding: 8px; border: 1px solid #dee2e6">{{ step.expected }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div
+    style="
+      border-left: 4px solid #dc3545;
+      background: #fce4ec;
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      margin: 0 0 12px 0;
+    "
+  >
+    <div style="font-weight: 600; color: #c62828; margin-bottom: 4px">🚨 If This Fails</div>
+    <div style="line-height: 1.6">{{ uat.failure_guidance | safe }}</div>
+  </div>
+
+  <div style="margin-bottom: 8px">✅ <strong>Pass if:</strong> {{ uat.pass_criteria }}</div>
+  <div>❌ <strong>Fail if:</strong> {{ uat.fail_criteria }}</div>
+</div>
+{% endfor %} {{ subSectionHeading("🚀", "Smoke Test Pack", "#26a69a", "#00796b") }} {% call
+wikiCard() %} {% call calloutCard("#fff3e0", "#ff9800", "⚠️", "Purpose", "#e65100") %} Run these
+checks immediately after deployment. Happy checks verify things work; Unhappy checks verify
+guardrails are intact. {% endcall %}
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  ✓ Happy Smoke Checks (≥3 required)
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 8%">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 18%">Check</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 40%">Steps</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 29%">
+      Pass Criteria
+    </td>
+    <td
+      style="
+        padding: 10px;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
+        width: 5%;
+        text-align: center;
+      "
+    >
+      ✓
+    </td>
+  </tr>
+  {% for smoke in smoke_happy_checks %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ smoke.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 600">{{ smoke.check }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; line-height: 1.8">
+      {{ smoke.steps_inline | safe }}
+    </td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ smoke.criteria }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">☐</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  ✗ Unhappy Smoke Checks (≥2 required)
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 8%">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 18%">Check</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 40%">Steps</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6; width: 29%">
+      Pass Criteria
+    </td>
+    <td
+      style="
+        padding: 10px;
+        font-weight: 600;
+        border: 1px solid #dee2e6;
+        width: 5%;
+        text-align: center;
+      "
+    >
+      ✓
+    </td>
+  </tr>
+  {% for smoke in smoke_unhappy_checks %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ smoke.id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; font-weight: 600">{{ smoke.check }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; line-height: 1.8">
+      {{ smoke.steps_inline | safe }}
+    </td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ smoke.criteria }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6; text-align: center">☐</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div style="background: #f5f5f5; border-radius: 6px; padding: 12px; font-size: 12px; color: #666">
+  <strong>Principles:</strong> Shallow (basic health, not full coverage) · Fast (&lt;15 min) ·
+  Independent (any order) · Repeatable (consistent results)
+</div>
+{% endcall %} {{ subSectionHeading("📋", "Test Data Setup Guide", "#26a69a", "#00796b") }} {% call
+wikiCard() %} {% call wikiCallout("#e0f2f1", "#00796b", "📋", "Purpose") %} Follow these steps to
+prepare all required test data from scratch in a clean sandbox. References the Test Data Matrix
+personas above. {% endcall %}
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  Step 1: Create Test Users
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; width: 5%">#</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Username</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Profile</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Permission Sets</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Role</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Purpose</td>
+  </tr>
+  {% for user in setup_users %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center">{{ loop.index }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ user.username }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ user.profile }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ user.permsets }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ user.role }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ user.purpose }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  Step 2: Create Test Records
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; width: 5%">#</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Object</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Record Name</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Key Field Values</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Related To</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Purpose</td>
+  </tr>
+  {% for rec in setup_records %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center">{{ loop.index }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.object }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.name }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.fields }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.related }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ rec.purpose }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  Step 3: Configure Feature Flags / Settings
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6; width: 5%">#</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Setting</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Object/Type</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Value</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Purpose</td>
+  </tr>
+  {% for flag in setup_flags %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6; text-align: center">{{ loop.index }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ flag.name }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ flag.type }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ flag.value }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ flag.purpose }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    font-size: 14px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  Step 4: Verify Environment
+</div>
+<ul style="margin: 0; padding-left: 20px; line-height: 2">
+  <li>☐ All test users can log in</li>
+  <li>☐ Required permission sets are assigned</li>
+  <li>☐ Test records are visible to appropriate users</li>
+  <li>☐ Feature flags are set correctly</li>
+  <li>☐ Integration endpoints are available (or mocked)</li>
+</ul>
+{% endcall %} {{ subSectionHeading("🔗", "Requirements Traceability Matrix", "#26a69a", "#00796b")
+}} {% call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">AC ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Description</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test Cases</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Components</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Coverage</td>
+  </tr>
+  {% for rtm in traceability_matrix %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ rtm.ac_id }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ rtm.description }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ rtm.tests }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ rtm.components }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ rtm.coverage_badge | safe }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("📝", "Assumptions Resolution Log", "#26a69a", "#00796b") }} {%
+call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Assumption</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Phase</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Source</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Status</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Resolution Evidence</td>
+  </tr>
+  {% for assumption in assumptions %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ assumption.text }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ assumption.phase }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ assumption.source }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ assumption.status_badge | safe }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ assumption.evidence }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("✨", "Quality Corrections Applied", "#26a69a", "#00796b") }} {%
+call wikiCard() %}
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  🎯 Solution Bias Removed
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Original Content</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Where Found</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Moved To</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Category</td>
+  </tr>
+  {% for bias in bias_corrections %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ bias.original }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ bias.location }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ bias.moved_to }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ bias.category }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  📐 Template Fidelity Corrections
+</div>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Issue Detected</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">
+      Auto-Correction Applied
+    </td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Section Affected</td>
+  </tr>
+  {% for fix in fidelity_corrections %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fix.issue }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fix.correction }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fix.section }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<div
+  style="
+    font-weight: 600;
+    color: #00796b;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  🧠 Logical Fallacies Challenged
+</div>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Fallacy Type</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Original Statement</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Challenge Question</td>
+    <td style="padding: 8px; font-weight: 600; border: 1px solid #dee2e6">Resolution</td>
+  </tr>
+  {% for fallacy in fallacies %}
+  <tr>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fallacy.type }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fallacy.original }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fallacy.challenge }}</td>
+    <td style="padding: 8px; border: 1px solid #dee2e6">{{ fallacy.resolution }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("❓", "Open Unknowns", "#ef5350", "#c62828") }} {% call
+wikiCard() %} {% call calloutCard("#ffebee", "#dc3545", "⚠️", "Items Requiring Human Input",
+"#dc3545") %} These items could not be determined during autonomous preparation and require human
+input before testing can be finalized. {% endcall %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Unknown</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">
+      Why We Couldn't Determine
+    </td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Impact if Unresolved</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Resolution Path</td>
+  </tr>
+  {% for unknown in open_unknowns %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.item }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.reason }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.impact }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.resolution }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %}

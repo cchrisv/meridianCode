@@ -1,0 +1,10 @@
+{
+  "meridian_meta": {
+    "lifecycle": "template",
+    "note": "Optional local overrides; copy to local.json (gitignored). Not read unless present."
+  },
+  "engineer": {
+    "name": "Your Name",
+    "platforms": ["crm"]
+  }
+}

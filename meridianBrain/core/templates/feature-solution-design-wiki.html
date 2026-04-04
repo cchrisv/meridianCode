@@ -1,0 +1,332 @@
+{% from "partials/_wiki-base.html" import wikiHeader, sectionHeading, subSectionHeading, wikiCard,
+wikiCallout %} {% from "partials/_callout-card.html" import calloutCard %} {% from
+"partials/_badge.html" import badge %} {{ wikiHeader(feature_id, feature_title) }} --- {{
+sectionHeading("🎯", "Executive Summary", "#2e7d32", "#1b5e20") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.7">{{ executive_summary_narrative | safe }}</p>
+{% call calloutCard("#e8f5e9", "#4caf50", "📊", "Feature Scope", "#2e7d32") %} {{
+feature_scope_summary | safe }} {% endcall %} {% call calloutCard("#e3f2fd", "#2196f3", "💡",
+"Business Value", "#1565c0") %} {{ business_value_summary | safe }} {% endcall %} {% call
+calloutCard("#f3e5f5", "#9c27b0", "✅", "Expected Outcomes", "#7b1fa2") %} {{ expected_outcomes |
+safe }} {% endcall %} {% endcall %} --- {{ sectionHeading("📋", "Current State — End-to-End",
+"#1565c0", "#0d47a1") }} {{ subSectionHeading("🏢", "Business Process Today", "#42a5f5", "#1565c0")
+}} {% call wikiCard() %}
+<p style="margin: 0; line-height: 1.7">{{ current_business_process_narrative | safe }}</p>
+{% endcall %} {{ subSectionHeading("🏗️", "Current System Landscape", "#42a5f5", "#1565c0") }} {%
+call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ current_system_landscape_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">System</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Role</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Current Limitations</td>
+  </tr>
+  {% for system in current_systems %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6"><strong>{{ system.name }}</strong></td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ system.role }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ system.limitation }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("⚠️", "Pain Points & Limitations", "#42a5f5", "#1565c0") }} {%
+call wikiCard() %}
+<ul style="margin: 0; padding-left: 20px; line-height: 1.8">
+  {% for point in pain_points %}
+  <li>{{ point }}</li>
+  {% endfor %}
+</ul>
+{% endcall %} --- {{ sectionHeading("🚀", "Future State — End-to-End", "#303f9f", "#1a237e") }} {{
+subSectionHeading("🏢", "Business Process After Implementation", "#5c6bc0", "#303f9f") }} {% call
+wikiCard() %}
+<p style="margin: 0; line-height: 1.7">{{ future_business_process_narrative | safe }}</p>
+{% endcall %} {{ subSectionHeading("🏗️", "Future System Landscape", "#5c6bc0", "#303f9f") }} {% call
+wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ future_system_landscape_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">System</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Role</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">What Changes</td>
+  </tr>
+  {% for system in future_systems %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6"><strong>{{ system.name }}</strong></td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ system.role }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ system.change }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("✨", "Capabilities Gained", "#5c6bc0", "#303f9f") }} {% call
+wikiCard() %} {% for capability in capabilities %} {% call calloutCard("#e8eaf6", "#3f51b5", "",
+capability.title, "#303f9f") %} {{ capability.description | safe }} {% endcall %} {% endfor %} {%
+endcall %} --- {{ sectionHeading("📊", "Requirements Inventory", "#7b1fa2", "#4a148c") }} {{
+subSectionHeading("📋", "User Stories by Functional Area", "#ab47bc", "#7b1fa2") }} {% call
+wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ requirements_overview_narrative | safe }}</p>
+{% for area in functional_areas %}
+<div
+  style="
+    font-weight: 600;
+    color: #7b1fa2;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  {{ area.name }}
+</div>
+<p style="margin: 0 0 12px 0; line-height: 1.6">{{ area.description }}</p>
+<table
+  style="width: 100%; border-collapse: collapse;{% if not loop.last %} margin-bottom: 16px;{% endif %}"
+>
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">ID</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Title</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">State</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Key AC Count</td>
+  </tr>
+  {% for story in area.stories %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">
+      <a href="{{ story.url }}" style="color: #0078d4">#{{ story.id }}</a>
+    </td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ story.title }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ story.state }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ story.ac_count }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endfor %} {% endcall %} {{ subSectionHeading("🔗", "Inter-Story Dependencies", "#ab47bc",
+"#7b1fa2") }} {% call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Depends On</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Required By</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Reason</td>
+  </tr>
+  {% for dep in dependencies %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">#{{ dep.source }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">#{{ dep.target }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ dep.reason }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} --- {{ sectionHeading("🏗️", "Solution Architecture", "#303f9f", "#1a237e") }} {{
+subSectionHeading("🏛️", "Architectural Overview", "#5c6bc0", "#303f9f") }} {% call wikiCard() %}
+<p style="margin: 0; line-height: 1.7">{{ architecture_overview_narrative | safe }}</p>
+{% endcall %} {{ subSectionHeading("🧩", "Component Landscape", "#5c6bc0", "#303f9f") }} {% call
+wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ components_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse; margin-bottom: 16px">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Component</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Type</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Responsibility</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Referenced By</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Status</td>
+  </tr>
+  {% for comp in components %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6"><strong>{{ comp.name }}</strong></td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ comp.type }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ comp.responsibility }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ comp.stories }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ comp.status }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% if shared_components_narrative %} {% call calloutCard("#fff3e0", "#ff9800", "🔄", "Shared
+Components", "#e65100") %} {{ shared_components_narrative | safe }} {% endcall %} {% endif %} {%
+endcall %} {{ subSectionHeading("🔌", "Cross-Story Integration Points", "#5c6bc0", "#303f9f") }} {%
+call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ integration_points_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Integration</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Systems</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Stories Involved</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Data Flow</td>
+  </tr>
+  {% for integ in integration_points %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ integ.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ integ.systems }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ integ.stories }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ integ.data_flow }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("💭", "Key Design Decisions", "#5c6bc0", "#303f9f") }} {% call
+wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ design_decisions_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Decision</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Chosen Approach</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Rationale</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Affects Stories</td>
+  </tr>
+  {% for decision in design_decisions %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ decision.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ decision.approach }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ decision.rationale }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ decision.stories }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} --- {{ sectionHeading("🔧", "Implementation Considerations", "#e65100", "#bf360c") }}
+{{ subSectionHeading("📋", "Sequencing & Coordination", "#ef6c00", "#e65100") }} {% call wikiCard()
+%}
+<p style="margin: 0 0 16px 0; line-height: 1.7">{{ sequencing_narrative | safe }}</p>
+{% call calloutCard("#fff3e0", "#ff9800", "🏗️", "Foundation Stories (Build First)", "#e65100") %} {{
+foundation_stories | safe }} {% endcall %} {% endcall %} {{ subSectionHeading("📏", "Standards &
+Governance", "#ef6c00", "#e65100") }} {% call wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Standard</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Applicable Guidance</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Applies To</td>
+  </tr>
+  {% for standard in standards %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ standard.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ standard.guidance }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ standard.applies_to }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} --- {{ sectionHeading("🧪", "Testing Strategy Overview", "#00796b", "#004d40") }} {{
+subSectionHeading("📋", "Feature-Level Test Approach", "#26a69a", "#00796b") }} {% call wikiCard()
+%}
+<p style="margin: 0 0 16px 0; line-height: 1.7">{{ testing_overview_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Functional Area</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Test Approach</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Stories Covered</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Integration Points</td>
+  </tr>
+  {% for area in test_areas %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ area.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ area.approach }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ area.stories }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ area.integration_points }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("🔗", "Cross-Story Integration Testing", "#26a69a", "#00796b") }}
+{% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ integration_testing_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Integration Scenario</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Stories Involved</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">What to Validate</td>
+  </tr>
+  {% for scenario in integration_scenarios %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ scenario.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ scenario.stories }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ scenario.validation }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} --- {{ sectionHeading("⚠️", "Risks and Dependencies", "#c62828", "#b71c1c") }} {{
+subSectionHeading("🔴", "Risk Register", "#ef5350", "#c62828") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">{{ risks_narrative | safe }}</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Risk</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Source Stories</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Likelihood</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Impact</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Mitigation</td>
+  </tr>
+  {% for risk in risks %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ risk.description }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ risk.stories }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ risk.likelihood }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ risk.impact }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ risk.mitigation }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("🔗", "External Dependencies", "#ef5350", "#c62828") }} {% call
+wikiCard() %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Dependency</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Owner / Team</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Status</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Impact if Delayed</td>
+  </tr>
+  {% for dep in external_dependencies %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ dep.name }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ dep.owner }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ dep.status }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ dep.impact }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} {{ subSectionHeading("❓", "Open Unknowns", "#ef5350", "#c62828") }} {% call
+wikiCard() %} {% call calloutCard("#ffebee", "#dc3545", "⚠️", "Items Requiring Human Input",
+"#dc3545") %} These items could not be fully resolved during solution design and require human
+input. {% endcall %}
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Unknown</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Why Unresolved</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Impact if Unresolved</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Suggested Resolution</td>
+  </tr>
+  {% for unknown in open_unknowns %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.item }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.reason }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.impact }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ unknown.resolution }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} --- {{ sectionHeading("📚", "Appendix: Per-Story Solution Details", "#5d4037",
+"#3e2723") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">
+  Below are the individual solution designs for each user story under this feature.
+</p>
+{% for story in child_stories %}
+<div
+  style="background: #efebe9; border-left: 4px solid #795548; border-radius: 0 8px 8px 0; padding: 14px; margin-bottom: {{ '12px' if not loop.last else '0' }};"
+>
+  <div style="font-weight: 600; color: #5d4037; margin-bottom: 6px">
+    #{{ story.id }} — {{ story.title }} ({{ story.state }})
+  </div>
+  <div style="line-height: 1.6">{{ story.development_summary | safe }}</div>
+  <div style="margin-top: 8px; font-size: 12px">
+    <a href="{{ story.wiki_url }}" style="color: #0078d4">📄 View full wiki page →</a> &nbsp;|&nbsp;
+    <a href="{{ story.ado_url }}" style="color: #0078d4">🔗 View in ADO →</a>
+  </div>
+</div>
+{% endfor %} {% endcall %} ---
+
+<div
+  style="
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+  "
+>
+  <div style="font-size: 13px; color: #666; margin-bottom: 8px">
+    📅 <strong>Last Updated:</strong> {{ timestamp }}
+  </div>
+  <div style="font-size: 12px; color: #999">
+    Feature Solution Design Document aggregating {{ child_story_count }} user stories.
+  </div>
+</div>

@@ -1,0 +1,76 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %}
+<div style="font-family: &quot;Segoe UI&quot;, sans-serif; font-size: 14px; color: #333">
+  {# MEETING HEADER - Blue #} {{ gradientHeader(meeting_title, "📅", "#1565c0", "#0d47a1") }} {%
+  call contentCard() %}
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+    <tr style="border-bottom: 1px solid #eee">
+      <td style="padding: 8px 10px; width: 140px; font-weight: 600; color: #555">Date</td>
+      <td style="padding: 8px 10px">{{ date }}</td>
+    </tr>
+    <tr
+      {%
+      if
+      not
+      average_attendance
+      %}style="border-bottom: none;"
+      {%
+      else
+      %}style="border-bottom: 1px solid #eee;"
+      {%
+      endif
+      %}
+    >
+      <td style="padding: 8px 10px; font-weight: 600; color: #555">Duration</td>
+      <td style="padding: 8px 10px">{{ duration }}</td>
+    </tr>
+    {% if average_attendance %}
+    <tr>
+      <td style="padding: 8px 10px; font-weight: 600; color: #555">Avg. Attendance</td>
+      <td style="padding: 8px 10px">{{ average_attendance }}</td>
+    </tr>
+    {% endif %}
+  </table>
+  {% endcall %} {# PARTICIPANTS - Slate #} {{ gradientHeader("Participants", "👥", "#37474f",
+  "#263238") }} {% call contentCard() %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for p in participants -%}
+    <li>{{ p }}</li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {# KEY DECISIONS - Green #} {% if decisions and decisions | length > 0 %} {{
+  gradientHeader("Key Decisions", "🎯", "#2e7d32", "#1b5e20") }} {% call contentCard() %}
+  <ol style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for d in decisions -%}
+    <li>{{ d }}</li>
+    {% endfor -%}
+  </ol>
+  {% endcall %} {% endif %} {# NEXT STEPS - Orange #} {% if next_steps and next_steps | length > 0
+  %} {{ gradientHeader("Next Steps", "📋", "#e65100", "#bf360c") }} {% call contentCard() %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for s in next_steps -%}
+    <li>{{ s }}</li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {% endif %} {# DISCUSSION HIGHLIGHTS - Purple #} {% if highlights and highlights |
+  length > 0 %} {{ gradientHeader("Discussion Highlights", "🗒️", "#6a1b9a", "#4a148c") }} {% call
+  contentCard() %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for h in highlights -%}
+    <li>{{ h }}</li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {% endif %} {# FULL TRANSCRIPT - Dark Slate #} {% if transcript %} {{
+  gradientHeader("Full Meeting Transcript", "📄", "#546e7a", "#37474f") }} {% call contentCard() %}
+  <div style="font-size: 12px; line-height: 1.7; color: #444">{{ transcript | safe }}</div>
+  {% endcall %} {% endif %} {# RECORDING LINK #} {% if recording_url %}
+  <div
+    style="margin-top: 12px; padding: 10px 16px; font-size: 12px; color: #666; font-style: italic"
+  >
+    📹
+    <a href="{{ recording_url }}" style="color: #0d47a1"
+      >{{ recording_label or "Meeting Recording" }}</a
+    >
+  </div>
+  {% endif %}
+</div>

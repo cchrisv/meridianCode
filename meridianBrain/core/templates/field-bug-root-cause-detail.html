@@ -1,0 +1,45 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_badge.html" import badge %}
+<div style="font-size: 14px; color: #333">
+  {# ROOT CAUSE HEADER - Deep Red #} {{ gradientHeader("Root Cause Analysis", "🔍", "#b71c1c",
+  "#880e4f") }} {# ROOT CAUSE SUMMARY CARD #} {% if root_cause_summary %} {% call contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    Summary
+  </div>
+  <p style="margin: 0 0 12px 0; font-size: 13px; line-height: 1.6; color: #333">
+    {{ root_cause_summary }}
+  </p>
+  {% if root_cause_category or confidence_level %}
+  <div style="display: flex; gap: 12px; flex-wrap: wrap">
+    {% if root_cause_category %}
+    <div style="font-size: 12px; color: #666">
+      <strong>Category:</strong>
+      {{ badge(root_cause_category, "#fce4ec", "#b71c1c") }}
+    </div>
+    {% endif %} {% if confidence_level %}
+    <div style="font-size: 12px; color: #666">
+      <strong>Confidence:</strong>
+      {{ badge(confidence_level, "#e8eaf6", "#283593") }}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %} {% endcall %} {% endif %} {# CONTRIBUTING FACTORS SECTION - Indigo #} {% if
+  contributing_factors_items %} {{ gradientHeader("Contributing Factors", "⚙️", "#283593",
+  "#1a237e") }} {% call contentCard() %}
+  <div style="font-size: 13px; line-height: 1.6; color: #333">
+    {{ contributing_factors_items | safe }}
+  </div>
+  {% endcall %} {% endif %} {# EVIDENCE & REFERENCES SECTION - Blue-gray #} {% if
+  evidence_references %} {{ gradientHeader("Evidence & References", "📎", "#455a64", "#263238") }}
+  {% call contentCard() %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">{{ evidence_references | safe }}</div>
+  {% endcall %} {% endif %}
+</div>

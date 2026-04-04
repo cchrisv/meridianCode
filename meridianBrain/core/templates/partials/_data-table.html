@@ -1,0 +1,25 @@
+{# Data Table Macro Renders an HTML table with a styled header row and data rows. Parameters:
+columns - Array of column objects: [{key: "id", header: "ID", width: "60px"}, ...] rows - Array of
+row objects: [{id: "A1", name: "..."}, ...] headerBg - Optional header background color (defaults to
+"#f8f9fa") Column objects may include: key - Property name to look up in each row header - Display
+text for the column header width - Optional CSS width (e.g. "60px", "100px") #} {% macro
+dataTable(columns, rows, headerBg) -%}
+<table style="width: 100%; border-collapse: collapse; font-size: 13px">
+  <tr style="background: {{ headerBg if headerBg else '#f8f9fa' }}; border-bottom: 1px solid #eee;">
+    {%- for col in columns %}
+    <td
+      style="padding: 10px; font-weight: 600;{% if col.width %} width: {{ col.width }};{% endif %}"
+    >
+      {{ col.header }}
+    </td>
+    {%- endfor %}
+  </tr>
+  {%- for row in rows %}
+  <tr style="border-bottom: 1px solid #eee">
+    {%- for col in columns %}
+    <td style="padding: 10px">{{ row[col.key] }}</td>
+    {%- endfor %}
+  </tr>
+  {%- endfor %}
+</table>
+{%- endmacro %}

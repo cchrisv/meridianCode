@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "meridian_meta": {
+    "lifecycle": "wip",
+    "consumers": [],
+    "note": "Declarative only. Meridian CLI (e.g. workflow-tools) does not load this file yet; Copilot may cite it. Future: drive phase lists from here."
+  },
+  "description": "Meridian workflow definitions — Phase 1 ticket grooming is default; additional shapes go here (Section 14.2).",
+  "default_workflow": "ticket_grooming_5_phase",
+  "workflows": {
+    "ticket_grooming_5_phase": {
+      "id": "ticket_grooming_5_phase",
+      "name": "Five-phase ticket grooming",
+      "phases": ["research", "grooming", "solutioning_research", "solutioning", "finalization"]
+    }
+  }
+}

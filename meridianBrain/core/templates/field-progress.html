@@ -1,0 +1,57 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_callout-card.html" import
+calloutCard %} {% from "partials/_progress-bar.html" import progressBar %}
+<div style="font-size: 14px; color: #333">
+  {# PROGRESS HEADER - Green #} {{ gradientHeader("Progress Summary", "📈", "#2e7d32", "#1b5e20") }}
+  {# COMPLETION STATS & PROGRESS BAR #} {% if completion_percent is defined %} {% call contentCard()
+  %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6; margin-bottom: 12px">
+    <strong style="color: #2e7d32; font-size: 18px">{{ completion_percent }}%</strong>
+    <span style="color: #666; margin-left: 6px">Complete</span>
+    <span style="color: #999; margin-left: 12px"
+      >{{ completed_count }} of {{ total_count }} story points earned | Updated: {{ update_date
+      }}</span
+    >
+  </div>
+  {{ progressBar(completion_percent) }} {% endcall %} {% endif %} {# STATUS SUMMARY #} {% if
+  overall_status_summary %}
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-left: 4px solid #0078d4;
+      border-radius: 0 8px 8px 0;
+      padding: 14px;
+      margin-bottom: 20px;
+    "
+  >
+    <div style="font-weight: 600; color: #0078d4; margin-bottom: 6px">📋 Status Summary</div>
+    <div style="font-size: 13px; line-height: 1.6; color: #333">{{ overall_status_summary }}</div>
+  </div>
+  {% endif %} {# WEEKLY ACTIVITY HEADER - Blue #} {% if weeks and weeks | length > 0 %} {{
+  gradientHeader("Weekly Activity", "📅", "#1565c0", "#0d47a1", "(" + window_start + " - " +
+  window_end + ")") }} {# WEEKLY ACTIVITY BLOCKS #} {% for week in weeks -%}
+  <div
+    style="background: #fff; border: 1px solid #dee2e6;
+    {%- if loop.first %} border-left: 4px solid #1976d2; border-radius: 0 8px 8px 0;
+    {%- else %} border-radius: 8px;
+    {%- endif %} padding: 16px; margin-bottom: 20px;"
+  >
+    <div
+      style="font-weight: 600; color: {% if loop.first %}#1976d2{% else %}#495057{% endif %}; margin-bottom: 10px;
+      {%- if not loop.first %} border-bottom: 1px solid #dee2e6; padding-bottom: 8px;{% endif %}"
+    >
+      Week of {{ week.start }} - {{ week.end }}
+    </div>
+    <div style="font-size: 13px; color: #666; margin-bottom: 8px; line-height: 1.6">
+      {{ week.narrative }}
+    </div>
+    <div style="font-size: 13px; line-height: 1.8; color: #333">{{ week.activities | safe }}</div>
+  </div>
+  {% endfor -%} {% endif %} {# KEY INSIGHTS HEADER - Purple #} {% if leadership_helped_text or
+  support_needed_text %} {{ gradientHeader("Key Insights", "💡", "#7b1fa2", "#4a148c") }} {% if
+  leadership_helped_text %} {% call calloutCard("#e3f2fd", "#2196f3", "🤝", "How Leadership Helped",
+  "#1565c0") %} {{ leadership_helped_text }} {% endcall %} {% endif %} {% if support_needed_text %}
+  {% call calloutCard("#fff3e0", "#ff9800", "⚠️", "Where Support May Be Needed", "#e65100") %} {{
+  support_needed_text }} {% endcall %} {% endif %} {% endif %}
+</div>

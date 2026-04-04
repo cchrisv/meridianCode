@@ -1,0 +1,8 @@
+{# Progress Bar Macro Renders a horizontal progress bar with percentage fill. Parameters: percent -
+Completion percentage (0-100) #} {% macro progressBar(percent) -%}
+<div style="background: #e0e0e0; border-radius: 4px; height: 8px; overflow: hidden">
+  <div
+    style="background: linear-gradient(90deg, #4caf50 0%, #81c784 100%); height: 100%; width: {{ percent }}%; border-radius: 4px;"
+  ></div>
+</div>
+{%- endmacro %}

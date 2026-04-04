@@ -1,0 +1,22 @@
+{
+  "version": "1.0.0",
+  "meridian_meta": {
+    "lifecycle": "active",
+    "consumers": ["copilot-instructions", "skills"],
+    "note": "Copilot reads before risky suggestions."
+  },
+  "description": "Meridian — operations Copilot must not perform autonomously without explicit engineer approval.",
+  "prohibited_operations": [
+    {
+      "id": "destructive-ado-delete",
+      "pattern": "ado-tools delete|ado-tools remove|permanently delete work item",
+      "rationale": "Work item deletion requires human confirmation."
+    },
+    {
+      "id": "production-metadata-deploy",
+      "pattern": "deploy.*production|sf project deploy.*--target-org production",
+      "rationale": "Production deployments are out of scope for autonomous agents."
+    }
+  ],
+  "notes": "Copilot reads this file from core/safeguards.json per Meridian Solution Design Section 10."
+}

@@ -1,0 +1,7 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_done-when-section.html"
+import doneWhenSection %}
+<div style="font-size: 14px; color: #333">
+  {{ gradientHeader("Done When", "✓", "#1565c0", "#0d47a1") }} {% call contentCard() %} {{
+  doneWhenSection(done_when_items) }} {% endcall %}
+</div>

@@ -120,7 +120,7 @@ export const ChatHeader = memo(function ChatHeader({
           />
           <TooltipPopup side="bottom">
             {!terminalAvailable
-              ? "Terminal is unavailable until this thread has an active project."
+              ? "Terminal is unavailable until this thread has an active feature."
               : terminalToggleShortcutLabel
                 ? `Toggle terminal drawer (${terminalToggleShortcutLabel})`
                 : "Toggle terminal drawer"}
@@ -144,7 +144,7 @@ export const ChatHeader = memo(function ChatHeader({
           />
           <TooltipPopup side="bottom">
             {!isGitRepo
-              ? "Diff panel is unavailable because this project is not a git repository."
+              ? "Diff panel is unavailable because this workspace is not a git repository."
               : diffToggleShortcutLabel
                 ? `Toggle diff panel (${diffToggleShortcutLabel})`
                 : "Toggle diff panel"}

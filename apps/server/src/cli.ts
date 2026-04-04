@@ -1,3 +1,5 @@
+// @effect-diagnostics effect/anyUnknownInErrorContext:off
+import { APP_BASE_NAME } from "@t3tools/shared/branding";
 import { NetService } from "@t3tools/shared/Net";
 import { parsePersistedServerObservabilitySettings } from "@t3tools/shared/serverSettings";
 import { Config, Effect, FileSystem, LogLevel, Option, Path, Schema } from "effect";
@@ -30,6 +32,8 @@ const BootstrapEnvelopeSchema = Schema.Struct({
   logWebSocketEvents: Schema.optional(Schema.Boolean),
   otlpTracesUrl: Schema.optional(Schema.String),
   otlpMetricsUrl: Schema.optional(Schema.String),
+  /** Absolute path to bundled `meridianBrain` next to the app root (desktop). */
+  meridianBrainRoot: Schema.optional(Schema.String),
 });
 
 const modeFlag = Flag.choice("mode", RuntimeMode.literals).pipe(
@@ -70,7 +74,7 @@ const bootstrapFdFlag = Flag.integer("bootstrap-fd").pipe(
 );
 const autoBootstrapProjectFromCwdFlag = Flag.boolean("auto-bootstrap-project-from-cwd").pipe(
   Flag.withDescription(
-    "Create a project for the current working directory on startup when missing.",
+    "Create a feature for the current working directory on startup when missing.",
   ),
   Flag.optional,
 );
@@ -180,6 +184,13 @@ export const resolveServerConfig = (
       bootstrapFd !== undefined
         ? yield* readBootstrapEnvelope(BootstrapEnvelopeSchema, bootstrapFd)
         : Option.none();
+
+    const meridianBrainBootstrap = Option.flatMap(bootstrapEnvelope, (bootstrap) =>
+      Option.fromUndefinedOr(bootstrap.meridianBrainRoot),
+    );
+    if (Option.isSome(meridianBrainBootstrap)) {
+      process.env.MERIDIAN_BRAIN_ROOT = meridianBrainBootstrap.value;
+    }
 
     const mode: RuntimeMode = Option.getOrElse(
       resolveOptionPrecedence(
@@ -345,7 +356,7 @@ const commandFlags = {
 } as const;
 
 const rootCommand = Command.make("t3", commandFlags).pipe(
-  Command.withDescription("Run the T3 Code server."),
+  Command.withDescription(`Run the ${APP_BASE_NAME} server.`),
   Command.withHandler((flags) =>
     Effect.gen(function* () {
       const logLevel = yield* GlobalFlag.LogLevel;

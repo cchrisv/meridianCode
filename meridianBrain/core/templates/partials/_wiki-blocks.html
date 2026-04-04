@@ -1,0 +1,161 @@
+{#
+  Wiki Block Macros
+  Building blocks for AI-composed Azure DevOps Wiki pages.
+  Each macro is a self-contained, visually complete component.
+
+  CSS classes are defined in <style> and converted to inline styles
+  by juice in wikiEngine.ts before output. Dynamic colors (section-specific
+  backgrounds, borders) use inline style attributes since they vary per block.
+#}
+
+<style>
+  .wb { font-family: 'Segoe UI', sans-serif; font-size: 13px; color: #333; line-height: 1.6; }
+  .wb-section { border-radius: 0 8px 8px 0; padding: 14px; margin-bottom: 12px; }
+  .wb-subsection { border-radius: 0 8px 8px 0; padding: 14px; margin-bottom: 12px; margin-left: 14px; }
+  .wb-title { font-weight: 600; margin-bottom: 8px; }
+  .wb-table { width: 100%; border-collapse: collapse; }
+  .wb-table td { padding: 10px; border: 1px solid #dee2e6; }
+  .wb-table-header td { font-weight: 600; }
+  .wb-list { margin: 0; padding-left: 20px; line-height: 1.8; }
+  .wb-kv-row { display: flex; margin-bottom: 6px; }
+  .wb-kv-label { font-weight: 600; min-width: 140px; flex-shrink: 0; }
+  .wb-link-list { margin: 0; padding-left: 20px; line-height: 1.8; }
+  .wb-link { color: #0078d4; text-decoration: none; }
+  .wb-link-desc { color: #666; }
+  .wb-placeholder { text-align: center; color: #999; background: #fff; border: 1px solid #dee2e6; border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+  .wb-callout { border-radius: 0 8px 8px 0; padding: 14px; margin-bottom: 12px; }
+  .wb-callout-title { font-weight: 600; margin-bottom: 6px; }
+  .wb-callout-body { line-height: 1.6; }
+  .wb-footer { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 16px; text-align: center; }
+  .wb-footer-ts { font-size: 13px; color: #666; margin-bottom: 8px; }
+  .wb-footer-note { font-size: 12px; color: #999; }
+</style>
+
+{# ── Narrative Block ── #}
+{% macro wikiNarrative(content, colors, indent) %}
+<div class="wb {{ 'wb-subsection' if indent else 'wb-section' }}" style="background: {{ colors.tint }}; border-left: {{ '3px' if indent else '4px' }} solid {{ colors.primary }};">
+  {{ content | safe }}
+</div>
+{% endmacro %}
+
+{# ── Data Table Block ── #}
+{% macro wikiDataTable(headers, rows, colors, indent, caption) %}
+<div style="margin-bottom: 12px; {{ 'margin-left: 14px;' if indent }}">
+  {% if caption %}
+  <div class="wb wb-title" style="color: {{ colors.primary }};">{{ caption }}</div>
+  {% endif %}
+  <table class="wb wb-table">
+    <tr class="wb-table-header" style="background: {{ colors.tint }};">
+      {% for header in headers %}
+      <td style="color: {{ colors.dark }}; padding: 10px; border: 1px solid #dee2e6;">{{ header }}</td>
+      {% endfor %}
+    </tr>
+    {% for row in rows %}
+    <tr>
+      {% for cell in row %}
+      <td style="padding: 10px; border: 1px solid #dee2e6;">{{ cell | safe }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endmacro %}
+
+{# ── Bullet List Block ── #}
+{% macro wikiBulletList(items, colors, indent, title) %}
+<div class="wb {{ 'wb-subsection' if indent else 'wb-section' }}" style="background: {{ colors.tint }}; border-left: {{ '3px' if indent else '4px' }} solid {{ colors.primary }};">
+  {% if title %}
+  <div class="wb-title" style="color: {{ colors.primary }};">{{ title }}</div>
+  {% endif %}
+  <ul class="wb-list">
+    {% for item in items %}
+    <li>{{ item | safe }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endmacro %}
+
+{# ── Numbered List Block ── #}
+{% macro wikiNumberedList(items, colors, indent, title, start) %}
+<div class="wb {{ 'wb-subsection' if indent else 'wb-section' }}" style="background: {{ colors.tint }}; border-left: {{ '3px' if indent else '4px' }} solid {{ colors.primary }};">
+  {% if title %}
+  <div class="wb-title" style="color: {{ colors.primary }};">{{ title }}</div>
+  {% endif %}
+  <ol start="{{ start if start else 1 }}" class="wb-list">
+    {% for item in items %}
+    <li>{{ item | safe }}</li>
+    {% endfor %}
+  </ol>
+</div>
+{% endmacro %}
+
+{# ── Callout Block ── #}
+{% macro wikiCalloutBlock(variant, title, content, indent) %}
+{% set variants = {
+  'info':     { bg: '#e3f2fd', border: '#2196f3', icon: '🔍', titleColor: '#1565c0' },
+  'warning':  { bg: '#fff3e0', border: '#ff9800', icon: '⚠️', titleColor: '#e65100' },
+  'success':  { bg: '#e8f5e9', border: '#4caf50', icon: '✅', titleColor: '#2e7d32' },
+  'critical': { bg: '#ffebee', border: '#dc3545', icon: '🔴', titleColor: '#c62828' }
+} %}
+{% set v = variants[variant] if variants[variant] else variants['info'] %}
+<div class="wb wb-callout" style="background: {{ v.bg }}; border-left: {{ '3px' if indent else '4px' }} solid {{ v.border }}; {{ 'margin-left: 14px;' if indent }}">
+  <div class="wb-callout-title" style="color: {{ v.titleColor }};">{{ v.icon }} {{ title }}</div>
+  <div class="wb-callout-body" style="color: #333;">{{ content | safe }}</div>
+</div>
+{% endmacro %}
+
+{# ── Key-Value Pairs Block ── #}
+{% macro wikiKeyValuePairs(pairs, colors, indent, title) %}
+<div class="wb {{ 'wb-subsection' if indent else 'wb-section' }}" style="background: {{ colors.tint }}; border-left: {{ '3px' if indent else '4px' }} solid {{ colors.primary }};">
+  {% if title %}
+  <div class="wb-title" style="color: {{ colors.primary }};">{{ title }}</div>
+  {% endif %}
+  {% for pair in pairs %}
+  <div class="wb-kv-row" {{ '' if not loop.last else 'style="margin-bottom: 0;"' }}>
+    <span class="wb-kv-label" style="color: {{ colors.dark }};">{{ pair.label }}:</span>
+    <span>{{ pair.value | safe }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endmacro %}
+
+{# ── Link List Block ── #}
+{% macro wikiLinkList(links, colors, indent, title) %}
+<div class="wb {{ 'wb-subsection' if indent else 'wb-section' }}" style="background: {{ colors.tint }}; border-left: {{ '3px' if indent else '4px' }} solid {{ colors.primary }};">
+  {% if title %}
+  <div class="wb-title" style="color: {{ colors.primary }};">{{ title }}</div>
+  {% endif %}
+  <ul class="wb-link-list">
+    {% for link in links %}
+    <li>
+      <a href="{{ link.url }}" class="wb-link">{{ link.text }}</a>
+      {% if link.description %}<span class="wb-link-desc"> — {{ link.description }}</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endmacro %}
+
+{# ── Placeholder Block ── #}
+{% macro wikiPlaceholder(message, colors, indent) %}
+<div class="wb wb-placeholder" style="{{ 'margin-left: 14px;' if indent }}">
+  <em>{{ message }}</em>
+</div>
+{% endmacro %}
+
+{# ── Header Block (rendered by engine, not directly by AI) ── #}
+{% macro wikiHeader(id, title) %}
+<div style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;">
+  <span style="font-weight: 700; color: #fff; font-size: 15px;">#{{ id }} — {{ title }}</span>
+</div>
+{% endmacro %}
+
+{# ── Footer Block (rendered by engine, not directly by AI) ── #}
+{% macro wikiFooter(timestamp, note) %}
+<div class="wb-footer">
+  <div class="wb-footer-ts">📅 <strong>Last Updated:</strong> {{ timestamp }}</div>
+  {% if note %}
+  <div class="wb-footer-note">{{ note }}</div>
+  {% endif %}
+</div>
+{% endmacro %}

@@ -1,0 +1,130 @@
+{# GENERAL WIKI PAGE TEMPLATE Purpose: Content-agnostic design reference for formatting ANY Azure
+DevOps Wiki page Design: Markdown headers for TOC + gradient accent bars + white content cards This
+template is a PATTERN REFERENCE, not a fill-in-the-blanks template. It demonstrates how to apply the
+design system to any page regardless of content. VISUAL HIERARCHY: - Page header: gradient bar —
+page title only - ## sections: 6px gradient accent bar immediately below heading - ### subsections:
+4px gradient accent bar immediately below heading - Content: white cards - Callouts: colored
+left-border accent cards inside content cards - Tables: HTML styled, #f8f9fa header row, 1px #dee2e6
+borders - Code blocks: left as-is (ADO Wiki styles them) - Mermaid diagrams: left outside content
+cards, always graph TD #} {% from "partials/_wiki-base.html" import sectionHeading,
+subSectionHeading, wikiCard, wikiCallout %} {% from "partials/_callout-card.html" import calloutCard
+%}
+
+<div
+  style="
+    background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  "
+>
+  <span style="font-weight: 700; color: #fff; font-size: 15px">{{ page_title }}</span>
+</div>
+
+[[_TOC_]] --- {{ sectionHeading("", "Section Heading", "#2e7d32", "#1b5e20") }} {% call wikiCard()
+%}
+<p style="margin: 0 0 16px 0; line-height: 1.7">
+  Narrative paragraph text goes here. Lead with context and significance before presenting data.
+</p>
+
+{% call calloutCard("#e3f2fd", "#2196f3", "🔍", "Info Callout Title", "#1565c0") %} Callout content
+— use for key insights, important context, or notable findings. {% endcall %} {% call
+calloutCard("#fff3e0", "#ff9800", "⚠️", "Warning Callout Title", "#e65100") %} Warning content — use
+for assumptions, caveats, or things to watch out for. {% endcall %} {% call calloutCard("#e8f5e9",
+"#4caf50", "✅", "Success Callout Title", "#2e7d32") %} Success content — use for positive findings,
+compliant patterns, or good news. {% endcall %} {% call calloutCard("#ffebee", "#dc3545", "🔴",
+"Critical Callout Title", "#c62828") %} Critical content — use for blockers, security issues, or
+items requiring immediate attention. {% endcall %} {% endcall %} --- {{ subSectionHeading("",
+"Subsection Heading", "#43a047", "#2e7d32") }} {% call wikiCard() %}
+<p style="margin: 0 0 16px 0; line-height: 1.6">Introductory context for the table data.</p>
+<table style="width: 100%; border-collapse: collapse">
+  <tr style="background: #f8f9fa">
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Column A</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Column B</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Column C</td>
+    <td style="padding: 10px; font-weight: 600; border: 1px solid #dee2e6">Status</td>
+  </tr>
+  {% for row in table_rows %}
+  <tr>
+    <td style="padding: 10px; border: 1px solid #dee2e6"><strong>{{ row.col_a }}</strong></td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.col_b }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.col_c }}</td>
+    <td style="padding: 10px; border: 1px solid #dee2e6">{{ row.status_badge | safe }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% endcall %} --- {{ sectionHeading("", "Another Section", "#7b1fa2", "#4a148c") }} {% call
+wikiCard() %} {% for label in sub_labels %}
+<div
+  style="
+    font-weight: 600;
+    color: #7b1fa2;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  {{ label.icon }} {{ label.title }}
+</div>
+<p style="margin: 0 0 {{ '16px' if not loop.last else '0' }}; line-height: 1.6;">
+  {{ label.content }}
+</p>
+{% endfor %} {% endcall %} --- {{ subSectionHeading("", "Code Example Subsection", "#5c6bc0",
+"#303f9f") }} {% call wikiCard() %}
+<p style="margin: 0; line-height: 1.6">
+  Explanatory text before the code block goes in a content card.
+</p>
+{% endcall %} ```apex // Code blocks are left as-is — ADO Wiki provides its own styling public class
+ExampleService { public void doWork() { // implementation } } ``` {% call wikiCard() %}
+<p style="margin: 0; line-height: 1.6">
+  Explanatory text after the code block resumes in a new content card.
+</p>
+{% endcall %} --- {{ subSectionHeading("", "Diagram Example", "#5c6bc0", "#303f9f") }} ::: mermaid
+graph TD A[Step 1] --> B[Step 2] B --> C{Decision} C -->|Yes| D[Path A] C -->|No| E[Path B] ::: ---
+{{ subSectionHeading("", "List Examples", "#ab47bc", "#7b1fa2") }} {% call wikiCard() %}
+<div
+  style="
+    font-weight: 600;
+    color: #7b1fa2;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  Unordered List
+</div>
+<ul style="margin: 0 0 16px 0; padding-left: 20px; line-height: 1.8">
+  {% for item in unordered_items %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ul>
+<div
+  style="
+    font-weight: 600;
+    color: #7b1fa2;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #dee2e6;
+  "
+>
+  Ordered List
+</div>
+<ol style="margin: 0; padding-left: 20px; line-height: 1.8">
+  {% for item in ordered_items %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ol>
+{% endcall %} ---
+
+<div
+  style="
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    font-family: &quot;Segoe UI&quot;, sans-serif;
+  "
+>
+  <div style="font-size: 13px; color: #666">📅 <strong>Last Updated:</strong> {{ timestamp }}</div>
+</div>

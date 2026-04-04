@@ -1,0 +1,31 @@
+{
+  "meridian_meta": {
+    "lifecycle": "template",
+    "note": "Copy to crm-orgs.json (gitignored). CLI reads the real file via sfOrgResolver — not this example."
+  },
+  "version": "1.0",
+  "configured": false,
+  "configured_at": "",
+  "orgs": {
+    "my-modern-org": {
+      "alias": "my-modern-org",
+      "designation": "modern",
+      "description": "Modern/target CRM org"
+    },
+    "my-legacy-org": {
+      "alias": "my-legacy-org",
+      "designation": "legacy",
+      "description": "Legacy CRM org"
+    }
+  },
+  "roles": {
+    "primary": "my-modern-org",
+    "legacy": "my-legacy-org",
+    "modern": "my-modern-org",
+    "legacyData": "my-legacy-org",
+    "legacyMetadata": "my-legacy-org",
+    "modernData": "my-modern-org",
+    "modernMetadata": "my-modern-org",
+    "dataCloud": "my-modern-org"
+  }
+}

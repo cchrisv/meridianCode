@@ -1,0 +1,1584 @@
+{
+  "version": "1.0.0",
+  "meridian_meta": {
+    "lifecycle": "active",
+    "consumers": ["template-tools", "ado_update render pipeline"],
+    "note": "Authoritative template registry for HTML phases; keep in sync with shared.json template_files doc paths."
+  },
+  "templates": {
+    "field-user-story-description": {
+      "file": "field-user-story-description.html",
+      "phase": "grooming",
+      "work_item_types": ["User Story"],
+      "requirement_types": ["functional"],
+      "ado_field": "System.Description",
+      "description": "User Story description — Meridian Modern Work Item Standard: What, Why, optional Unknowns (rich HTML)",
+      "variables": {
+        "what_text": {
+          "type": "text",
+          "required": true,
+          "description": "WHAT: clear plain-language description of the deliverable (outcome first, then technical constraints if relevant). NOT the work item title — body only. Verbs-led title lives in System.Title."
+        },
+        "why_text": {
+          "type": "text",
+          "required": true,
+          "description": "WHY: business/user context, risk, opportunity; assumptions stated in prose (no separate assumptions table). Quote stakeholder feedback when sourced from tickets or conversations."
+        },
+        "unknowns": {
+          "type": "list",
+          "required": false,
+          "description": "UNKNOWNS: open questions (one string per question); include who can answer in the string when known. Omit entirely or leave items empty when there are no unknowns."
+        }
+      },
+      "sections": [
+        {
+          "id": "what",
+          "name": "What",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        },
+        {
+          "id": "why",
+          "name": "Why",
+          "required": true,
+          "gradient_signature": "#7b1fa2"
+        },
+        {
+          "id": "unknowns",
+          "name": "Unknowns",
+          "required": false,
+          "gradient_signature": "#c62828"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-user-story-acceptance-criteria": {
+      "file": "field-user-story-acceptance-criteria.html",
+      "phase": "grooming",
+      "work_item_types": ["User Story"],
+      "requirement_types": ["functional"],
+      "ado_field": "Microsoft.VSTS.Common.AcceptanceCriteria",
+      "description": "DONE WHEN — plain-English testable outcomes (optional group labels per row; Meridian Modern Work Item Standard)",
+      "variables": {
+        "done_when_items": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Each block is one assertion. Set group_label when starting a new category (e.g. Expected behavior, Error handling, Boundaries); leave group_label empty for additional lines under the same category. Use plain assertions, not Given/When/Then labels.",
+          "min_items": 3,
+          "block_variables": {
+            "group_label": {
+              "type": "text",
+              "required": false,
+              "description": "Optional category label for this line (repeat only on first line of a category)"
+            },
+            "assertion": {
+              "type": "text",
+              "required": true,
+              "description": "One testable outcome: specific, observable, falsifiable (condition → outcome → details as one sentence)"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "done_when",
+          "name": "Done When",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-technical-description": {
+      "file": "field-technical-description.html",
+      "phase": "grooming",
+      "work_item_types": ["User Story"],
+      "requirement_types": ["technical"],
+      "ado_field": "System.Description",
+      "description": "Technical User Story description — Meridian Modern Work Item Standard: What (system change), Why (business/system justification), optional Unknowns",
+      "variables": {
+        "what_text": {
+          "type": "text",
+          "required": true,
+          "description": "WHAT: the technical deliverable — system behavior, interface, integration, or platform change in plain language first, then precision (APIs, limits, components) as needed. NOT the work item title."
+        },
+        "why_text": {
+          "type": "text",
+          "required": true,
+          "description": "WHY: quantified or explicit business/system justification; risks; assumptions in prose. Boundaries and NFRs that read like finish-line checks may belong in DONE WHEN instead."
+        },
+        "unknowns": {
+          "type": "list",
+          "required": false,
+          "description": "UNKNOWNS: technical or product questions (one string each). Omit or leave empty when none."
+        }
+      },
+      "sections": [
+        {
+          "id": "what",
+          "name": "What",
+          "required": true,
+          "gradient_signature": "#172A3A"
+        },
+        {
+          "id": "why",
+          "name": "Why",
+          "required": true,
+          "gradient_signature": "#508991"
+        },
+        {
+          "id": "unknowns",
+          "name": "Unknowns",
+          "required": false,
+          "gradient_signature": "#c62828"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-technical-acceptance-criteria": {
+      "file": "field-technical-acceptance-criteria.html",
+      "phase": "grooming",
+      "work_item_types": ["User Story"],
+      "requirement_types": ["technical"],
+      "ado_field": "Microsoft.VSTS.Common.AcceptanceCriteria",
+      "description": "DONE WHEN — technical plain-English measurable outcomes (same slot shape as functional User Story)",
+      "variables": {
+        "done_when_items": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Each block is one testable assertion (system state, metrics, error handling, boundaries). Optional group_label when organizing many lines. No Given/When/Then labels.",
+          "min_items": 3,
+          "block_variables": {
+            "group_label": {
+              "type": "text",
+              "required": false,
+              "description": "Optional category (e.g. Performance, Integration, Error handling, Boundaries)"
+            },
+            "assertion": {
+              "type": "text",
+              "required": true,
+              "description": "Observable, measurable outcome or boundary statement"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "done_when",
+          "name": "Done When",
+          "required": true,
+          "gradient_signature": "#172A3A"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-bug-description": {
+      "file": "field-bug-description.html",
+      "phase": "grooming",
+      "work_item_types": ["Bug", "Defect"],
+      "ado_field": "System.Description",
+      "description": "Bug description with summary, actual vs expected, business impact, affected functionality",
+      "variables": {
+        "bug_summary_description": {
+          "type": "text",
+          "required": true,
+          "description": "Multi-sentence narrative describing the bug: what is broken, where it occurs, and the user-visible impact (NOT the work item title — extract from the Bug Summary section body text)"
+        },
+        "expected_behavior": {
+          "type": "text",
+          "required": true,
+          "description": "Expected behavior"
+        },
+        "actual_behavior": {
+          "type": "text",
+          "required": true,
+          "description": "Actual (buggy) behavior"
+        },
+        "business_impact": {
+          "type": "text",
+          "required": false,
+          "description": "Business impact of the bug"
+        },
+        "affected_functionality": {
+          "type": "text",
+          "required": false,
+          "description": "Which functionality is affected"
+        }
+      },
+      "sections": [
+        {
+          "id": "bug_summary",
+          "name": "Bug Summary",
+          "required": true,
+          "gradient_signature": "#c62828"
+        },
+        {
+          "id": "affected_functionality",
+          "name": "Affected Functionality",
+          "required": true,
+          "gradient_signature": "#546e7a"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-bug-acceptance-criteria": {
+      "file": "field-bug-acceptance-criteria.html",
+      "phase": "grooming",
+      "work_item_types": ["Bug", "Defect"],
+      "ado_field": "Microsoft.VSTS.Common.AcceptanceCriteria",
+      "description": "Bug acceptance criteria with fix validation and regression testing GWT scenario cards",
+      "variables": {
+        "fix_validations": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Fix validation GWT scenario cards confirming the bug is resolved",
+          "min_items": 1,
+          "block_variables": {
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Scenario title (e.g. 'Authorized Host Registration Sync')"
+            },
+            "tags": {
+              "type": "text",
+              "required": false,
+              "description": "Scenario tags such as @fix-validation @happy-path"
+            },
+            "given": {
+              "type": "text",
+              "required": true,
+              "description": "Given precondition"
+            },
+            "when": {
+              "type": "text",
+              "required": true,
+              "description": "When action"
+            },
+            "then": {
+              "type": "text",
+              "required": true,
+              "description": "Then expected result"
+            }
+          }
+        },
+        "regressions": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Regression testing GWT scenario cards verifying no side effects",
+          "min_items": 1,
+          "block_variables": {
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Scenario title (e.g. 'Existing Host Sync Unaffected')"
+            },
+            "tags": {
+              "type": "text",
+              "required": false,
+              "description": "Scenario tags such as @regression @smoke"
+            },
+            "given": {
+              "type": "text",
+              "required": true,
+              "description": "Given precondition"
+            },
+            "when": {
+              "type": "text",
+              "required": true,
+              "description": "When action"
+            },
+            "then": {
+              "type": "text",
+              "required": true,
+              "description": "Then expected result"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "header",
+          "name": "Acceptance Criteria",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        },
+        {
+          "id": "fix_validation",
+          "name": "Fix Validation",
+          "required": true,
+          "gradient_signature": "#42a5f5"
+        },
+        {
+          "id": "regression_testing",
+          "name": "Regression Testing",
+          "required": true,
+          "gradient_signature": "#78909c"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-bug-repro-steps": {
+      "file": "field-bug-repro-steps.html",
+      "phase": "grooming",
+      "work_item_types": ["Bug", "Defect"],
+      "ado_field": "Microsoft.VSTS.TCM.ReproSteps",
+      "description": "Bug reproduction steps with environment, preconditions, numbered steps, expected/actual",
+      "variables": {
+        "environment_org": {
+          "type": "text",
+          "required": false,
+          "description": "Salesforce org name"
+        },
+        "environment_profile": {
+          "type": "text",
+          "required": false,
+          "description": "User profile"
+        },
+        "environment_browser": {
+          "type": "text",
+          "required": false,
+          "description": "Browser/client"
+        },
+        "preconditions": {
+          "type": "text",
+          "required": false,
+          "description": "Required preconditions"
+        },
+        "steps": {
+          "type": "list",
+          "required": true,
+          "description": "Numbered steps to reproduce",
+          "min_items": 2
+        },
+        "expected_result": {
+          "type": "text",
+          "required": true,
+          "description": "Expected result after steps"
+        },
+        "actual_result": {
+          "type": "text",
+          "required": true,
+          "description": "Actual result (the bug)"
+        }
+      },
+      "sections": [
+        {
+          "id": "repro_header",
+          "name": "Reproduction Steps",
+          "required": true,
+          "gradient_signature": "#7b1fa2"
+        },
+        {
+          "id": "steps_header",
+          "name": "Steps to Reproduce",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-bug-system-info": {
+      "file": "field-bug-system-info.html",
+      "phase": "grooming",
+      "work_item_types": ["Bug", "Defect"],
+      "ado_field": "Microsoft.VSTS.TCM.SystemInfo",
+      "description": "Bug system info with screenshots, error messages, logs, test data",
+      "variables": {
+        "screenshots_videos": {
+          "type": "html",
+          "required": false,
+          "description": "Screenshots or video links (HTML content)"
+        },
+        "ui_error_message": {
+          "type": "text",
+          "required": false,
+          "description": "UI error message text"
+        },
+        "debug_log_error": {
+          "type": "text",
+          "required": false,
+          "description": "Debug log error message"
+        },
+        "log_content": {
+          "type": "text",
+          "required": false,
+          "description": "Raw log content (pre-formatted)"
+        },
+        "record_id": {
+          "type": "text",
+          "required": false,
+          "description": "Record ID for test data"
+        },
+        "test_contact_details": {
+          "type": "text",
+          "required": false,
+          "description": "Test contact details"
+        },
+        "reproducible_color": {
+          "type": "text",
+          "required": false,
+          "description": "Badge color hex for reproducibility status (e.g. #28a745 or #dc3545)"
+        },
+        "reproducible_status": {
+          "type": "text",
+          "required": false,
+          "description": "Reproducibility status text (e.g. Always, Sometimes, Intermittent)"
+        }
+      },
+      "sections": [
+        {
+          "id": "system_info_header",
+          "name": "Test Data and Supporting Information",
+          "required": true,
+          "gradient_signature": "#00796b"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-feature-description": {
+      "file": "field-feature-description.html",
+      "phase": "grooming",
+      "work_item_types": ["Feature"],
+      "ado_field": "System.Description",
+      "description": "Feature description with summary, user story, goals, and business assumptions",
+      "variables": {
+        "feature_summary": {
+          "type": "text",
+          "required": true,
+          "description": "Multi-sentence narrative summary paragraph describing the feature scope, purpose, and business context (NOT the work item title — extract from the Summary section body text)"
+        },
+        "persona": {
+          "type": "text",
+          "required": true,
+          "description": "User persona from the User Story section (the 'As a...' clause, e.g. 'enrollment advisor')"
+        },
+        "high_level_capability": {
+          "type": "text",
+          "required": true,
+          "description": "High-level capability from the User Story section (the 'I want to...' clause)"
+        },
+        "strategic_business_outcome": {
+          "type": "text",
+          "required": true,
+          "description": "Strategic business outcome from the User Story section (the 'so that...' clause)"
+        },
+        "value_items": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Goals and business value items from the Goals & Business Value section — each block has a category label and description",
+          "min_items": 2,
+          "block_variables": {
+            "category": {
+              "type": "text",
+              "required": true,
+              "description": "Value category label"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Value description"
+            }
+          }
+        },
+        "business_assumptions": {
+          "type": "list",
+          "required": false,
+          "description": "Business assumptions",
+          "min_items": 1
+        }
+      },
+      "sections": [
+        {
+          "id": "summary",
+          "name": "Summary",
+          "required": true,
+          "gradient_signature": "#A3D9FF"
+        },
+        {
+          "id": "user_story",
+          "name": "User Story",
+          "required": true,
+          "gradient_signature": "#7E6B8F"
+        },
+        {
+          "id": "goals",
+          "name": "Goals & Business Value",
+          "required": true,
+          "gradient_signature": "#96E6B3"
+        },
+        {
+          "id": "assumptions",
+          "name": "Business Assumptions",
+          "required": true,
+          "gradient_signature": "#FCD0A1"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-feature-acceptance-criteria": {
+      "file": "field-feature-acceptance-criteria.html",
+      "phase": "grooming",
+      "work_item_types": ["Feature"],
+      "ado_field": "Microsoft.VSTS.Common.AcceptanceCriteria",
+      "description": "Feature acceptance criteria as high-level success indicators in GWT format",
+      "variables": {
+        "success_indicators": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Success indicator GWT cards",
+          "min_items": 3,
+          "block_variables": {
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Success indicator title"
+            },
+            "given": {
+              "type": "text",
+              "required": true,
+              "description": "Given precondition"
+            },
+            "when": {
+              "type": "text",
+              "required": true,
+              "description": "When action"
+            },
+            "then": {
+              "type": "text",
+              "required": true,
+              "description": "Then expected outcome"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "header",
+          "name": "Acceptance Criteria",
+          "required": true,
+          "gradient_signature": "#DA3E52"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-feature-business-value": {
+      "file": "field-feature-business-value.html",
+      "phase": "grooming",
+      "work_item_types": ["Feature"],
+      "ado_field": "Custom.BusinessProblemandValueStatement",
+      "description": "Feature business problem and value statement with categorized value items",
+      "variables": {
+        "value_items": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Business value items with categories",
+          "min_items": 2,
+          "block_variables": {
+            "category": {
+              "type": "text",
+              "required": true,
+              "description": "Value category (e.g. Revenue, Efficiency)"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Value description"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "header",
+          "name": "Business Problem & Value Statement",
+          "required": true,
+          "gradient_signature": "#FCD0A1"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-feature-objectives": {
+      "file": "field-feature-objectives.html",
+      "phase": "grooming",
+      "work_item_types": ["Feature"],
+      "ado_field": "Custom.BusinessObjectivesandImpact",
+      "description": "Feature business objectives and expected impact with titled objective blocks",
+      "variables": {
+        "objectives": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Business objectives with titles and descriptions",
+          "min_items": 2,
+          "block_variables": {
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Objective title"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Objective description and expected impact"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "header",
+          "name": "Business Objectives & Expected Impact",
+          "required": true,
+          "gradient_signature": "#96E6B3"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-bug-root-cause-detail": {
+      "file": "field-bug-root-cause-detail.html",
+      "phase": "solutioning",
+      "work_item_types": ["Bug", "Defect"],
+      "ado_field": "Custom.RootCauseDetail",
+      "description": "Root cause analysis with summary, category, contributing factors, and evidence for bugs/defects",
+      "variables": {
+        "root_cause_summary": {
+          "type": "text",
+          "required": true,
+          "description": "Concise root cause statement"
+        },
+        "root_cause_category": {
+          "type": "text",
+          "required": true,
+          "description": "Root cause category (e.g., Code Defect, Configuration, Data Issue, Design Gap, Integration Failure, Missing Validation)"
+        },
+        "confidence_level": {
+          "type": "text",
+          "required": true,
+          "description": "Confidence level: Hypothesis, Probable, or Confirmed"
+        },
+        "contributing_factors_items": {
+          "type": "html",
+          "required": false,
+          "description": "Contributing factors as <li> elements"
+        },
+        "evidence_references": {
+          "type": "html",
+          "required": false,
+          "description": "Evidence and references supporting the root cause (code locations, logs, PR diffs, test results)"
+        }
+      },
+      "sections": [
+        {
+          "id": "root_cause_header",
+          "name": "Root Cause Analysis",
+          "required": true,
+          "gradient_signature": "#b71c1c"
+        },
+        {
+          "id": "contributing_factors",
+          "name": "Contributing Factors",
+          "required": true,
+          "gradient_signature": "#283593"
+        },
+        {
+          "id": "evidence",
+          "name": "Evidence & References",
+          "required": true,
+          "gradient_signature": "#455a64"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-solution-design": {
+      "file": "field-solution-design.html",
+      "phase": "solutioning",
+      "work_item_types": ["User Story", "Bug", "Defect", "Feature"],
+      "ado_field": "Custom.DevelopmentSummary",
+      "description": "Development summary with full solution design: overview, legacy analysis, solution approach with component-by-component detail, standards traceability, and risk considerations",
+      "variables": {
+        "overview": {
+          "type": "html",
+          "required": true,
+          "description": "Summary of what is being built, why this approach was chosen, and the architectural pattern. Use subsection labels, paragraphs, and bullet lists for structure."
+        },
+        "ac_mapping": {
+          "type": "table",
+          "required": true,
+          "description": "Maps each groomed Done When assertion (plain-English acceptance line) to how the solution addresses it; ac_id is a stable label (e.g. DW-01)",
+          "columns": [
+            {
+              "key": "ac_id",
+              "header": "Done When",
+              "required": true
+            },
+            {
+              "key": "criterion",
+              "header": "Assertion",
+              "required": true
+            },
+            {
+              "key": "how_addressed",
+              "header": "How It's Addressed",
+              "required": true
+            }
+          ]
+        },
+        "legacy_analysis": {
+          "type": "html",
+          "required": false,
+          "description": "Critical issues in existing implementation — numbered items with categorized problems (timing, dead code, complexity, security, logging, naming). Include 'Why This Matters' explanations. Omit for net-new solutions."
+        },
+        "solution_approach": {
+          "type": "html",
+          "required": true,
+          "description": "Technical end-to-end overview followed by component-by-component implementation detail. Start with architecture overview (patterns, approach, field mappings). Then for each main component in order: method specs, implementation steps, and configuration details. Use subsection headers, property tables, field mapping tables, badge pills, and styled code."
+        },
+        "components": {
+          "type": "table",
+          "required": true,
+          "description": "Key components of the solution",
+          "columns": [
+            {
+              "key": "name",
+              "header": "Component",
+              "required": true
+            },
+            {
+              "key": "type",
+              "header": "Type",
+              "required": true
+            },
+            {
+              "key": "responsibility",
+              "header": "Purpose",
+              "required": true
+            }
+          ]
+        },
+        "integrations": {
+          "type": "text",
+          "required": false,
+          "description": "Brief integration points summary — system boundaries and connections"
+        },
+        "standards": {
+          "type": "table",
+          "required": false,
+          "description": "Maps each applied standard to how it is concretely implemented in this solution",
+          "columns": [
+            {
+              "key": "standard",
+              "header": "Standard",
+              "required": true
+            },
+            {
+              "key": "how_applied",
+              "header": "How Applied",
+              "required": true
+            }
+          ]
+        },
+        "risks": {
+          "type": "table",
+          "required": false,
+          "description": "Risk and mitigation pairs — include risks for coexistence with legacy, rollout strategy, governor limits, downstream dependencies",
+          "columns": [
+            {
+              "key": "risk",
+              "header": "Risk",
+              "required": true
+            },
+            {
+              "key": "mitigation",
+              "header": "Mitigation",
+              "required": true
+            }
+          ]
+        }
+      },
+      "sections": [
+        {
+          "id": "what_building",
+          "name": "What We're Building",
+          "required": true,
+          "gradient_signature": "#00796b"
+        },
+        {
+          "id": "solution_design",
+          "name": "Solution Design",
+          "required": true,
+          "gradient_signature": "#7b1fa2"
+        },
+        {
+          "id": "quality_risk",
+          "name": "Quality & Risk",
+          "required": true,
+          "gradient_signature": "#37474f"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-release-notes": {
+      "file": "field-release-notes.html",
+      "phase": "closeout",
+      "work_item_types": ["User Story", "Bug", "Defect", "Feature"],
+      "ado_field": "Custom.ReleaseNotes",
+      "description": "Release notes with summary, what's new, impact, known limitations, related items",
+      "variables": {
+        "summary_text": {
+          "type": "text",
+          "required": true,
+          "description": "Multi-sentence plain-language release summary describing what changed and why (NOT the work item title — extract from the Summary section body text)"
+        },
+        "whats_new_items": {
+          "type": "html",
+          "required": true,
+          "description": "List items of what's new/changed (as <li> elements)"
+        },
+        "impact_description": {
+          "type": "text",
+          "required": true,
+          "description": "Who is affected and how"
+        },
+        "known_limitations_items": {
+          "type": "html",
+          "required": false,
+          "description": "Known limitations (as <li> elements, omit section if none)"
+        },
+        "related_items": {
+          "type": "html",
+          "required": false,
+          "description": "Related/follow-up items (as <li> elements, omit section if none)"
+        }
+      },
+      "sections": [
+        {
+          "id": "summary",
+          "name": "Summary",
+          "required": true,
+          "gradient_signature": "#00897b"
+        },
+        {
+          "id": "whats_new",
+          "name": "What's New / What Changed",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        },
+        {
+          "id": "impact",
+          "name": "Impact",
+          "required": true,
+          "gradient_signature": "#7b1fa2"
+        },
+        {
+          "id": "limitations",
+          "name": "Known Limitations",
+          "required": false,
+          "gradient_signature": "#e65100"
+        },
+        {
+          "id": "related",
+          "name": "Related Items",
+          "required": false,
+          "gradient_signature": "#546e7a"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-blockers": {
+      "file": "field-blockers.html",
+      "phase": "reporting",
+      "work_item_types": ["Feature", "Epic"],
+      "ado_field": "Custom.Blockers",
+      "description": "Blockers / flow health report with critical blockers, dependencies, risks, resolved items",
+      "variables": {
+        "blocker_count": {
+          "type": "text",
+          "required": true,
+          "description": "Number of blocking issues"
+        },
+        "escalation_summary": {
+          "type": "text",
+          "required": true,
+          "description": "Escalation summary sentence"
+        },
+        "critical_blockers": {
+          "type": "repeatable_block",
+          "required": false,
+          "description": "Critical blocker cards",
+          "min_items": 0,
+          "block_variables": {
+            "work_item_id": {
+              "type": "text",
+              "required": true,
+              "description": "Blocked work item ID"
+            },
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Blocked work item title"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Blocker description"
+            },
+            "impact": {
+              "type": "text",
+              "required": true,
+              "description": "Impact of the blocker"
+            },
+            "target_date": {
+              "type": "text",
+              "required": false,
+              "description": "Target date"
+            },
+            "target_date_status": {
+              "type": "text",
+              "required": false,
+              "description": "Date status (e.g. Overdue)"
+            },
+            "days_stalled": {
+              "type": "text",
+              "required": true,
+              "description": "Number of days stalled"
+            }
+          }
+        },
+        "medium_dependencies": {
+          "type": "repeatable_block",
+          "required": false,
+          "description": "Medium-priority dependency items",
+          "min_items": 0,
+          "block_variables": {
+            "work_item_id": {
+              "type": "text",
+              "required": true,
+              "description": "Work item ID"
+            },
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Work item title"
+            },
+            "blocker_id": {
+              "type": "text",
+              "required": true,
+              "description": "Blocking work item ID"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Dependency description"
+            }
+          }
+        },
+        "risks": {
+          "type": "repeatable_block",
+          "required": false,
+          "description": "Risks to monitor",
+          "min_items": 0,
+          "block_variables": {
+            "category": {
+              "type": "text",
+              "required": true,
+              "description": "Risk category"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Risk description"
+            }
+          }
+        },
+        "resolved_items": {
+          "type": "repeatable_block",
+          "required": false,
+          "description": "Recently resolved items",
+          "min_items": 0,
+          "block_variables": {
+            "work_item_id": {
+              "type": "text",
+              "required": true,
+              "description": "Work item ID"
+            },
+            "description": {
+              "type": "text",
+              "required": true,
+              "description": "Resolution description"
+            }
+          }
+        },
+        "leadership_ask_text": {
+          "type": "text",
+          "required": false,
+          "description": "How leadership can help"
+        }
+      },
+      "sections": [
+        {
+          "id": "blockers_header",
+          "name": "Blockers Summary",
+          "required": true,
+          "gradient_signature": "#c62828"
+        },
+        {
+          "id": "critical",
+          "name": "Critical - Escalation Required",
+          "required": false,
+          "gradient_signature": "#c62828"
+        },
+        {
+          "id": "medium",
+          "name": "Medium - Dependencies Being Managed",
+          "required": false,
+          "gradient_signature": "#e65100"
+        },
+        {
+          "id": "risks",
+          "name": "Risks to Monitor",
+          "required": false,
+          "gradient_signature": "#303f9f"
+        },
+        {
+          "id": "resolved",
+          "name": "Recently Resolved",
+          "required": false,
+          "gradient_signature": "#2e7d32"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-progress": {
+      "file": "field-progress.html",
+      "phase": "reporting",
+      "work_item_types": ["Feature", "Epic"],
+      "ado_field": "Custom.Progress",
+      "description": "Progress field with completion stats, weekly activity, and key insights",
+      "variables": {
+        "completion_percent": {
+          "type": "text",
+          "required": true,
+          "description": "Completion percentage (number)"
+        },
+        "completed_count": {
+          "type": "text",
+          "required": true,
+          "description": "Count of completed items"
+        },
+        "total_count": {
+          "type": "text",
+          "required": true,
+          "description": "Count of total items"
+        },
+        "update_date": {
+          "type": "text",
+          "required": true,
+          "description": "Update date string"
+        },
+        "overall_status_summary": {
+          "type": "text",
+          "required": true,
+          "description": "4-6 sentence executive narrative"
+        },
+        "window_start": {
+          "type": "text",
+          "required": true,
+          "description": "Rolling window start date"
+        },
+        "window_end": {
+          "type": "text",
+          "required": true,
+          "description": "Rolling window end date"
+        },
+        "weeks": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Weekly activity blocks",
+          "min_items": 1,
+          "block_variables": {
+            "start": {
+              "type": "text",
+              "required": true,
+              "description": "Week start date"
+            },
+            "end": {
+              "type": "text",
+              "required": true,
+              "description": "Week end date"
+            },
+            "narrative": {
+              "type": "text",
+              "required": true,
+              "description": "Week narrative summary"
+            },
+            "activities": {
+              "type": "html",
+              "required": true,
+              "description": "Activity items HTML (e.g. <ul><li>...</li></ul>)"
+            }
+          }
+        },
+        "leadership_helped_text": {
+          "type": "text",
+          "required": false,
+          "description": "How leadership helped"
+        },
+        "support_needed_text": {
+          "type": "text",
+          "required": false,
+          "description": "Where support may be needed"
+        }
+      },
+      "sections": [
+        {
+          "id": "progress_header",
+          "name": "Progress Summary",
+          "required": true,
+          "gradient_signature": "#2e7d32"
+        },
+        {
+          "id": "weekly_activity",
+          "name": "Weekly Activity",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        },
+        {
+          "id": "key_insights",
+          "name": "Key Insights",
+          "required": true,
+          "gradient_signature": "#7b1fa2"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-planned-work": {
+      "file": "field-planned-work.html",
+      "phase": "reporting",
+      "work_item_types": ["Feature", "Epic"],
+      "ado_field": "Custom.PlannedWork",
+      "description": "Planned work breakdown with immediate, near-term, upcoming horizons and leadership asks",
+      "variables": {
+        "primary_focus_summary": {
+          "type": "text",
+          "required": true,
+          "description": "Primary focus summary sentence"
+        },
+        "immediate_items": {
+          "type": "repeatable_block",
+          "required": true,
+          "description": "Immediate (this week) work items",
+          "min_items": 1,
+          "block_variables": {
+            "id": {
+              "type": "text",
+              "required": true,
+              "description": "Work item ID"
+            },
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Work item title"
+            },
+            "detail": {
+              "type": "text",
+              "required": true,
+              "description": "Status and brief description"
+            }
+          }
+        },
+        "near_term_context": {
+          "type": "text",
+          "required": false,
+          "description": "Near-term context narrative"
+        },
+        "near_term_items": {
+          "type": "table",
+          "required": true,
+          "description": "Near-term (2-4 weeks) work items",
+          "columns": [
+            {
+              "key": "id",
+              "header": "ID",
+              "required": true
+            },
+            {
+              "key": "title",
+              "header": "Story",
+              "required": true
+            },
+            {
+              "key": "points",
+              "header": "SP",
+              "required": false
+            },
+            {
+              "key": "notes",
+              "header": "Notes",
+              "required": false
+            }
+          ]
+        },
+        "upcoming_context": {
+          "type": "text",
+          "required": false,
+          "description": "Upcoming (1-2 months) context"
+        },
+        "upcoming_items": {
+          "type": "repeatable_block",
+          "required": false,
+          "description": "Upcoming work items",
+          "min_items": 0,
+          "block_variables": {
+            "id": {
+              "type": "text",
+              "required": true,
+              "description": "Work item ID"
+            },
+            "title": {
+              "type": "text",
+              "required": true,
+              "description": "Work item title"
+            },
+            "detail": {
+              "type": "text",
+              "required": false,
+              "description": "Status/effort and brief description"
+            }
+          }
+        },
+        "leadership_asks": {
+          "type": "repeatable_block",
+          "required": false,
+          "description": "Leadership asks",
+          "min_items": 0,
+          "block_variables": {
+            "category": {
+              "type": "text",
+              "required": true,
+              "description": "Ask category"
+            },
+            "detail": {
+              "type": "text",
+              "required": true,
+              "description": "Ask detail"
+            }
+          }
+        }
+      },
+      "sections": [
+        {
+          "id": "planned_header",
+          "name": "Planned Work Summary",
+          "required": true,
+          "gradient_signature": "#2e7d32"
+        },
+        {
+          "id": "immediate",
+          "name": "Immediate (This Week)",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        },
+        {
+          "id": "near_term",
+          "name": "Near-term (Next 2-4 Weeks)",
+          "required": true,
+          "gradient_signature": "#303f9f"
+        },
+        {
+          "id": "upcoming",
+          "name": "Upcoming (1-2 Months)",
+          "required": false,
+          "gradient_signature": "#546e7a"
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "wiki-page-template": {
+      "file": "wiki-page-template.html",
+      "phase": "initialize",
+      "work_item_types": ["User Story", "Bug", "Defect"],
+      "ado_field": null,
+      "description": "Scaffolded wiki page template (What/Why/How). Published in Phase 01; sections filled incrementally by subsequent phases.",
+      "variables": {
+        "work_item_id": {
+          "type": "text",
+          "required": true,
+          "description": "Work item ID"
+        },
+        "work_item_title": {
+          "type": "text",
+          "required": true,
+          "description": "Work item title"
+        },
+        "timestamp": {
+          "type": "text",
+          "required": true,
+          "description": "ISO 8601 creation timestamp"
+        }
+      },
+      "sections": [
+        {
+          "id": "status_banner",
+          "name": "Status Banner",
+          "required": true
+        },
+        {
+          "id": "executive_summary",
+          "name": "Executive Summary",
+          "required": true
+        },
+        {
+          "id": "what_business_context",
+          "name": "Business Context",
+          "required": true
+        },
+        {
+          "id": "what_requirements",
+          "name": "Requirements & Scope",
+          "required": true
+        },
+        {
+          "id": "what_success_criteria",
+          "name": "Success Criteria",
+          "required": true
+        },
+        {
+          "id": "why_business_value",
+          "name": "Business Value & Impact",
+          "required": true
+        },
+        {
+          "id": "why_discovery",
+          "name": "Discovery & Research",
+          "required": true
+        },
+        {
+          "id": "why_investigation",
+          "name": "Investigation Trail",
+          "required": true
+        },
+        {
+          "id": "why_decisions",
+          "name": "Decision Rationale",
+          "required": true
+        },
+        {
+          "id": "how_solution",
+          "name": "Solution Design",
+          "required": true
+        },
+        {
+          "id": "how_quality",
+          "name": "Quality & Validation",
+          "required": true
+        },
+        {
+          "id": "footer",
+          "name": "Footer",
+          "required": true
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "feature-solution-design-wiki": {
+      "file": "feature-solution-design-wiki.html",
+      "phase": "wiki",
+      "work_item_types": ["Feature"],
+      "ado_field": null,
+      "description": "Feature-level solution design wiki template",
+      "variables": {
+        "work_item_id": {
+          "type": "text",
+          "required": true,
+          "description": "Work item ID"
+        },
+        "title": {
+          "type": "text",
+          "required": true,
+          "description": "Feature title"
+        },
+        "executive_summary": {
+          "type": "html",
+          "required": true,
+          "description": "Executive summary"
+        },
+        "business_context": {
+          "type": "html",
+          "required": true,
+          "description": "Business context"
+        },
+        "solution_overview": {
+          "type": "html",
+          "required": true,
+          "description": "Solution overview"
+        },
+        "architecture": {
+          "type": "html",
+          "required": true,
+          "description": "Architecture content"
+        },
+        "implementation_plan": {
+          "type": "html",
+          "required": true,
+          "description": "Implementation plan"
+        },
+        "testing_strategy": {
+          "type": "html",
+          "required": true,
+          "description": "Testing strategy"
+        },
+        "decision_log": {
+          "type": "html",
+          "required": true,
+          "description": "Decision log"
+        }
+      },
+      "sections": [
+        {
+          "id": "executive_summary",
+          "name": "Executive Summary",
+          "required": true
+        },
+        {
+          "id": "business_context",
+          "name": "Business Context",
+          "required": true
+        },
+        {
+          "id": "solution_overview",
+          "name": "Solution Overview",
+          "required": true
+        },
+        {
+          "id": "architecture",
+          "name": "Architecture",
+          "required": true
+        },
+        {
+          "id": "implementation_plan",
+          "name": "Implementation Plan",
+          "required": true
+        },
+        {
+          "id": "testing_strategy",
+          "name": "Testing Strategy",
+          "required": true
+        },
+        {
+          "id": "decision_log",
+          "name": "Decision Log",
+          "required": true
+        }
+      ],
+      "type": "work_item_field"
+    },
+    "field-meeting-notes": {
+      "file": "field-meeting-notes.html",
+      "phase": "meeting",
+      "work_item_types": ["Task"],
+      "requirement_types": [],
+      "ado_field": "System.Description",
+      "description": "Meeting notes with metadata, participants, key decisions, next steps, discussion highlights, and full transcript",
+      "variables": {
+        "meeting_title": {
+          "type": "text",
+          "required": true,
+          "description": "Meeting name without the date (e.g., 'Individual Dev Sandboxes & Supporting Processes')"
+        },
+        "date": {
+          "type": "text",
+          "required": true,
+          "description": "Full meeting date string (e.g., 'February 19, 2026')"
+        },
+        "duration": {
+          "type": "text",
+          "required": true,
+          "description": "Meeting duration string (e.g., '1 hour 7 minutes 28 seconds')"
+        },
+        "average_attendance": {
+          "type": "text",
+          "required": false,
+          "description": "Average attendance duration if available (e.g., '1 hour 1 minute 17 seconds')"
+        },
+        "participants": {
+          "type": "list",
+          "required": true,
+          "description": "List of attendee names — deduplicated from speaker labels or header",
+          "min_items": 1
+        },
+        "decisions": {
+          "type": "list",
+          "required": false,
+          "description": "Key decisions made during the meeting — one per item",
+          "min_items": 0
+        },
+        "next_steps": {
+          "type": "list",
+          "required": false,
+          "description": "Action items identified during the meeting — include owner and timing if stated",
+          "min_items": 0
+        },
+        "highlights": {
+          "type": "list",
+          "required": false,
+          "description": "4–8 notable discussion points (key concerns, debates, important context) — exclude filler",
+          "min_items": 0
+        },
+        "transcript": {
+          "type": "html",
+          "required": false,
+          "description": "Full transcript formatted as HTML — each speaker turn as <p><strong>Name [timestamp]</strong><br>text</p>"
+        },
+        "recording_url": {
+          "type": "text",
+          "required": false,
+          "description": "URL to the meeting recording (e.g., SharePoint or Teams link)"
+        },
+        "recording_label": {
+          "type": "text",
+          "required": false,
+          "description": "Display label for the recording link (e.g., file name). Defaults to 'Meeting Recording' if omitted."
+        }
+      },
+      "sections": [
+        {
+          "id": "header",
+          "name": "Meeting Details",
+          "required": true,
+          "gradient_signature": "#1565c0"
+        },
+        {
+          "id": "participants",
+          "name": "Participants",
+          "required": true,
+          "gradient_signature": "#37474f"
+        },
+        {
+          "id": "decisions",
+          "name": "Key Decisions",
+          "required": false,
+          "gradient_signature": "#2e7d32"
+        },
+        {
+          "id": "next_steps",
+          "name": "Next Steps",
+          "required": false,
+          "gradient_signature": "#e65100"
+        },
+        {
+          "id": "highlights",
+          "name": "Discussion Highlights",
+          "required": false,
+          "gradient_signature": "#6a1b9a"
+        },
+        {
+          "id": "transcript",
+          "name": "Full Meeting Transcript",
+          "required": false,
+          "gradient_signature": "#546e7a"
+        }
+      ],
+      "type": "work_item_field"
+    }
+  },
+  "template_categories": ["work_item_field", "report", "wiki", "partial", "schema"]
+}

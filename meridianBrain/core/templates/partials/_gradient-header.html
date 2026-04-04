@@ -1,0 +1,14 @@
+{# Gradient Header Macro Renders a section header with a linear-gradient background and white text.
+Parameters: title - Header text (required) emoji - Emoji prefix (required, e.g. "📋") color1 -
+Gradient start color (required, e.g. "#1565c0") color2 - Gradient end color (required, e.g.
+"#0d47a1") subtitle - Optional subtitle text displayed smaller and semi-transparent #} {% macro
+gradientHeader(title, emoji, color1, color2, subtitle) -%}
+<div
+  style="background: linear-gradient(135deg, {{ color1 }} 0%, {{ color2 }} 100%); border-radius: 8px; padding: 14px 16px; margin-bottom: 16px;"
+>
+  <span style="font-weight: 700; color: #fff; font-size: 15px"
+    >{{ emoji }} {{ title }} {%- if subtitle %}
+    <span style="font-weight: 400; font-size: 13px; opacity: 0.9">{{ subtitle }}</span>{% endif -%}
+  </span>
+</div>
+{%- endmacro %}

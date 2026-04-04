@@ -47,12 +47,16 @@
     "./String": {
       "types": "./src/String.ts",
       "import": "./src/String.ts"
+    },
+    "./branding": {
+      "types": "./src/branding.ts",
+      "import": "./src/branding.ts"
     }
   },
   "scripts": {
     "prepare": "effect-language-service patch",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run --config ../../vitest.config.ts"
   },
   "dependencies": {
     "@t3tools/contracts": "workspace:*",

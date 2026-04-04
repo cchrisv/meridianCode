@@ -1,4 +1,6 @@
+import * as NFS from "node:fs";
 import os from "node:os";
+import path from "node:path";
 
 import { assert, expect, it } from "@effect/vitest";
 import { ConfigProvider, Effect, FileSystem, Layer, Option, Path } from "effect";
@@ -20,14 +22,6 @@ it.layer(NodeServices.layer)("cli config resolution", (it) => {
     otlpExportIntervalMs: 10_000,
     otlpServiceName: "t3-server",
   } as const;
-
-  const openBootstrapFd = Effect.fn(function* (payload: Record<string, unknown>) {
-    const fs = yield* FileSystem.FileSystem;
-    const filePath = yield* fs.makeTempFileScoped({ prefix: "t3-bootstrap-", suffix: ".ndjson" });
-    yield* fs.writeFileString(filePath, `${JSON.stringify(payload)}\n`);
-    const { fd } = yield* fs.open(filePath, { flag: "r" });
-    return fd;
-  });
 
   it.effect("falls back to effect/config values when flags are omitted", () =>
     Effect.gen(function* () {
@@ -155,71 +149,88 @@ it.layer(NodeServices.layer)("cli config resolution", (it) => {
 
   it.effect("uses bootstrap envelope values as fallbacks when flags and env are absent", () =>
     Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
       const { join } = yield* Path.Path;
-      const baseDir = "/tmp/t3-bootstrap-home";
-      const fd = yield* openBootstrapFd({
-        mode: "desktop",
-        port: 4888,
-        host: "127.0.0.2",
-        t3Home: baseDir,
-        devUrl: "http://127.0.0.1:5173",
-        noBrowser: true,
-        authToken: "bootstrap-token",
-        autoBootstrapProjectFromCwd: false,
-        logWebSocketEvents: true,
-        otlpTracesUrl: "http://localhost:4318/v1/traces",
-        otlpMetricsUrl: "http://localhost:4318/v1/metrics",
-      });
-      const derivedPaths = yield* deriveServerPaths(baseDir, new URL("http://127.0.0.1:5173"));
-
-      const resolved = yield* resolveServerConfig(
-        {
-          mode: Option.none(),
-          port: Option.none(),
-          host: Option.none(),
-          baseDir: Option.none(),
-          devUrl: Option.none(),
-          noBrowser: Option.none(),
-          authToken: Option.none(),
-          bootstrapFd: Option.none(),
-          autoBootstrapProjectFromCwd: Option.none(),
-          logWebSocketEvents: Option.none(),
-        },
-        Option.none(),
-      ).pipe(
-        Effect.provide(
-          Layer.mergeAll(
-            ConfigProvider.layer(
-              ConfigProvider.fromEnv({
-                env: {
-                  T3CODE_BOOTSTRAP_FD: String(fd),
-                },
-              }),
-            ),
-            NetService.layer,
-          ),
-        ),
+      const baseDir = path.join(os.tmpdir(), "t3-bootstrap-home");
+      const filePath = yield* fs.makeTempFileScoped({ prefix: "t3-bootstrap-", suffix: ".ndjson" });
+      yield* fs.writeFileString(
+        filePath,
+        `${JSON.stringify({
+          mode: "desktop",
+          port: 4888,
+          host: "127.0.0.2",
+          t3Home: baseDir,
+          devUrl: "http://127.0.0.1:5173",
+          noBrowser: true,
+          authToken: "bootstrap-token",
+          autoBootstrapProjectFromCwd: false,
+          logWebSocketEvents: true,
+          otlpTracesUrl: "http://localhost:4318/v1/traces",
+          otlpMetricsUrl: "http://localhost:4318/v1/metrics",
+        })}\n`,
       );
+      const fd = NFS.openSync(filePath, "r");
+      try {
+        const derivedPaths = yield* deriveServerPaths(baseDir, new URL("http://127.0.0.1:5173"));
 
-      expect(resolved).toEqual({
-        logLevel: "Info",
-        ...defaultObservabilityConfig,
-        otlpTracesUrl: "http://localhost:4318/v1/traces",
-        otlpMetricsUrl: "http://localhost:4318/v1/metrics",
-        mode: "desktop",
-        port: 4888,
-        cwd: process.cwd(),
-        baseDir,
-        ...derivedPaths,
-        host: "127.0.0.2",
-        staticDir: undefined,
-        devUrl: new URL("http://127.0.0.1:5173"),
-        noBrowser: true,
-        authToken: "bootstrap-token",
-        autoBootstrapProjectFromCwd: false,
-        logWebSocketEvents: true,
-      });
-      assert.equal(join(baseDir, "dev"), resolved.stateDir);
+        const resolved = yield* resolveServerConfig(
+          {
+            mode: Option.none(),
+            port: Option.none(),
+            host: Option.none(),
+            baseDir: Option.none(),
+            devUrl: Option.none(),
+            noBrowser: Option.none(),
+            authToken: Option.none(),
+            bootstrapFd: Option.none(),
+            autoBootstrapProjectFromCwd: Option.none(),
+            logWebSocketEvents: Option.none(),
+          },
+          Option.none(),
+        ).pipe(
+          Effect.provide(
+            Layer.mergeAll(
+              ConfigProvider.layer(
+                ConfigProvider.fromEnv({
+                  env: {
+                    T3CODE_BOOTSTRAP_FD: String(fd),
+                  },
+                }),
+              ),
+              NetService.layer,
+            ),
+          ),
+        );
+
+        expect(resolved).toEqual({
+          logLevel: "Info",
+          ...defaultObservabilityConfig,
+          otlpTracesUrl: "http://localhost:4318/v1/traces",
+          otlpMetricsUrl: "http://localhost:4318/v1/metrics",
+          mode: "desktop",
+          port: 4888,
+          cwd: process.cwd(),
+          baseDir,
+          ...derivedPaths,
+          host: "127.0.0.2",
+          staticDir: undefined,
+          devUrl: new URL("http://127.0.0.1:5173"),
+          noBrowser: true,
+          authToken: "bootstrap-token",
+          autoBootstrapProjectFromCwd: false,
+          logWebSocketEvents: true,
+        });
+        assert.equal(join(baseDir, "dev"), resolved.stateDir);
+      } finally {
+        yield* Effect.sync(() => {
+          try {
+            NFS.closeSync(fd);
+          } catch (error) {
+            const err = error as NodeJS.ErrnoException;
+            if (err.code !== "EBADF") throw error;
+          }
+        });
+      }
     }),
   );
 
@@ -269,71 +280,88 @@ it.layer(NodeServices.layer)("cli config resolution", (it) => {
 
   it.effect("applies flag then env precedence over bootstrap envelope values", () =>
     Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
       const { join } = yield* Path.Path;
       const baseDir = join(os.tmpdir(), "t3-cli-config-env-wins");
-      const fd = yield* openBootstrapFd({
-        mode: "desktop",
-        port: 4888,
-        host: "127.0.0.2",
-        t3Home: "/tmp/t3-bootstrap-home",
-        devUrl: "http://127.0.0.1:5173",
-        noBrowser: false,
-        authToken: "bootstrap-token",
-        autoBootstrapProjectFromCwd: false,
-        logWebSocketEvents: false,
-      });
-      const derivedPaths = yield* deriveServerPaths(baseDir, new URL("http://127.0.0.1:4173"));
-
-      const resolved = yield* resolveServerConfig(
-        {
-          mode: Option.none(),
-          port: Option.some(8788),
-          host: Option.some("127.0.0.1"),
-          baseDir: Option.none(),
-          devUrl: Option.some(new URL("http://127.0.0.1:4173")),
-          noBrowser: Option.none(),
-          authToken: Option.some("flag-token"),
-          bootstrapFd: Option.none(),
-          autoBootstrapProjectFromCwd: Option.none(),
-          logWebSocketEvents: Option.none(),
-        },
-        Option.some("Debug"),
-      ).pipe(
-        Effect.provide(
-          Layer.mergeAll(
-            ConfigProvider.layer(
-              ConfigProvider.fromEnv({
-                env: {
-                  T3CODE_MODE: "web",
-                  T3CODE_BOOTSTRAP_FD: String(fd),
-                  T3CODE_HOME: baseDir,
-                  T3CODE_NO_BROWSER: "true",
-                  T3CODE_AUTO_BOOTSTRAP_PROJECT_FROM_CWD: "true",
-                  T3CODE_LOG_WS_EVENTS: "true",
-                },
-              }),
-            ),
-            NetService.layer,
-          ),
-        ),
+      const filePath = yield* fs.makeTempFileScoped({ prefix: "t3-bootstrap-", suffix: ".ndjson" });
+      yield* fs.writeFileString(
+        filePath,
+        `${JSON.stringify({
+          mode: "desktop",
+          port: 4888,
+          host: "127.0.0.2",
+          t3Home: path.join(os.tmpdir(), "t3-bootstrap-home"),
+          devUrl: "http://127.0.0.1:5173",
+          noBrowser: false,
+          authToken: "bootstrap-token",
+          autoBootstrapProjectFromCwd: false,
+          logWebSocketEvents: false,
+        })}\n`,
       );
+      const fd = NFS.openSync(filePath, "r");
+      try {
+        const derivedPaths = yield* deriveServerPaths(baseDir, new URL("http://127.0.0.1:4173"));
 
-      expect(resolved).toEqual({
-        logLevel: "Debug",
-        ...defaultObservabilityConfig,
-        mode: "web",
-        port: 8788,
-        cwd: process.cwd(),
-        baseDir,
-        ...derivedPaths,
-        host: "127.0.0.1",
-        staticDir: undefined,
-        devUrl: new URL("http://127.0.0.1:4173"),
-        noBrowser: true,
-        authToken: "flag-token",
-        autoBootstrapProjectFromCwd: true,
-        logWebSocketEvents: true,
-      });
+        const resolved = yield* resolveServerConfig(
+          {
+            mode: Option.none(),
+            port: Option.some(8788),
+            host: Option.some("127.0.0.1"),
+            baseDir: Option.none(),
+            devUrl: Option.some(new URL("http://127.0.0.1:4173")),
+            noBrowser: Option.none(),
+            authToken: Option.some("flag-token"),
+            bootstrapFd: Option.none(),
+            autoBootstrapProjectFromCwd: Option.none(),
+            logWebSocketEvents: Option.none(),
+          },
+          Option.some("Debug"),
+        ).pipe(
+          Effect.provide(
+            Layer.mergeAll(
+              ConfigProvider.layer(
+                ConfigProvider.fromEnv({
+                  env: {
+                    T3CODE_MODE: "web",
+                    T3CODE_BOOTSTRAP_FD: String(fd),
+                    T3CODE_HOME: baseDir,
+                    T3CODE_NO_BROWSER: "true",
+                    T3CODE_AUTO_BOOTSTRAP_PROJECT_FROM_CWD: "true",
+                    T3CODE_LOG_WS_EVENTS: "true",
+                  },
+                }),
+              ),
+              NetService.layer,
+            ),
+          ),
+        );
+
+        expect(resolved).toEqual({
+          logLevel: "Debug",
+          ...defaultObservabilityConfig,
+          mode: "web",
+          port: 8788,
+          cwd: process.cwd(),
+          baseDir,
+          ...derivedPaths,
+          host: "127.0.0.1",
+          staticDir: undefined,
+          devUrl: new URL("http://127.0.0.1:4173"),
+          noBrowser: true,
+          authToken: "flag-token",
+          autoBootstrapProjectFromCwd: true,
+          logWebSocketEvents: true,
+        });
+      } finally {
+        yield* Effect.sync(() => {
+          try {
+            NFS.closeSync(fd);
+          } catch (error) {
+            const err = error as NodeJS.ErrnoException;
+            if (err.code !== "EBADF") throw error;
+          }
+        });
+      }
     }),
   );
 

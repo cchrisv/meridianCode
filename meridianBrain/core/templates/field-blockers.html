@@ -1,0 +1,81 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_callout-card.html" import
+calloutCard %} {% from "partials/_badge.html" import badge %}
+<div style="font-size: 14px; color: #333">
+  {# BLOCKERS HEADER - Red #} {{ gradientHeader("Blockers Summary", "🚨", "#c62828", "#b71c1c") }}
+  {% call contentCard() %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">
+    <strong>Status:</strong> {{ blocker_count }} blocking issue(s) requiring attention. {{
+    escalation_summary }}
+  </div>
+  {% endcall %} {# CRITICAL BLOCKERS SECTION - Red #} {% if critical_blockers and critical_blockers
+  | length > 0 -%} {{ gradientHeader("Critical - Escalation Required", "🔴", "#c62828", "#b71c1c")
+  }} {% for blocker in critical_blockers -%}
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-left: 4px solid #dc3545;
+      border-radius: 0 8px 8px 0;
+      padding: 16px;
+      margin-bottom: 20px;
+    "
+  >
+    <div style="font-weight: 600; color: #721c24; margin-bottom: 8px">
+      #{{ blocker.work_item_id }} - {{ blocker.title }}
+    </div>
+    <div style="font-size: 13px; color: #333; line-height: 1.6; margin-bottom: 12px">
+      {{ blocker.description }}
+    </div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+      <tr style="border-bottom: 1px solid #eee">
+        <td style="padding: 8px 0; color: #666; width: 140px"><strong>Impact:</strong></td>
+        <td style="padding: 8px 0">{{ blocker.impact }}</td>
+      </tr>
+      <tr style="border-bottom: 1px solid #eee">
+        <td style="padding: 8px 0; color: #666"><strong>Due Date:</strong></td>
+        <td style="padding: 8px 0">
+          {{ blocker.target_date }} -
+          <span style="color: #dc3545; font-weight: 600">{{ blocker.target_date_status }}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding: 8px 0; color: #666"><strong>Days in State:</strong></td>
+        <td style="padding: 8px 0">{{ badge(blocker.days_stalled + " days", "#dc3545") }}</td>
+      </tr>
+    </table>
+  </div>
+  {% endfor -%} {%- endif %} {# MEDIUM DEPENDENCIES SECTION - Orange #} {% if medium_dependencies
+  and medium_dependencies | length > 0 -%} {{ gradientHeader("Medium - Dependencies Being Managed",
+  "🟡", "#e65100", "#bf360c") }} {% call contentCard() %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for dep in medium_dependencies -%}
+    <li>
+      <strong style="color: #1976d2">#{{ dep.work_item_id }}</strong> ({{ dep.title }}): {{
+      badge("Blocked", "#dc3545") }} by #{{ dep.blocker_id }}. {{ dep.description }}
+    </li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {%- endif %} {# RISKS TO MONITOR SECTION - Indigo #} {% if risks and risks | length
+  > 0 -%} {{ gradientHeader("Risks to Monitor", "⚠️", "#303f9f", "#1a237e") }} {% call contentCard()
+  %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for risk in risks -%}
+    <li><strong>{{ risk.category }}:</strong> {{ risk.description }}</li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {%- endif %} {# RECENTLY RESOLVED SECTION - Green #} {% if resolved_items and
+  resolved_items | length > 0 -%} {{ gradientHeader("Recently Resolved", "✅", "#2e7d32", "#1b5e20")
+  }} {% call contentCard() %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for item in resolved_items -%}
+    <li>
+      <strong>#{{ item.work_item_id }}:</strong> {{ item.description }} - {{ badge("Closed",
+      "#28a745") }}
+    </li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {%- endif %} {# LEADERSHIP HELP CALLOUT #} {% if leadership_ask_text %} {% call
+  calloutCard("#e3f2fd", "#2196f3", "🤝", "How Leadership Can Help", "#1565c0") %} {{
+  leadership_ask_text }} {% endcall %} {% endif %}
+</div>

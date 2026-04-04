@@ -1,0 +1,48 @@
+{
+  "meridian_meta": {
+    "lifecycle": "active-stub",
+    "note": "Manifest loadable by CLI; tool depth may be partial (Phase 1 extension)."
+  },
+  "id": "portal",
+  "name": "Portal",
+  "vendor": "Internal",
+  "shortName": "Portal",
+  "description": "Employee or customer portal (stub — tool suite Phase 1 extension).",
+
+  "detection": {
+    "adoAreaPaths": ["Platform\\Portal", "Digital Platforms\\Portal"],
+    "adoTags": ["portal", "self-service"],
+    "adoCustomFields": {}
+  },
+
+  "tools": {
+    "suite": "portal-tools",
+    "capabilities": [
+      "auth-status",
+      "describe",
+      "query",
+      "discover-dependencies",
+      "discover-integrations"
+    ],
+    "authMethod": "portal-oauth",
+    "configFile": "platforms/portal/config/portal.json"
+  },
+
+  "copilot": {
+    "agents": ["portal-specialist"],
+    "prompts": ".github/prompts/platforms/portal/",
+    "skills": ".github/skills/platforms/portal/"
+  },
+
+  "content": {
+    "knowledge": "platforms/portal/knowledge/",
+    "standards": "platforms/portal/standards/",
+    "templates": "platforms/portal/templates/",
+    "config": "platforms/portal/config/"
+  },
+
+  "knowledgeDomains": {
+    "technical": ["pages", "auth", "integrations"],
+    "business": ["personas", "business-rules", "business-processes"]
+  }
+}

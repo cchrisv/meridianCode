@@ -1,0 +1,104 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_callout-card.html" import
+calloutCard %}
+<div style="font-size: 14px; color: #333">
+  {# REPRO STEPS HEADER - Purple #} {{ gradientHeader("Reproduction Steps", "🔄", "#7b1fa2",
+  "#4a148c") }} {# ENVIRONMENT & PRECONDITIONS #} {% if environment_org or environment_profile or
+  environment_browser or preconditions %}
+  <div style="display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap">
+    {% if environment_org or environment_profile or environment_browser %}
+    <div
+      style="
+        flex: 1;
+        min-width: 200px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+      "
+    >
+      <div
+        style="
+          font-weight: 600;
+          color: #495057;
+          margin-bottom: 8px;
+          border-bottom: 1px solid #dee2e6;
+          padding-bottom: 8px;
+        "
+      >
+        🖥️ Environment
+      </div>
+      <div style="font-size: 13px; color: #333; line-height: 1.6">
+        {% if environment_org %}<strong>Org:</strong> {{ environment_org }}<br />{% endif %} {% if
+        environment_profile %}<strong>Profile:</strong> {{ environment_profile }}<br />{% endif %}
+        {% if environment_browser %}<strong>Browser:</strong> {{ environment_browser }}{% endif %}
+      </div>
+    </div>
+    {% endif %} {% if preconditions %}
+    <div
+      style="
+        flex: 1;
+        min-width: 200px;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+      "
+    >
+      <div
+        style="
+          font-weight: 600;
+          color: #495057;
+          margin-bottom: 8px;
+          border-bottom: 1px solid #dee2e6;
+          padding-bottom: 8px;
+        "
+      >
+        ✅ Preconditions
+      </div>
+      <div style="font-size: 13px; color: #333; line-height: 1.6">{{ preconditions }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %} {# STEPS TO REPRODUCE - Blue #} {% if steps and steps | length > 0 %} {{
+  gradientHeader("Steps to Reproduce", "📋", "#1565c0", "#0d47a1") }} {% call contentCard() %}
+  <ol style="margin: 0; padding-left: 24px; font-size: 13px; line-height: 1.8; color: #333">
+    {% for step in steps -%}
+    <li style="padding: 4px 0">{{ step }}</li>
+    {% endfor -%}
+  </ol>
+  {% endcall %} {% endif %} {# EXPECTED VS ACTUAL COMPARISON #} {% if expected_result or
+  actual_result %}
+  <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 20px">
+    {% if expected_result %}
+    <div
+      style="
+        flex: 1;
+        min-width: 250px;
+        background: #e8f5e9;
+        border-left: 4px solid #28a745;
+        border-radius: 0 8px 8px 0;
+        padding: 14px;
+      "
+    >
+      <div style="font-weight: 600; color: #2e7d32; margin-bottom: 6px">✅ Expected Result</div>
+      <div style="font-size: 13px; color: #333; line-height: 1.6">{{ expected_result }}</div>
+    </div>
+    {% endif %} {% if actual_result %}
+    <div
+      style="
+        flex: 1;
+        min-width: 250px;
+        background: #fce4ec;
+        border-left: 4px solid #dc3545;
+        border-radius: 0 8px 8px 0;
+        padding: 14px;
+      "
+    >
+      <div style="font-weight: 600; color: #c62828; margin-bottom: 6px">❌ Actual Result</div>
+      <div style="font-size: 13px; color: #333; line-height: 1.6">{{ actual_result }}</div>
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>

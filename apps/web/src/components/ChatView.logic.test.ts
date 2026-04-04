@@ -203,6 +203,9 @@ const makeThread = (input?: {
   worktreePath: null,
   turnDiffSummaries: [],
   activities: [],
+  ticketId: null,
+  ticketStage: null,
+  copilotPhase: null,
 });
 
 afterEach(() => {
@@ -356,6 +359,9 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
       worktreePath: null,
       turnDiffSummaries: [],
       activities: [],
+      ticketId: null,
+      ticketStage: null,
+      copilotPhase: null,
     });
 
     expect(
@@ -392,6 +398,9 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
       worktreePath: null,
       turnDiffSummaries: [],
       activities: [],
+      ticketId: null,
+      ticketStage: null,
+      copilotPhase: null,
     });
 
     expect(
@@ -437,6 +446,9 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
       worktreePath: null,
       turnDiffSummaries: [],
       activities: [],
+      ticketId: null,
+      ticketStage: null,
+      copilotPhase: null,
     });
 
     expect(

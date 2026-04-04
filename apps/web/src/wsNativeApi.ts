@@ -88,6 +88,20 @@ export function createWsNativeApi(): NativeApi {
       upsertKeybinding: rpcClient.server.upsertKeybinding,
       getSettings: rpcClient.server.getSettings,
       updateSettings: rpcClient.server.updateSettings,
+      validateKnowledgeRoot: rpcClient.server.validateKnowledgeRoot,
+      getKnowledgeStatus: rpcClient.server.getKnowledgeStatus,
+      syncKnowledge: rpcClient.server.syncKnowledge,
+    },
+    knowledge: {
+      listTree: rpcClient.knowledge.listTree,
+      readFile: rpcClient.knowledge.readFile,
+    },
+    ticket: {
+      import: rpcClient.ticket.import,
+      list: rpcClient.ticket.list,
+      getState: rpcClient.ticket.getState,
+      getContext: rpcClient.ticket.getContext,
+      transitionStage: rpcClient.ticket.transitionStage,
     },
     orchestration: {
       getSnapshot: rpcClient.orchestration.getSnapshot,

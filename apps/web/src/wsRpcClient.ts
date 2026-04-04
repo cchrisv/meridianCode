@@ -82,8 +82,22 @@ export interface WsRpcClient {
     readonly updateSettings: (
       patch: ServerSettingsPatch,
     ) => ReturnType<RpcUnaryMethod<typeof WS_METHODS.serverUpdateSettings>>;
+    readonly validateKnowledgeRoot: RpcUnaryMethod<typeof WS_METHODS.serverValidateKnowledgeRoot>;
+    readonly getKnowledgeStatus: RpcUnaryNoArgMethod<typeof WS_METHODS.serverGetKnowledgeStatus>;
+    readonly syncKnowledge: RpcUnaryNoArgMethod<typeof WS_METHODS.serverSyncKnowledge>;
     readonly subscribeConfig: RpcStreamMethod<typeof WS_METHODS.subscribeServerConfig>;
     readonly subscribeLifecycle: RpcStreamMethod<typeof WS_METHODS.subscribeServerLifecycle>;
+  };
+  readonly knowledge: {
+    readonly listTree: RpcUnaryNoArgMethod<typeof WS_METHODS.knowledgeListTree>;
+    readonly readFile: RpcUnaryMethod<typeof WS_METHODS.knowledgeReadFile>;
+  };
+  readonly ticket: {
+    readonly import: RpcUnaryMethod<typeof WS_METHODS.ticketImport>;
+    readonly list: RpcUnaryMethod<typeof WS_METHODS.ticketList>;
+    readonly getState: RpcUnaryMethod<typeof WS_METHODS.ticketGetState>;
+    readonly getContext: RpcUnaryMethod<typeof WS_METHODS.ticketGetContext>;
+    readonly transitionStage: RpcUnaryMethod<typeof WS_METHODS.ticketTransitionStage>;
   };
   readonly orchestration: {
     readonly getSnapshot: RpcUnaryNoArgMethod<typeof ORCHESTRATION_WS_METHODS.getSnapshot>;
@@ -179,10 +193,89 @@ export function createWsRpcClient(transport = new WsTransport()): WsRpcClient {
       getSettings: () => transport.request((client) => client[WS_METHODS.serverGetSettings]({})),
       updateSettings: (patch) =>
         transport.request((client) => client[WS_METHODS.serverUpdateSettings]({ patch })),
+      validateKnowledgeRoot: (input) =>
+        // Effect-RPC keeps a generic service context; socket runtime provides dependencies.
+        transport.request(
+          (client) =>
+            client[WS_METHODS.serverValidateKnowledgeRoot](input) as unknown as Effect.Effect<
+              any,
+              Error,
+              never
+            >,
+        ),
+      getKnowledgeStatus: () =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.serverGetKnowledgeStatus]({}) as unknown as Effect.Effect<
+              any,
+              Error,
+              never
+            >,
+        ),
+      syncKnowledge: () =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.serverSyncKnowledge]({}) as unknown as Effect.Effect<
+              any,
+              Error,
+              never
+            >,
+        ),
       subscribeConfig: (listener) =>
         transport.subscribe((client) => client[WS_METHODS.subscribeServerConfig]({}), listener),
       subscribeLifecycle: (listener) =>
         transport.subscribe((client) => client[WS_METHODS.subscribeServerLifecycle]({}), listener),
+    },
+    knowledge: {
+      listTree: () =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.knowledgeListTree]({}) as unknown as Effect.Effect<any, Error, never>,
+        ),
+      readFile: (input) =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.knowledgeReadFile](input) as unknown as Effect.Effect<
+              any,
+              Error,
+              never
+            >,
+        ),
+    },
+    ticket: {
+      import: (input) =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.ticketImport](input) as unknown as Effect.Effect<any, Error, never>,
+        ),
+      list: (input) =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.ticketList](input) as unknown as Effect.Effect<any, Error, never>,
+        ),
+      getState: (input) =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.ticketGetState](input) as unknown as Effect.Effect<any, Error, never>,
+        ),
+      getContext: (input) =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.ticketGetContext](input) as unknown as Effect.Effect<
+              any,
+              Error,
+              never
+            >,
+        ),
+      transitionStage: (input) =>
+        transport.request(
+          (client) =>
+            client[WS_METHODS.ticketTransitionStage](input) as unknown as Effect.Effect<
+              any,
+              Error,
+              never
+            >,
+        ),
     },
     orchestration: {
       getSnapshot: () =>

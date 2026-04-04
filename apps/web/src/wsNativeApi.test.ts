@@ -81,6 +81,13 @@ const rpcClientMock = {
     listTree: vi.fn(),
     readFile: vi.fn(),
   },
+  ticket: {
+    import: vi.fn(),
+    list: vi.fn(),
+    getState: vi.fn(),
+    getContext: vi.fn(),
+    transitionStage: vi.fn(),
+  },
   orchestration: {
     getSnapshot: vi.fn(),
     dispatchCommand: vi.fn(),

@@ -176,6 +176,9 @@ function mapThread(thread: OrchestrationThread): Thread {
     worktreePath: thread.worktreePath,
     turnDiffSummaries: thread.checkpoints.map(mapTurnDiffSummary),
     activities: thread.activities.map((activity) => ({ ...activity })),
+    ticketId: thread.ticketId,
+    ticketStage: thread.ticketStage,
+    copilotPhase: thread.copilotPhase,
   };
 }
 
@@ -654,6 +657,9 @@ export function applyOrchestrationEvent(state: AppState, event: OrchestrationEve
         branch: event.payload.branch,
         worktreePath: event.payload.worktreePath,
         latestTurn: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt: event.payload.createdAt,
         updatedAt: event.payload.updatedAt,
         archivedAt: null,

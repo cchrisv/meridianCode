@@ -12,6 +12,15 @@ import { Effect, Stream } from "effect";
 import { type WsRpcProtocolClient } from "./rpc/protocol";
 import { WsTransport } from "./wsTransport";
 
+/**
+ * Effect-RPC keeps a generic service context on each method; the actual
+ * dependencies are satisfied at the WsTransport/socket level, not at the
+ * type level. This helper avoids repeating the verbose double-cast inline.
+ */
+function castRequest<T>(effect: Effect.Effect<T, any, any>): Effect.Effect<T, Error, never> {
+  return effect as unknown as Effect.Effect<T, Error, never>;
+}
+
 type RpcTag = keyof WsRpcProtocolClient & string;
 type RpcMethod<TTag extends RpcTag> = WsRpcProtocolClient[TTag];
 type RpcInput<TTag extends RpcTag> = Parameters<RpcMethod<TTag>>[0];
@@ -82,8 +91,22 @@ export interface WsRpcClient {
     readonly updateSettings: (
       patch: ServerSettingsPatch,
     ) => ReturnType<RpcUnaryMethod<typeof WS_METHODS.serverUpdateSettings>>;
+    readonly validateKnowledgeRoot: RpcUnaryMethod<typeof WS_METHODS.serverValidateKnowledgeRoot>;
+    readonly getKnowledgeStatus: RpcUnaryNoArgMethod<typeof WS_METHODS.serverGetKnowledgeStatus>;
+    readonly syncKnowledge: RpcUnaryNoArgMethod<typeof WS_METHODS.serverSyncKnowledge>;
     readonly subscribeConfig: RpcStreamMethod<typeof WS_METHODS.subscribeServerConfig>;
     readonly subscribeLifecycle: RpcStreamMethod<typeof WS_METHODS.subscribeServerLifecycle>;
+  };
+  readonly knowledge: {
+    readonly listTree: RpcUnaryNoArgMethod<typeof WS_METHODS.knowledgeListTree>;
+    readonly readFile: RpcUnaryMethod<typeof WS_METHODS.knowledgeReadFile>;
+  };
+  readonly ticket: {
+    readonly import: RpcUnaryMethod<typeof WS_METHODS.ticketImport>;
+    readonly list: RpcUnaryMethod<typeof WS_METHODS.ticketList>;
+    readonly getState: RpcUnaryMethod<typeof WS_METHODS.ticketGetState>;
+    readonly getContext: RpcUnaryMethod<typeof WS_METHODS.ticketGetContext>;
+    readonly transitionStage: RpcUnaryMethod<typeof WS_METHODS.ticketTransitionStage>;
   };
   readonly orchestration: {
     readonly getSnapshot: RpcUnaryNoArgMethod<typeof ORCHESTRATION_WS_METHODS.getSnapshot>;
@@ -179,10 +202,40 @@ export function createWsRpcClient(transport = new WsTransport()): WsRpcClient {
       getSettings: () => transport.request((client) => client[WS_METHODS.serverGetSettings]({})),
       updateSettings: (patch) =>
         transport.request((client) => client[WS_METHODS.serverUpdateSettings]({ patch })),
+      validateKnowledgeRoot: (input) =>
+        transport.request((client) =>
+          castRequest(client[WS_METHODS.serverValidateKnowledgeRoot](input)),
+        ),
+      getKnowledgeStatus: () =>
+        transport.request((client) =>
+          castRequest(client[WS_METHODS.serverGetKnowledgeStatus]({})),
+        ),
+      syncKnowledge: () =>
+        transport.request((client) => castRequest(client[WS_METHODS.serverSyncKnowledge]({}))),
       subscribeConfig: (listener) =>
         transport.subscribe((client) => client[WS_METHODS.subscribeServerConfig]({}), listener),
       subscribeLifecycle: (listener) =>
         transport.subscribe((client) => client[WS_METHODS.subscribeServerLifecycle]({}), listener),
+    },
+    knowledge: {
+      listTree: () =>
+        transport.request((client) => castRequest(client[WS_METHODS.knowledgeListTree]({}))),
+      readFile: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.knowledgeReadFile](input))),
+    },
+    ticket: {
+      import: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.ticketImport](input))),
+      list: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.ticketList](input))),
+      getState: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.ticketGetState](input))),
+      getContext: (input) =>
+        transport.request((client) => castRequest(client[WS_METHODS.ticketGetContext](input))),
+      transitionStage: (input) =>
+        transport.request((client) =>
+          castRequest(client[WS_METHODS.ticketTransitionStage](input)),
+        ),
     },
     orchestration: {
       getSnapshot: () =>

@@ -74,6 +74,9 @@ const readModel: OrchestrationReadModel = {
       proposedPlans: [],
       checkpoints: [],
       deletedAt: null,
+      ticketId: null,
+      ticketStage: null,
+      copilotPhase: null,
     },
     {
       id: ThreadId.makeUnsafe("thread-2"),
@@ -97,6 +100,9 @@ const readModel: OrchestrationReadModel = {
       proposedPlans: [],
       checkpoints: [],
       deletedAt: null,
+      ticketId: null,
+      ticketStage: null,
+      copilotPhase: null,
     },
   ],
 };

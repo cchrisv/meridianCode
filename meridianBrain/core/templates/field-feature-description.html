@@ -1,0 +1,41 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_callout-card.html" import
+calloutCard %}
+<div style="font-size: 14px; color: #333">
+  {# SUMMARY SECTION - Icy Blue / Celadon #} {% if feature_summary %} {{ gradientHeader("Summary",
+  "📋", "#A3D9FF", "#96E6B3") }} {% call contentCard("#53917E") %}
+  <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #2f2b2d">{{ feature_summary }}</p>
+  {% endcall %} {% endif %} {# USER STORY SECTION - Dusty Lavender / Taupe Grey #} {% if persona and
+  high_level_capability and strategic_business_outcome %} {{ gradientHeader("User Story", "✍️",
+  "#7E6B8F", "#63535B") }} {% call contentCard("#7E6B8F") %}
+  <p style="margin: 0; font-size: 13px; line-height: 1.8; color: #2f2b2d">
+    <strong style="color: #6d1a36">As a</strong> {{ persona }},<br />
+    <strong style="color: #6d1a36">I want to</strong> {{ high_level_capability }},<br />
+    <strong style="color: #6d1a36">so that</strong> {{ strategic_business_outcome }}.
+  </p>
+  {% endcall %} {% endif %} {# GOALS & BUSINESS VALUE SECTION - Celadon / Dry Sage #} {% if
+  value_items and value_items | length > 0 %} {{ gradientHeader("Goals & Business Value", "🌟",
+  "#96E6B3", "#B1B695") }} {% call contentCard("#53917E") %} {% for item in value_items -%}
+  <div
+    style="
+      background: #ffffff;
+      border: 1px solid #dfe8e2;
+      border-left: 4px solid #53917e;
+      border-radius: 0 6px 6px 0;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+    "
+  >
+    <strong style="color: #53917e">{{ item.category }}:</strong> {{ item.description }}
+  </div>
+  {% endfor -%} {% endcall %} {% endif %} {# BUSINESS ASSUMPTIONS SECTION - Soft Apricot / Banana
+  Cream #} {% if business_assumptions and business_assumptions | length > 0 %} {{
+  gradientHeader("Business Assumptions", "💡", "#FCD0A1", "#F2E94E") }} {% call
+  contentCard("#63535B") %}
+  <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8; color: #2f2b2d">
+    {% for assumption in business_assumptions -%}
+    <li>{{ assumption }}</li>
+    {% endfor -%}
+  </ul>
+  {% endcall %} {% endif %}
+</div>

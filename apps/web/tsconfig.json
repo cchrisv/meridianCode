@@ -14,7 +14,7 @@
         "namespaceImportPackages": ["@effect/platform-node"],
         "diagnosticSeverity": {
           "importFromBarrel": "error",
-          "anyUnknownInErrorContext": "warning",
+          "anyUnknownInErrorContext": "off",
           "instanceOfSchema": "warning",
           "deterministicKeys": "warning"
         }

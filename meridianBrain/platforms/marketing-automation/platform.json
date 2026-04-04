@@ -1,0 +1,48 @@
+{
+  "meridian_meta": {
+    "lifecycle": "active-stub",
+    "note": "Manifest loadable by CLI; tool depth may be partial (Phase 1 extension)."
+  },
+  "id": "marketing-automation",
+  "name": "Marketing Automation",
+  "vendor": "Salesforce Marketing Cloud",
+  "shortName": "SFMC",
+  "description": "Marketing automation and journeys (stub — tool suite Phase 1 extension).",
+
+  "detection": {
+    "adoAreaPaths": ["Platform\\Marketing Automation", "Digital Platforms\\Marketing"],
+    "adoTags": ["sfmc", "marketing-cloud", "journey"],
+    "adoCustomFields": {}
+  },
+
+  "tools": {
+    "suite": "marketing-automation-tools",
+    "capabilities": [
+      "auth-status",
+      "describe",
+      "query",
+      "discover-dependencies",
+      "discover-integrations"
+    ],
+    "authMethod": "sfmc-api-key",
+    "configFile": "platforms/marketing-automation/config/sfmc.json"
+  },
+
+  "copilot": {
+    "agents": ["marketing-automation-journey-architect"],
+    "prompts": ".github/prompts/platforms/marketing-automation/",
+    "skills": ".github/skills/platforms/marketing-automation/"
+  },
+
+  "content": {
+    "knowledge": "platforms/marketing-automation/knowledge/",
+    "standards": "platforms/marketing-automation/standards/",
+    "templates": "platforms/marketing-automation/templates/",
+    "config": "platforms/marketing-automation/config/"
+  },
+
+  "knowledgeDomains": {
+    "technical": ["journeys", "automation-studio", "data-extensions"],
+    "business": ["personas", "business-rules", "business-processes"]
+  }
+}

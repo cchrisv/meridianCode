@@ -10,7 +10,7 @@
     "build": "tsdown",
     "start": "bun run scripts/start-electron.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run --passWithNoTests --config ../../vitest.config.ts",
     "smoke-test": "node scripts/smoke-test.mjs"
   },
   "dependencies": {
@@ -26,5 +26,5 @@
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "productName": "T3 Code (Alpha)"
+  "productName": "Meridian Code (Alpha)"
 }

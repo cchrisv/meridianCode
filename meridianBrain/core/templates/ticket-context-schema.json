@@ -1,0 +1,798 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Ticket Context Schema",
+  "description": "Unified context file that progressively grows as each workflow phase executes. This single file replaces all separate phase artifacts.",
+  "meridian_meta": {
+    "lifecycle": "reference",
+    "registry_key": "template_files.ticket_context_schema",
+    "note": "Schema reference for ticket-context.json; optional validation in tooling — not enforced by CLI on every write today."
+  },
+  "type": "object",
+  "required": ["metadata", "run_state"],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "File metadata and phase tracking",
+      "required": [
+        "work_item_id",
+        "created_at",
+        "last_updated",
+        "current_phase",
+        "phases_completed",
+        "version"
+      ],
+      "properties": {
+        "work_item_id": {
+          "type": "string",
+          "description": "ADO Work Item ID"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp when context was first created"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of last update"
+        },
+        "current_phase": {
+          "type": "string",
+          "enum": [
+            "research",
+            "grooming",
+            "solutioning_research",
+            "solutioning",
+            "finalization",
+            "complete"
+          ],
+          "description": "Current workflow phase"
+        },
+        "phases_completed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["research", "grooming", "solutioning_research", "solutioning", "finalization"]
+          },
+          "description": "List of completed phases"
+        },
+        "version": {
+          "type": "string",
+          "default": "1.0",
+          "description": "Schema version for backward compatibility"
+        }
+      }
+    },
+    "run_state": {
+      "type": "object",
+      "description": "Execution tracking and metrics",
+      "properties": {
+        "completed_steps": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "List of completed workflow step IDs"
+        },
+        "generation_history": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step_id": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" },
+              "section_updated": { "type": "string" }
+            }
+          },
+          "description": "Audit trail of which sections were updated when"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step_id": { "type": "string" },
+              "error_message": { "type": "string" },
+              "timestamp": { "type": "string", "format": "date-time" }
+            }
+          },
+          "description": "Errors encountered during execution"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Phase-level statistics",
+          "properties": {
+            "research": {
+              "type": "object",
+              "properties": {
+                "artifacts_created": { "type": "integer" },
+                "hypotheses_formed": { "type": "integer" },
+                "unknowns_identified": { "type": "integer" }
+              }
+            },
+            "grooming": {
+              "type": "object",
+              "properties": {
+                "quality_gates_passed": { "type": "integer" },
+                "quality_gates_failed": { "type": "integer" }
+              }
+            },
+            "solutioning": {
+              "type": "object",
+              "properties": {
+                "options_evaluated": { "type": "integer" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "research": {
+      "type": "object",
+      "description": "Research phase outputs - populated by research sub-prompts",
+      "properties": {
+        "organization_dictionary": {
+          "type": "object",
+          "description": "Terminology and acronym reference",
+          "properties": {
+            "source": { "type": "string" },
+            "loaded_at": { "type": "string", "format": "date-time" },
+            "terms": { "type": "object" },
+            "acronyms": { "type": "object" },
+            "undefined_terms": { "type": "array", "items": { "type": "string" } },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "ado_workitem": {
+          "type": "object",
+          "description": "ADO work item extraction and analysis",
+          "properties": {
+            "scrubbed_data": { "type": "object" },
+            "business_summary": { "type": "string" },
+            "unspoken_needs": { "type": "array", "items": { "type": "string" } },
+            "technical_context": { "type": "object" },
+            "detective_analysis": { "type": "object" },
+            "keywords": { "type": "array", "items": { "type": "string" } },
+            "unknowns": { "type": "array" },
+            "pii_stats": { "type": "object" },
+            "comments": {
+              "type": "array",
+              "description": "Classified comments from the work item",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer" },
+                  "author": { "type": "string" },
+                  "date": { "type": "string", "format": "date-time" },
+                  "text_scrubbed": { "type": "string" },
+                  "context_type": {
+                    "type": "string",
+                    "enum": [
+                      "decision",
+                      "meeting_transcript",
+                      "requirement_change",
+                      "blocker",
+                      "question",
+                      "status_update",
+                      "general"
+                    ]
+                  }
+                }
+              }
+            },
+            "comment_summary": {
+              "type": "string",
+              "description": "AI-generated synthesis of key decisions and information from comments"
+            },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "wiki_search": {
+          "type": "object",
+          "description": "Wiki documentation search results",
+          "properties": {
+            "search_results": { "type": "array" },
+            "metadata_references": { "type": "array" },
+            "detective_correlation": { "type": "object" },
+            "unknowns": { "type": "array" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "business_context": {
+          "type": "object",
+          "description": "Business context and organizational mapping",
+          "properties": {
+            "organizational_context": {
+              "type": "object",
+              "properties": {
+                "department": { "type": "object" },
+                "persona": { "type": "object" },
+                "strategy": { "type": "object" }
+              }
+            },
+            "business_rules": { "type": "array" },
+            "detective_cues": { "type": "object" },
+            "unknowns": { "type": "array" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "journey_maps": {
+          "type": "object",
+          "description": "Process visualization diagrams",
+          "properties": {
+            "applicable": { "type": "boolean" },
+            "current_state_diagram": { "type": "string" },
+            "future_state_diagram": { "type": "string" },
+            "user_journey_diagram": { "type": "string" },
+            "insights": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "salesforce_metadata": {
+          "type": "object",
+          "description": "Salesforce metadata investigation",
+          "properties": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "objects": { "type": "array" },
+                "fields": { "type": "array" },
+                "record_types": { "type": "array" }
+              }
+            },
+            "graph": { "type": "object" },
+            "logic": { "type": "object" },
+            "integration": { "type": "object" },
+            "investigation_trail": { "type": "array" },
+            "pii_stats": { "type": "object" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "dependency_discovery": {
+          "type": "object",
+          "description": "Component dependency graph from metadata tooling",
+          "properties": {
+            "usage_tree": { "type": "object" },
+            "dependency_tree": { "type": "object" },
+            "stats": {
+              "type": "object",
+              "properties": {
+                "total_queries_executed": { "type": "integer" },
+                "cycles_detected": { "type": "integer" },
+                "component_count": { "type": "integer" }
+              }
+            },
+            "object_describe": { "type": "object" },
+            "high_risk_components": { "type": "array" },
+            "regression_candidates": { "type": "array" }
+          }
+        },
+        "code_search": {
+          "type": "object",
+          "description": "Code repository analysis",
+          "properties": {
+            "components_found": { "type": "array" },
+            "technologies_identified": { "type": "array" },
+            "assumptions_extracted": { "type": "array" },
+            "unknowns": { "type": "array" },
+            "pii_stats": { "type": "object" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "web_research": {
+          "type": "object",
+          "description": "Industry best practices research",
+          "properties": {
+            "search_queries": { "type": "array" },
+            "industry_standards": { "type": "array" },
+            "modernization_opportunities": { "type": "array" },
+            "identified_risks": { "type": "array" },
+            "unknowns": { "type": "array" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "libraries": {
+          "type": "object",
+          "description": "Library documentation analysis",
+          "properties": {
+            "libraries_researched": { "type": "array" },
+            "api_references": { "type": "array" },
+            "implementation_guidance": { "type": "array" },
+            "unknowns": { "type": "array" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "similar_workitems": {
+          "type": "object",
+          "description": "Similar work item analysis",
+          "properties": {
+            "similar_items_found": { "type": "array" },
+            "duplicate_assessment": { "type": "object" },
+            "pattern_analysis": { "type": "object" },
+            "pii_stats": { "type": "object" },
+            "research_complete": { "type": "boolean" }
+          }
+        },
+        "related_context": {
+          "type": "object",
+          "description": "Context from parent, children, and sibling work items",
+          "properties": {
+            "parent": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "integer" },
+                "type": { "type": "string" },
+                "title": { "type": "string" },
+                "state": { "type": "string" },
+                "description_summary": { "type": "string" },
+                "comments_summary": { "type": "string" },
+                "key_decisions": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "children": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer" },
+                  "type": { "type": "string" },
+                  "title": { "type": "string" },
+                  "state": { "type": "string" },
+                  "description_summary": { "type": "string" },
+                  "comments_summary": { "type": "string" },
+                  "key_decisions": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            "siblings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "integer" },
+                  "type": { "type": "string" },
+                  "title": { "type": "string" },
+                  "state": { "type": "string" },
+                  "relevance": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "assumptions": {
+          "type": "array",
+          "description": "Assumptions register with lifecycle tracking",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "assumption": { "type": "string" },
+              "category": {
+                "type": "string",
+                "enum": ["unknown", "validated", "refuted", "superseded"]
+              },
+              "confidence": { "type": "string", "enum": ["high", "medium", "low"] },
+              "source": { "type": "string" },
+              "phase_identified": { "type": "string" },
+              "resolution_evidence": { "type": "string" }
+            }
+          }
+        },
+        "synthesis": {
+          "type": "object",
+          "description": "Final research synthesis",
+          "properties": {
+            "unified_truth": {
+              "type": "object",
+              "description": "Consolidated understanding from all research sources",
+              "properties": {
+                "business_goals": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Identified business objectives"
+                },
+                "key_findings": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "description": "Key discoveries from research"
+                },
+                "technical_requirements": { "type": "array", "items": { "type": "string" } },
+                "constraints": { "type": "array", "items": { "type": "string" } },
+                "risks": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "conflict_log": { "type": "array" },
+            "swot_analysis": { "type": "object" },
+            "reusable_assets": { "type": "array" },
+            "technical_blockers": { "type": "array" },
+            "assumptions_reconciled": { "type": "array" },
+            "research_gaps_investigated": { "type": "array" },
+            "research_phase_complete": { "type": "boolean" }
+          }
+        },
+        "summary_narrative": {
+          "type": "string",
+          "description": "Markdown narrative summary of research findings"
+        }
+      }
+    },
+    "grooming": {
+      "type": "object",
+      "description": "Grooming phase outputs",
+      "properties": {
+        "classification": {
+          "type": "object",
+          "description": "Work item classification and quality gates",
+          "properties": {
+            "work_class": { "type": "string" },
+            "effort": { "type": "string" },
+            "risk": { "type": "string" },
+            "priority": { "type": "string" },
+            "complexity": { "type": "string" },
+            "feasibility": { "type": "string" },
+            "tags": {
+              "type": "object",
+              "properties": {
+                "existing": { "type": "array", "items": { "type": "string" } },
+                "to_add": { "type": "array", "items": { "type": "string" } },
+                "final": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "quality_gates": {
+              "type": "object",
+              "properties": {
+                "template_fidelity": { "type": "object" },
+                "solution_leak": { "type": "object" },
+                "clarity": { "type": "object" },
+                "logical_fallacy": { "type": "object" },
+                "completeness": { "type": "object" }
+              }
+            },
+            "unknowns": { "type": "array" }
+          }
+        },
+        "templates_applied": {
+          "type": "object",
+          "description": "Template application results",
+          "properties": {
+            "field_mappings": { "type": "object" },
+            "applied_content": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "description": { "type": "string" },
+                "acceptance_criteria": { "type": "string" },
+                "tags": { "type": "array", "items": { "type": "string" } },
+                "work_class_type": { "type": "string" },
+                "qa_requirement": { "type": "object" }
+              }
+            },
+            "disclaimer_status": { "type": "object" },
+            "template_fidelity_verified": { "type": "boolean" }
+          }
+        },
+        "organizational_context_match": {
+          "type": "object",
+          "description": "Organizational context mapping",
+          "properties": {
+            "department": {
+              "type": "object",
+              "properties": {
+                "primary": { "type": "string" },
+                "confidence": { "type": "number" },
+                "additional": { "type": "array" }
+              }
+            },
+            "persona": {
+              "type": "object",
+              "properties": {
+                "primary": { "type": "string" },
+                "confidence": { "type": "number" },
+                "task": { "type": "string" },
+                "pain_point": { "type": "string" }
+              }
+            },
+            "strategic_goals": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "goal": { "type": "string" },
+                  "confidence": { "type": "number" },
+                  "relevance": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "solutioning_hints": {
+          "type": "array",
+          "description": "Implementation hints extracted from requirements during solution-neutrality pass. Fed into phase-03 solutioning.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "original_text": {
+                "type": "string",
+                "description": "The 'How' statement found in requirements"
+              },
+              "extracted_from": {
+                "type": "string",
+                "description": "Which field it was found in (description, AC, etc.)"
+              },
+              "hint": { "type": "string", "description": "Reframed as a solutioning consideration" }
+            }
+          }
+        },
+        "triage_summary_narrative": {
+          "type": "string",
+          "description": "Markdown narrative summary of grooming results"
+        }
+      }
+    },
+    "solutioning": {
+      "type": "object",
+      "description": "Solutioning phase outputs",
+      "properties": {
+        "option_analysis": {
+          "type": "object",
+          "description": "Option evaluation and selection",
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string", "enum": ["OOTB", "Extension", "Custom"] },
+                  "description": { "type": "string" },
+                  "scores": {
+                    "type": "object",
+                    "properties": {
+                      "trusted": { "type": "integer", "minimum": 1, "maximum": 5 },
+                      "easy": { "type": "integer", "minimum": 1, "maximum": 5 },
+                      "adaptable": { "type": "integer", "minimum": 1, "maximum": 5 }
+                    }
+                  }
+                }
+              }
+            },
+            "recommended_option": { "type": "object" },
+            "decision_summary": { "type": "string" },
+            "eliminated_options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "option_id": { "type": "string" },
+                  "reason": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "solution_design": {
+          "type": "object",
+          "description": "Detailed solution design",
+          "properties": {
+            "components": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "component_id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "type": { "type": "string" },
+                  "complexity_estimate": { "type": "string" },
+                  "responsibility": { "type": "string" }
+                }
+              }
+            },
+            "architecture_decisions": { "type": "array" },
+            "integration_points": { "type": "array" },
+            "quality_bar": { "type": "object" },
+            "applied_standards": { "type": "array", "items": { "type": "string" } },
+            "implementation_phases": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "phase_id": { "type": "string" },
+                  "name": { "type": "string" },
+                  "goal": { "type": "string" },
+                  "steps": { "type": "array", "items": { "type": "string" } },
+                  "dependencies": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            "field_level_mapping": {
+              "type": "object",
+              "properties": {
+                "component_id": { "type": "string" },
+                "fields_reset": { "type": "array", "items": { "type": "object" } },
+                "fields_computed": { "type": "array", "items": { "type": "object" } },
+                "fields_removed": { "type": "array", "items": { "type": "object" } }
+              }
+            },
+            "legacy_analysis": {
+              "type": "object",
+              "properties": {
+                "critical_issues": { "type": "array", "items": { "type": "object" } },
+                "dead_code_inventory": { "type": "array", "items": { "type": "object" } },
+                "not_carried_over": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "risk_considerations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "risk_id": { "type": "string" },
+                  "description": { "type": "string" },
+                  "likelihood": { "type": "string", "enum": ["High", "Medium", "Low"] },
+                  "impact": { "type": "string", "enum": ["High", "Medium", "Low"] },
+                  "mitigation": { "type": "string" }
+                }
+              }
+            },
+            "method_designs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "component_id": { "type": "string" },
+                  "method_name": { "type": "string" },
+                  "visibility": { "type": "string" },
+                  "parameters": { "type": "string" },
+                  "return_type": { "type": "string" },
+                  "cc_target": { "type": "integer" },
+                  "nesting_limit": { "type": "integer" },
+                  "pattern": { "type": "string" },
+                  "extracted_helpers": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            "standards_traceability": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "standard": { "type": "string" },
+                  "rule": { "type": "string" },
+                  "implementation": { "type": "string" }
+                }
+              }
+            },
+            "mermaid_diagrams": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["component_interaction", "implementation_order", "data_flow"]
+                  },
+                  "title": { "type": "string" },
+                  "source": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "traceability": {
+          "type": "object",
+          "description": "Requirements traceability",
+          "properties": {
+            "acceptance_criteria": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "ac_id": { "type": "string" },
+                  "description": { "type": "string" },
+                  "component_ids": { "type": "array", "items": { "type": "string" } }
+                }
+              }
+            },
+            "telemetry": { "type": "array" },
+            "gaps": { "type": "array" },
+            "orphans": { "type": "array" }
+          }
+        }
+      }
+    },
+    "finalization": {
+      "type": "object",
+      "description": "Finalization phase outputs",
+      "properties": {
+        "wsjf_evidence": {
+          "type": "object",
+          "description": "WSJF scoring and evidence",
+          "properties": {
+            "dimensions": {
+              "type": "object",
+              "properties": {
+                "business_value": { "type": "object" },
+                "time_criticality": { "type": "object" },
+                "risk_reduction": { "type": "object" },
+                "job_duration": { "type": "object" }
+              }
+            },
+            "wsjf_score": { "type": "number" },
+            "story_points": { "type": "integer" },
+            "priority": { "type": "integer" },
+            "severity": { "type": "string" },
+            "class_of_service": { "type": "string" },
+            "overall_confidence": { "type": "string" },
+            "guardrails": { "type": "object" },
+            "warnings": { "type": "array" }
+          }
+        },
+        "context_snapshot": {
+          "type": "object",
+          "description": "Summary snapshot for handoff",
+          "properties": {
+            "research_summary": { "type": "object" },
+            "ai_refinement_summary": { "type": "object" },
+            "solutioning_summary": { "type": "object" },
+            "quality_bar": { "type": "object" },
+            "state_tracking": { "type": "object" }
+          }
+        }
+      }
+    },
+    "dev_updates": {
+      "type": "object",
+      "description": "Incremental development-time updates",
+      "properties": {
+        "updates": {
+          "type": "array",
+          "description": "Ordered list of dev-update artifacts",
+          "items": {
+            "type": "object",
+            "properties": {
+              "update_number": { "type": "integer" },
+              "timestamp": { "type": "string", "format": "date-time" },
+              "areas_updated": {
+                "type": "array",
+                "items": { "type": "string", "enum": ["grooming", "solutioning"] }
+              },
+              "developer_input": {
+                "type": "object",
+                "properties": {
+                  "scope_changes": { "type": "array" },
+                  "ac_changes": { "type": "array" },
+                  "solution_changes": { "type": "array" },
+                  "new_risks": { "type": "array" }
+                }
+              },
+              "fields_changed": { "type": "object" }
+            }
+          }
+        }
+      }
+    },
+    "closeout": {
+      "type": "object",
+      "description": "Development closeout reconciliation",
+      "properties": {
+        "questionnaire": {
+          "type": "object",
+          "description": "Developer answers to closeout questionnaire"
+        },
+        "delta": {
+          "type": "object",
+          "description": "Planned vs. actual comparison",
+          "properties": {
+            "components": { "type": "array" },
+            "acceptance_criteria": { "type": "array" },
+            "scope_changes": { "type": "object" },
+            "effort_final": { "type": "object" },
+            "lessons_learned": { "type": "array" },
+            "follow_up_work_items": { "type": "array" },
+            "assumptions_resolved": { "type": "array" }
+          }
+        },
+        "fields_applied": { "type": "object", "description": "Final ADO field payload applied" },
+        "summary_generated_at": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

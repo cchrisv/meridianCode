@@ -1,0 +1,48 @@
+{
+  "meridian_meta": {
+    "lifecycle": "active-stub",
+    "note": "Manifest loadable by CLI; tool depth may be partial (Phase 1 extension)."
+  },
+  "id": "contact-center",
+  "name": "Contact Center",
+  "vendor": "Five9",
+  "shortName": "ContactCenter",
+  "description": "Contact center and IVR (stub — tool suite Phase 1 extension).",
+
+  "detection": {
+    "adoAreaPaths": ["Platform\\Contact Center", "Digital Platforms\\Contact Center"],
+    "adoTags": ["five9", "ivr", "contact-center"],
+    "adoCustomFields": {}
+  },
+
+  "tools": {
+    "suite": "contact-center-tools",
+    "capabilities": [
+      "auth-status",
+      "describe",
+      "query",
+      "discover-dependencies",
+      "discover-integrations"
+    ],
+    "authMethod": "five9-api",
+    "configFile": "platforms/contact-center/config/five9.json"
+  },
+
+  "copilot": {
+    "agents": ["contact-center-ivr-specialist"],
+    "prompts": ".github/prompts/platforms/contact-center/",
+    "skills": ".github/skills/platforms/contact-center/"
+  },
+
+  "content": {
+    "knowledge": "platforms/contact-center/knowledge/",
+    "standards": "platforms/contact-center/standards/",
+    "templates": "platforms/contact-center/templates/",
+    "config": "platforms/contact-center/config/"
+  },
+
+  "knowledgeDomains": {
+    "technical": ["ivr", "routing", "queues", "integrations"],
+    "business": ["personas", "business-rules", "business-processes"]
+  }
+}

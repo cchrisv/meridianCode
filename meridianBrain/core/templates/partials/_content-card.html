@@ -1,0 +1,12 @@
+{# Content Card Macro Renders a white card container with optional colored left border. Parameters:
+borderColor - Optional left-border accent color (e.g. "#dc3545"). If omitted, uses standard border.
+#} {% macro contentCard(borderColor) -%}
+<div
+  style="background: #fff; border: 1px solid #dee2e6;
+  {%- if borderColor %} border-left: 4px solid {{ borderColor }}; border-radius: 0 8px 8px 0;
+  {%- else %} border-radius: 8px;
+  {%- endif %} padding: 16px; margin-bottom: 20px;"
+>
+  {{ caller() }}
+</div>
+{%- endmacro %}

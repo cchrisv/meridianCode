@@ -45,6 +45,10 @@ export const ServerProviderAuth = Schema.Struct({
   status: ServerProviderAuthStatus,
   type: Schema.optional(TrimmedNonEmptyString),
   label: Schema.optional(TrimmedNonEmptyString),
+  /** Copilot / GitHub org or enterprise context (e.g. org display name, or derived company label). */
+  organization: Schema.optional(TrimmedNonEmptyString),
+  /** GitHub Enterprise hostname when applicable (for tooltips; not a display title). */
+  enterpriseHost: Schema.optional(TrimmedNonEmptyString),
 });
 export type ServerProviderAuth = typeof ServerProviderAuth.Type;
 

@@ -1,0 +1,55 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_callout-card.html" import calloutCard %}
+<div style="font-size: 14px; color: #333">
+  {{ gradientHeader("Bug Summary", "🐛", "#c62828", "#b71c1c") }} {% if bug_summary_description %}
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-left: 4px solid #dc3545;
+      border-radius: 0 8px 8px 0;
+      padding: 16px;
+      margin-bottom: 20px;
+    "
+  >
+    <div style="font-size: 13px; line-height: 1.6; color: #333">
+      <p style="margin: 0 0 12px 0">{{ bug_summary_description }}</p>
+
+      {% if expected_behavior or actual_behavior %}
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 12px">
+        {% if expected_behavior %}
+        <tr style="border-bottom: 1px solid #eee">
+          <td style="padding: 10px; width: 100px; vertical-align: top">
+            <strong style="color: #dc3545">Expected:</strong>
+          </td>
+          <td style="padding: 10px">{{ expected_behavior }}</td>
+        </tr>
+        {% endif %} {% if actual_behavior %}
+        <tr>
+          <td style="padding: 10px; vertical-align: top">
+            <strong style="color: #dc3545">Actual:</strong>
+          </td>
+          <td style="padding: 10px">{{ actual_behavior }}</td>
+        </tr>
+        {% endif %}
+      </table>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %} {% if business_impact %} {% call calloutCard("#fff3e0", "#ff9800", "📊", "Business
+  Impact", "#e65100") %} {{ business_impact }} {% endcall %} {% endif %} {% if
+  affected_functionality %} {{ gradientHeader("Affected Functionality", "🔧", "#546e7a", "#37474f")
+  }}
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 20px;
+    "
+  >
+    <div style="font-size: 13px; color: #333; line-height: 1.6">{{ affected_functionality }}</div>
+  </div>
+  {% endif %}
+</div>

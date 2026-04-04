@@ -269,7 +269,7 @@ export default function ProjectScriptsControl({
   return (
     <>
       {primaryScript ? (
-        <Group aria-label="Project scripts">
+        <Group aria-label="Feature scripts">
           <Button
             size="xs"
             variant="outline"

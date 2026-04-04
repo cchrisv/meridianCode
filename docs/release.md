@@ -6,6 +6,7 @@ This document covers how to run desktop releases from one tag, first without sig
 
 - Trigger: push tag matching `v*.*.*`.
 - Runs quality gates first: lint, typecheck, test.
+- Desktop release staging copies the bundled **Meridian Brain** tree: `meridianBrain/` at the repository root is staged next to `apps/server` and `apps/desktop` so installers ship the built-in knowledge repo (see `scripts/build-desktop-artifact.ts`). The Electron bootstrap passes `meridianBrainRoot` to the server so runtime paths resolve correctly.
 - Builds four artifacts in parallel:
   - macOS `arm64` DMG
   - macOS `x64` DMG

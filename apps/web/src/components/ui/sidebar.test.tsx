@@ -11,7 +11,7 @@ import {
 function renderSidebarButton(className?: string) {
   return renderToStaticMarkup(
     <SidebarProvider>
-      <SidebarMenuButton className={className}>Projects</SidebarMenuButton>
+      <SidebarMenuButton className={className}>Features</SidebarMenuButton>
     </SidebarProvider>,
   );
 }

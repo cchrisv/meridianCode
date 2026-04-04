@@ -1,3 +1,4 @@
+// @effect-diagnostics effect/anyUnknownInErrorContext:off
 import { Effect, Layer, Option, Queue, Ref, Schema, Stream } from "effect";
 import {
   type GitActionProgressEvent,
@@ -12,6 +13,7 @@ import {
   ProjectWriteFileError,
   OrchestrationReplayEventsError,
   type TerminalEvent,
+  TicketRpcError,
   WS_METHODS,
   WsRpcGroup,
 } from "@t3tools/contracts";
@@ -38,6 +40,14 @@ import { ServerLifecycleEvents } from "./serverLifecycleEvents";
 import { ServerRuntimeStartup } from "./serverRuntimeStartup";
 import { ServerSettingsService } from "./serverSettings";
 import { TerminalManager } from "./terminal/Services/Manager";
+import {
+  getKnowledgeStatusWs,
+  listKnowledgeTreeWs,
+  readKnowledgeFileWs,
+  syncKnowledgeWs,
+  validateKnowledgeRootWs,
+} from "./knowledge/knowledgeWsEffects.ts";
+import { TicketService } from "./ticket/Services/TicketService";
 import { WorkspaceEntries } from "./workspace/Services/WorkspaceEntries";
 import { WorkspaceFileSystem } from "./workspace/Services/WorkspaceFileSystem";
 import { WorkspacePathOutsideRootError } from "./workspace/Services/WorkspacePaths";
@@ -59,6 +69,7 @@ const WsRpcLayer = WsRpcGroup.toLayer(
     const startup = yield* ServerRuntimeStartup;
     const workspaceEntries = yield* WorkspaceEntries;
     const workspaceFileSystem = yield* WorkspaceFileSystem;
+    const ticketService = yield* TicketService;
 
     const loadServerConfig = Effect.gen(function* () {
       const keybindingsConfig = yield* keybindings.loadConfigState;
@@ -263,6 +274,30 @@ const WsRpcLayer = WsRpcGroup.toLayer(
         observeRpcEffect(WS_METHODS.serverUpdateSettings, serverSettings.updateSettings(patch), {
           "rpc.aggregate": "server",
         }),
+      [WS_METHODS.serverValidateKnowledgeRoot]: (input) =>
+        observeRpcEffect(WS_METHODS.serverValidateKnowledgeRoot, validateKnowledgeRootWs(input), {
+          "rpc.aggregate": "server",
+        }),
+      [WS_METHODS.serverGetKnowledgeStatus]: (_input) =>
+        observeRpcEffect(
+          WS_METHODS.serverGetKnowledgeStatus,
+          getKnowledgeStatusWs({ serverSettings, git }),
+          { "rpc.aggregate": "server" },
+        ),
+      [WS_METHODS.serverSyncKnowledge]: (_input) =>
+        observeRpcEffect(WS_METHODS.serverSyncKnowledge, syncKnowledgeWs({ serverSettings, git }), {
+          "rpc.aggregate": "server",
+        }),
+      [WS_METHODS.knowledgeListTree]: (_input) =>
+        observeRpcEffect(WS_METHODS.knowledgeListTree, listKnowledgeTreeWs({ serverSettings }), {
+          "rpc.aggregate": "server",
+        }),
+      [WS_METHODS.knowledgeReadFile]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.knowledgeReadFile,
+          readKnowledgeFileWs({ serverSettings }, input),
+          { "rpc.aggregate": "server" },
+        ),
       [WS_METHODS.projectsSearchEntries]: (input) =>
         observeRpcEffect(
           WS_METHODS.projectsSearchEntries,
@@ -283,7 +318,7 @@ const WsRpcLayer = WsRpcGroup.toLayer(
           workspaceFileSystem.writeFile(input).pipe(
             Effect.mapError((cause) => {
               const message = Schema.is(WorkspacePathOutsideRootError)(cause)
-                ? "Workspace file path must stay within the project root."
+                ? "Workspace file path must stay within the workspace root."
                 : "Failed to write workspace file";
               return new ProjectWriteFileError({
                 message,
@@ -430,6 +465,47 @@ const WsRpcLayer = WsRpcGroup.toLayer(
             );
           }),
           { "rpc.aggregate": "server" },
+        ),
+      [WS_METHODS.ticketImport]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.ticketImport,
+          ticketService.importTicket(input.workItemId).pipe(
+            Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
+          ),
+          { "rpc.aggregate": "ticket" },
+        ),
+      [WS_METHODS.ticketList]: (_input) =>
+        observeRpcEffect(
+          WS_METHODS.ticketList,
+          ticketService.listTickets().pipe(
+            Effect.map((tickets) => ({ tickets })),
+            Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
+          ),
+          { "rpc.aggregate": "ticket" },
+        ),
+      [WS_METHODS.ticketGetState]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.ticketGetState,
+          ticketService.getTicketState(input.ticketId).pipe(
+            Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
+          ),
+          { "rpc.aggregate": "ticket" },
+        ),
+      [WS_METHODS.ticketGetContext]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.ticketGetContext,
+          ticketService.getTicketContext(input.ticketId).pipe(
+            Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
+          ),
+          { "rpc.aggregate": "ticket" },
+        ),
+      [WS_METHODS.ticketTransitionStage]: (input) =>
+        observeRpcEffect(
+          WS_METHODS.ticketTransitionStage,
+          ticketService.transitionStage(input.ticketId, input.targetStage).pipe(
+            Effect.mapError((cause) => new TicketRpcError({ detail: String(cause), cause })),
+          ),
+          { "rpc.aggregate": "ticket" },
         ),
       [WS_METHODS.subscribeServerLifecycle]: (_input) =>
         observeRpcStreamEffect(

@@ -109,6 +109,12 @@ export interface Thread {
   worktreePath: string | null;
   turnDiffSummaries: TurnDiffSummary[];
   activities: OrchestrationThreadActivity[];
+  /** Meridian: linked ticket ID (ADO work item ID). Null for general chat threads. */
+  ticketId: string | null;
+  /** Meridian: current Dream Team stage derived from ADO board column. */
+  ticketStage: string | null;
+  /** Meridian: current Copilot phase within Stage 1. */
+  copilotPhase: string | null;
 }
 
 export interface SidebarThreadSummary {

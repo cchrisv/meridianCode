@@ -4,9 +4,17 @@ import { AtomRpc } from "effect/unstable/reactivity";
 
 import { createWsRpcProtocolLayer } from "./protocol";
 
+function castProtocolLayer(layer: Layer.Layer<any, any, any>): Layer.Layer<unknown, never, never> {
+  return layer as unknown as Layer.Layer<unknown, never, never>;
+}
+
 export class WsRpcAtomClient extends AtomRpc.Service<WsRpcAtomClient>()("WsRpcAtomClient", {
   group: WsRpcGroup,
-  protocol: Layer.suspend(() => createWsRpcProtocolLayer()),
+  // Effect RPC protocol layers carry generic service dependencies that are
+  // satisfied at the WsTransport level, not at the static type level. The
+  // suspend + cast bridges the gap so ManagedRuntime can provide the layer
+  // without propagating those internal service constraints.
+  protocol: castProtocolLayer(Layer.suspend(() => createWsRpcProtocolLayer())),
 }) {}
 
 let sharedRuntime: ManagedRuntime.ManagedRuntime<WsRpcAtomClient, never> | null = null;

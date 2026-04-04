@@ -1,0 +1,21 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %}
+<div style="font-size: 14px; color: #2f2b2d">
+  {# BUSINESS OBJECTIVES HEADER - Celadon / Dry Sage #} {{ gradientHeader("Business Objectives &
+  Expected Impact", "📊", "#96E6B3", "#B1B695") }} {# OBJECTIVES LIST #} {% if objectives and
+  objectives | length > 0 %} {% call contentCard("#53917E") %} {%- set objective_styles = [ {bg:
+  "#F4FBF7", border: "#53917E", titleColor: "#2F5C50", emoji: "🎯"}, {bg: "#F8F5FB", border:
+  "#7E6B8F", titleColor: "#7E6B8F", emoji: "📈"}, {bg: "#F6F4F5", border: "#63535B", titleColor:
+  "#63535B", emoji: "💡"}, {bg: "#FFF3F5", border: "#DA3E52", titleColor: "#DA3E52", emoji: "🔧"},
+  {bg: "#FFF8EF", border: "#6D1A36", titleColor: "#6D1A36", emoji: "🚀"} ] -%} {% for objective in
+  objectives -%} {%- set style = objective_styles[loop.index0 % objective_styles | length] -%}
+  <div
+    style="background: {{ style.bg }}; border-left: 4px solid {{ style.border }}; border-radius: 0 6px 6px 0; padding: 14px; margin-bottom: {% if loop.last %}0{% else %}12px{% endif %};"
+  >
+    <div style="font-weight: 600; color: {{ style.titleColor }}; margin-bottom: 6px;">
+      {{ style.emoji }} {{ objective.title }}
+    </div>
+    <div style="font-size: 13px; color: #2f2b2d; line-height: 1.6">{{ objective.description }}</div>
+  </div>
+  {% endfor -%} {% endcall %} {% endif %}
+</div>

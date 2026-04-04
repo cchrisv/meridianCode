@@ -1,0 +1,121 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %}
+<div style="font-size: 14px; color: #333">
+  {# FEEDBACK SUMMARY HEADER - Purple #} {{ gradientHeader("Feedback Intake", "📋", "#7b1fa2",
+  "#4a148c") }} {# FEEDBACK CONTENT #} {% if prompt_name or severity_label or related_ticket or
+  user_goal or feedback_summary %} {% call contentCard("#7b1fa2") %}
+  <div style="font-size: 13px; line-height: 1.6; color: #333">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+      {% if prompt_name %}
+      <tr style="border-bottom: 1px solid #eee">
+        <td style="padding: 10px; width: 120px; vertical-align: top">
+          <strong style="color: #7b1fa2">Prompt:</strong>
+        </td>
+        <td style="padding: 10px"><code>{{ prompt_name }}</code></td>
+      </tr>
+      {% endif %} {% if severity_label %}
+      <tr style="border-bottom: 1px solid #eee">
+        <td style="padding: 10px; vertical-align: top">
+          <strong style="color: #7b1fa2">Severity:</strong>
+        </td>
+        <td style="padding: 10px">{{ severity_label }}</td>
+      </tr>
+      {% endif %} {% if related_ticket %}
+      <tr>
+        <td style="padding: 10px; vertical-align: top">
+          <strong style="color: #7b1fa2">Related Ticket:</strong>
+        </td>
+        <td style="padding: 10px">{{ related_ticket }}</td>
+      </tr>
+      {% endif %}
+    </table>
+    {% if user_goal %}
+    <div style="margin-top: 12px; padding: 10px; border-top: 1px solid #eee">
+      <div style="font-weight: 600; color: #7b1fa2; margin-bottom: 6px">User Goal</div>
+      {{ user_goal }}
+    </div>
+    {% endif %} {% if feedback_summary %}
+    <div style="margin-top: 12px; padding: 10px; border-top: 1px solid #eee">
+      <div style="font-weight: 600; color: #7b1fa2; margin-bottom: 6px">Feedback Summary</div>
+      {{ feedback_summary }}
+    </div>
+    {% endif %}
+  </div>
+  {% endcall %} {% endif %} {# THE PROBLEM - Red #} {% if problem_statement %} {{
+  gradientHeader("The Problem", "⚠️", "#c62828", "#8e0000") }} {% call contentCard("#c62828") %}
+  <div style="font-size: 13px; color: #333; line-height: 1.7">{{ problem_statement }}</div>
+  {% endcall %} {% endif %} {# THE ASK - Blue #} {% if ask_statement %} {{ gradientHeader("The Ask",
+  "🛠️", "#1565c0", "#0d47a1") }} {% call contentCard("#1565c0") %}
+  <div style="font-size: 13px; color: #333; line-height: 1.7">{{ ask_statement }}</div>
+  {% endcall %} {% endif %} {# WHY THIS MATTERS - Orange #} {% if impact_details or business_impact
+  or why_problematic %} {{ gradientHeader("Why This Matters", "🎯", "#e65100", "#bf360c") }} {% call
+  contentCard("#e65100") %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">
+    {% if why_problematic %}
+    <div style="margin-bottom: 12px">
+      <strong style="color: #e65100">Context:</strong> {{ why_problematic }}
+    </div>
+    {% endif %} {% if impact_details %}
+    <div style="margin-bottom: 12px">
+      <div style="font-weight: 600; color: #e65100; margin-bottom: 6px">For us</div>
+      {{ impact_details }}
+    </div>
+    {% endif %} {% if business_impact %}
+    <div>
+      <div style="font-weight: 600; color: #e65100; margin-bottom: 6px">For the business</div>
+      {{ business_impact }}
+    </div>
+    {% endif %}
+  </div>
+  {% endcall %} {% endif %} {# EXPECTED VS ACTUAL - Orange #} {% if expected_behavior or
+  actual_behavior %} {{ gradientHeader("Expected vs Actual", "⚖️", "#6a1b9a", "#4a148c") }} {% call
+  contentCard() %}
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+    {% if expected_behavior %}
+    <tr style="border-bottom: 1px solid #eee">
+      <td style="padding: 10px; width: 120px; vertical-align: top">
+        <strong style="color: #2e7d32">Expected:</strong>
+      </td>
+      <td style="padding: 10px; line-height: 1.6">{{ expected_behavior }}</td>
+    </tr>
+    {% endif %} {% if actual_behavior %}
+    <tr>
+      <td style="padding: 10px; vertical-align: top">
+        <strong style="color: #c62828">Actual:</strong>
+      </td>
+      <td style="padding: 10px; line-height: 1.6">{{ actual_behavior }}</td>
+    </tr>
+    {% endif %}
+  </table>
+  {% endcall %} {% endif %} {# CONVERSATION EVIDENCE - Teal #} {% if conversation_evidence %} {{
+  gradientHeader("Evidence", "🧾", "#00695c", "#004d40") }} {% call contentCard("#00695c") %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">{{ conversation_evidence }}</div>
+  {% endcall %} {% endif %} {# REQUESTED NEXT STEP - Green #} {% if requested_next_step %} {{
+  gradientHeader("Requested Next Step", "➡️", "#2e7d32", "#1b5e20") }} {% call
+  contentCard("#2e7d32") %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">{{ requested_next_step }}</div>
+  {% endcall %} {% endif %} {# REPRODUCTION STEPS - Blue #} {% if reproduction_steps %} {{
+  gradientHeader("Reproduction Steps", "🔄", "#1565c0", "#0d47a1") }} {% call contentCard() %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">{{ reproduction_steps }}</div>
+  {% endcall %} {% endif %} {# CONTEXT - Blue-gray #} {% if report_date %} {{
+  gradientHeader("Environment & Context", "🔧", "#546e7a", "#37474f") }} {% call contentCard() %}
+  <div style="font-size: 13px; color: #333; line-height: 1.6">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+      <tr style="border-bottom: 1px solid #eee">
+        <td style="padding: 10px; width: 120px; vertical-align: top"><strong>Date:</strong></td>
+        <td style="padding: 10px">{{ report_date }}</td>
+      </tr>
+      {% if conversation_context %}
+      <tr style="border-bottom: 1px solid #eee">
+        <td style="padding: 10px; vertical-align: top"><strong>Conversation Context:</strong></td>
+        <td style="padding: 10px; line-height: 1.6">{{ conversation_context }}</td>
+      </tr>
+      {% endif %}
+      <tr>
+        <td style="padding: 10px; vertical-align: top"><strong>Editor:</strong></td>
+        <td style="padding: 10px">VS Code with GitHub Copilot</td>
+      </tr>
+    </table>
+  </div>
+  {% endcall %} {% endif %}
+</div>

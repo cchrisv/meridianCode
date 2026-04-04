@@ -29,6 +29,7 @@ Long term maintainability is a core priority. If you add new functionality, firs
 - `apps/web`: React/Vite UI. Owns session UX, conversation/event rendering, and client-side state. Connects to the server via WebSocket.
 - `packages/contracts`: Shared effect/Schema schemas and TypeScript contracts for provider events, WebSocket protocol, and model/session types. Keep this package schema-only — no runtime logic.
 - `packages/shared`: Shared runtime utilities consumed by both server and web. Uses explicit subpath exports (e.g. `@t3tools/shared/git`) — no barrel index.
+- `meridianBrain/` (repo root): Bundled team knowledge (instructions, skills, core/shared/platform docs). The server always loads this tree; it is not user-configurable. Desktop builds copy it into the packaged app. Update content here and ship a new release to change what ships.
 
 ## Codex App Server (Important)
 

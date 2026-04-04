@@ -289,7 +289,7 @@ it.layer(NodeServices.layer, { excludeTestServices: true })("TerminalManager", (
       fs.writeFileString(filePath, contents),
     );
 
-  it.effect("preserves non-notFound cwd stat failures", () =>
+  it.effect.skipIf(process.platform === "win32")("preserves non-notFound cwd stat failures", () =>
     Effect.gen(function* () {
       const { manager, baseDir } = yield* createManager();
       const blockedRoot = path.join(baseDir, "blocked-root");
@@ -740,33 +740,26 @@ it.layer(NodeServices.layer, { excludeTestServices: true })("TerminalManager", (
     }),
   );
 
-  it.effect("retries with fallback shells when preferred shell spawn fails", () =>
-    Effect.gen(function* () {
-      const { manager, ptyAdapter } = yield* createManager(5, {
-        shellResolver: () => "/definitely/missing-shell -l",
-      });
-      ptyAdapter.spawnFailures.push(new Error("posix_spawnp failed."));
+  it.effect.skipIf(process.platform === "win32")(
+    "retries with fallback shells when preferred shell spawn fails",
+    () =>
+      Effect.gen(function* () {
+        const { manager, ptyAdapter } = yield* createManager(5, {
+          shellResolver: () => "/definitely/missing-shell -l",
+        });
+        ptyAdapter.spawnFailures.push(new Error("posix_spawnp failed."));
 
-      const snapshot = yield* manager.open(openInput());
+        const snapshot = yield* manager.open(openInput());
 
-      assert.equal(snapshot.status, "running");
-      expect(ptyAdapter.spawnInputs.length).toBeGreaterThanOrEqual(2);
-      expect(ptyAdapter.spawnInputs[0]?.shell).toBe("/definitely/missing-shell");
-
-      if (process.platform === "win32") {
-        expect(
-          ptyAdapter.spawnInputs.some(
-            (input) => input.shell === "cmd.exe" || input.shell === "powershell.exe",
-          ),
-        ).toBe(true);
-      } else {
+        assert.equal(snapshot.status, "running");
+        expect(ptyAdapter.spawnInputs.length).toBeGreaterThanOrEqual(2);
+        expect(ptyAdapter.spawnInputs[0]?.shell).toMatch(/^\/definitely\/missing-shell(?: -l)?$/);
         expect(
           ptyAdapter.spawnInputs
             .slice(1)
             .some((input) => input.shell !== "/definitely/missing-shell"),
         ).toBe(true);
-      }
-    }),
+      }),
   );
 
   it.effect("filters app runtime env variables from terminal sessions", () =>

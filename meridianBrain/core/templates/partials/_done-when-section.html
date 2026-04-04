@@ -1,0 +1,22 @@
+{# Plain-English DONE WHEN list with optional italic group labels (Meridian Modern Work Item
+Standard) #} {% macro doneWhenSection(done_when_items) %} {% if done_when_items and done_when_items
+| length > 0 %}
+<ul
+  style="
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #333;
+  "
+>
+  {% for row in done_when_items -%} {% if row.group_label %}
+  <li style="list-style: none; margin: 14px 0 6px 0; padding-left: 0">
+    <em style="font-weight: 600; font-style: italic; color: #37474f">{{ row.group_label }}</em>
+  </li>
+  {% endif %}
+  <li style="list-style: disc; margin-left: 1.25em; margin-bottom: 4px">{{ row.assertion }}</li>
+  {% endfor -%}
+</ul>
+{% endif %} {% endmacro %}

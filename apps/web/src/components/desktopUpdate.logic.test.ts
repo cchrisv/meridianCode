@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { DesktopUpdateActionResult, DesktopUpdateState } from "@t3tools/contracts";
+import { APP_BASE_NAME } from "../branding";
 
 import {
   canCheckForUpdate,
@@ -212,7 +213,7 @@ describe("desktop update UI helpers", () => {
         availableVersion: "1.1.0",
         downloadedVersion: "1.1.1",
       }),
-    ).toContain("Install update 1.1.1 and restart T3 Code?");
+    ).toContain(`Install update 1.1.1 and restart ${APP_BASE_NAME}?`);
   });
 
   it("falls back to generic install confirmation copy when no version is available", () => {
@@ -221,7 +222,7 @@ describe("desktop update UI helpers", () => {
         availableVersion: null,
         downloadedVersion: null,
       }),
-    ).toContain("Install update and restart T3 Code?");
+    ).toContain(`Install update and restart ${APP_BASE_NAME}?`);
   });
 });
 

@@ -47,6 +47,27 @@ import type {
   OrchestrationEvent,
   OrchestrationReadModel,
 } from "./orchestration";
+import type {
+  GetKnowledgeStatusResult,
+  ListKnowledgeTreeResult,
+  ReadKnowledgeFileInput,
+  ReadKnowledgeFileResult,
+  SyncKnowledgeResult,
+  ValidateKnowledgeRootInput,
+  ValidateKnowledgeRootResult,
+} from "./knowledge";
+import type {
+  TicketImportInput,
+  TicketImportResult,
+  TicketListInput,
+  TicketListResult,
+  TicketGetStateInput,
+  TicketGetStateResult,
+  TicketGetContextInput,
+  TicketGetContextResult,
+  TicketStageTransitionInput,
+  TicketStageTransitionResult,
+} from "./ticket";
 import { EditorId } from "./editor";
 import { ServerSettings, ServerSettingsPatch } from "./settings";
 
@@ -171,6 +192,22 @@ export interface NativeApi {
     upsertKeybinding: (input: ServerUpsertKeybindingInput) => Promise<ServerUpsertKeybindingResult>;
     getSettings: () => Promise<ServerSettings>;
     updateSettings: (patch: ServerSettingsPatch) => Promise<ServerSettings>;
+    validateKnowledgeRoot: (
+      input: ValidateKnowledgeRootInput,
+    ) => Promise<ValidateKnowledgeRootResult>;
+    getKnowledgeStatus: () => Promise<GetKnowledgeStatusResult>;
+    syncKnowledge: () => Promise<SyncKnowledgeResult>;
+  };
+  knowledge: {
+    listTree: () => Promise<ListKnowledgeTreeResult>;
+    readFile: (input: ReadKnowledgeFileInput) => Promise<ReadKnowledgeFileResult>;
+  };
+  ticket: {
+    import: (input: TicketImportInput) => Promise<TicketImportResult>;
+    list: (input: TicketListInput) => Promise<TicketListResult>;
+    getState: (input: TicketGetStateInput) => Promise<TicketGetStateResult>;
+    getContext: (input: TicketGetContextInput) => Promise<TicketGetContextResult>;
+    transitionStage: (input: TicketStageTransitionInput) => Promise<TicketStageTransitionResult>;
   };
   orchestration: {
     getSnapshot: () => Promise<OrchestrationReadModel>;

@@ -1,0 +1,59 @@
+{
+  "meridian_meta": {
+    "lifecycle": "active",
+    "note": "CLI `meridianPlatform` + Copilot detection; do not strip unknown keys."
+  },
+  "id": "crm",
+  "name": "CRM",
+  "vendor": "Salesforce",
+  "shortName": "CRM",
+  "description": "Salesforce CRM and custom application platform",
+
+  "detection": {
+    "adoAreaPaths": ["Digital Platforms\\CRM - DREAM", "Platform\\CRM"],
+    "adoTags": ["crm", "salesforce", "sf"],
+    "adoCustomFields": {}
+  },
+
+  "tools": {
+    "suite": "crm-tools",
+    "capabilities": [
+      "describe",
+      "query",
+      "discover-dependencies",
+      "discover-integrations",
+      "org-status",
+      "org-setup",
+      "org-validate"
+    ],
+    "authMethod": "sf-cli",
+    "configFile": "platforms/crm/config/crm-orgs.json"
+  },
+
+  "copilot": {
+    "agents": ["crm-solution-architect", "crm-product-owner"],
+    "prompts": ".github/prompts/platforms/crm/",
+    "skills": ".github/skills/platforms/crm/"
+  },
+
+  "content": {
+    "knowledge": "platforms/crm/knowledge/",
+    "standards": "platforms/crm/standards/",
+    "templates": "platforms/crm/templates/",
+    "config": "platforms/crm/config/"
+  },
+
+  "knowledgeDomains": {
+    "technical": [
+      "apex",
+      "flows",
+      "validation-rules",
+      "custom-objects",
+      "sharing-model",
+      "data-model",
+      "integrations",
+      "deployment"
+    ],
+    "business": ["personas", "business-rules", "business-processes"]
+  }
+}

@@ -1,0 +1,13 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %}
+<div style="font-size: 14px; color: #2f2b2d">
+  {# BUSINESS PROBLEM & VALUE HEADER - Soft Apricot / Banana Cream #} {{ gradientHeader("Business
+  Problem & Value Statement", "🎯", "#FCD0A1", "#F2E94E") }} {# VALUE ITEMS #} {% if value_items and
+  value_items | length > 0 %} {% call contentCard("#DA3E52") %} {% for item in value_items -%}
+  <div
+    style="padding: 12px; margin-bottom: {% if loop.last %}0{% else %}8px{% endif %}; background: #FFF3F5; border-radius: 6px; border-left: 4px solid #DA3E52;"
+  >
+    <strong style="color: #6d1a36">{{ item.category }}:</strong> {{ item.description }}
+  </div>
+  {% endfor -%} {% endcall %} {% endif %}
+</div>

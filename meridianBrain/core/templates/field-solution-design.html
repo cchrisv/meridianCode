@@ -1,0 +1,150 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_content-card.html" import contentCard %} {% from "partials/_data-table.html" import
+dataTable %} {% from "partials/_badge.html" import badge %}
+<div style="font-size: 14px; color: #333">
+  {# WHAT WE'RE BUILDING SECTION - Teal #} {% if overview %} {{ gradientHeader("What We're
+  Building", "📋", "#00796b", "#004d40") }}
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+    "
+  >
+    {{ overview | safe }}
+  </div>
+  {% endif %} {# Acceptance Criteria Mapping Table #} {% if ac_mapping and ac_mapping | length > 0
+  %} {% call contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    How This Addresses the Acceptance Criteria
+  </div>
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+    <tr style="background: #f8f9fa; border-bottom: 1px solid #eee">
+      <td style="padding: 10px; font-weight: 600; width: 80px">Done When</td>
+      <td style="padding: 10px; font-weight: 600">Assertion</td>
+      <td style="padding: 10px; font-weight: 600">How It's Addressed</td>
+    </tr>
+    {% for row in ac_mapping -%}
+    <tr style="border-bottom: 1px solid #eee">
+      <td style="padding: 10px">{{ badge(row.ac_id, "#e0f2f1", "#00796b") }}</td>
+      <td style="padding: 10px">{{ row.criterion }}</td>
+      <td style="padding: 10px">{{ row.how_addressed }}</td>
+    </tr>
+    {% endfor -%}
+  </table>
+  {% endcall %} {% endif %} {# SOLUTION DESIGN SECTION - Purple #} {% if solution_approach or
+  legacy_analysis or (components and components | length > 0) or integrations %} {{
+  gradientHeader("Solution Design", "🔧", "#7b1fa2", "#4a148c") }} {# Legacy Analysis (optional) #}
+  {% if legacy_analysis -%} {% call contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    Critical Issues in Existing Implementation
+  </div>
+  <div style="font-size: 13px; line-height: 1.6; color: #333">{{ legacy_analysis | safe }}</div>
+  {% endcall %} {%- endif %} {# Solution Approach (html type) #} {% if solution_approach %}
+  <div
+    style="
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #333;
+    "
+  >
+    {{ solution_approach | safe }}
+  </div>
+  {% endif %} {# Component Overview Table #} {% if components and components | length > 0 %} {% call
+  contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    Key Components
+  </div>
+  <table style="width: 100%; border-collapse: collapse; font-size: 13px">
+    <tr style="background: #f8f9fa; border-bottom: 1px solid #eee">
+      <td style="padding: 10px; font-weight: 600">Component</td>
+      <td style="padding: 10px; font-weight: 600">Type</td>
+      <td style="padding: 10px; font-weight: 600">Purpose</td>
+    </tr>
+    {% for comp in components -%}
+    <tr style="border-bottom: 1px solid #eee">
+      <td style="padding: 10px"><strong>{{ comp.name }}</strong></td>
+      <td style="padding: 10px">{{ badge(comp.type, "#e8eaf6", "#303f9f") }}</td>
+      <td style="padding: 10px">{{ comp.responsibility }}</td>
+    </tr>
+    {% endfor -%}
+  </table>
+  {% endcall %} {% endif %} {# Integration Points #} {% if integrations %} {% call contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    Integration Points
+  </div>
+  <p style="margin: 0; font-size: 13px; line-height: 1.6; color: #333">{{ integrations }}</p>
+  {% endcall %} {% endif %} {% endif %} {# QUALITY & RISK SECTION - Steel #} {% if (standards and
+  standards | length > 0) or (risks and risks | length > 0) %} {{ gradientHeader("Quality & Risk",
+  "🛡️", "#37474f", "#263238") }} {# Standards Traceability Table #} {% if standards and standards |
+  length > 0 %} {% call contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    Standards Traceability
+  </div>
+  {{ dataTable( [ {key: "standard", header: "Standard", width: "200px"}, {key: "how_applied",
+  header: "How Applied"} ], standards ) }} {% endcall %} {% endif %} {# Risk Considerations Table #}
+  {% if risks and risks | length > 0 %} {% call contentCard() %}
+  <div
+    style="
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #dee2e6;
+      padding-bottom: 8px;
+    "
+  >
+    Risk Considerations
+  </div>
+  {{ dataTable( [ {key: "risk", header: "Risk"}, {key: "mitigation", header: "Mitigation"} ], risks
+  ) }} {% endcall %} {% endif %} {% endif %}
+</div>

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ report_title }}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          "Segoe UI",
+          -apple-system,
+          sans-serif;
+        font-size: 14px;
+        color: #333;
+        background: #f5f5f5;
+        line-height: 1.6;
+      }
+      .page {
+        max-width: 900px;
+        margin: 0 auto;
+        background: #fff;
+        padding: 40px;
+      }
+      .gradient-header {
+        border-radius: 8px;
+        padding: 14px 16px;
+        margin-bottom: 16px;
+      }
+      .gradient-header span {
+        font-weight: 700;
+        color: #fff;
+        font-size: 15px;
+      }
+      .gradient-header .sub {
+        font-weight: 400;
+        font-size: 13px;
+        opacity: 0.9;
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .card {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+      .card-accent {
+        border-left: 4px solid;
+        border-radius: 0 8px 8px 0;
+      }
+      .wi-ref {
+        color: #1976d2;
+        font-weight: 600;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+      .badge-green {
+        background: #28a745;
+        color: #fff;
+      }
+      .badge-blue {
+        background: #1976d2;
+        color: #fff;
+      }
+      .badge-gray {
+        background: #6c757d;
+        color: #fff;
+      }
+      .badge-orange {
+        background: #e65100;
+        color: #fff;
+      }
+      .text-muted {
+        color: #666;
+        font-size: 13px;
+      }
+      .narrative-body {
+        font-size: 13px;
+        line-height: 1.7;
+        color: #333;
+      }
+      ul.activity-list {
+        margin: 0;
+        padding-left: 20px;
+        font-size: 13px;
+        line-height: 1.8;
+        color: #333;
+      }
+
+      .move-item {
+        background: #f0f4ff;
+        border: 1px solid #bbdefb;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .move-item .move-title {
+        font-weight: 600;
+        color: #1565c0;
+        margin-bottom: 4px;
+      }
+      .decision-item {
+        background: #e0f2f1;
+        border: 1px solid #80cbc4;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .decision-item .decision-label {
+        font-weight: 600;
+        color: #00695c;
+        margin-bottom: 4px;
+      }
+      .value-item {
+        background: #e8f5e9;
+        border: 1px solid #a5d6a7;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .value-item .value-label {
+        font-weight: 600;
+        color: #2e7d32;
+        margin-bottom: 4px;
+      }
+      .risk-item {
+        background: #f3e5f5;
+        border: 1px solid #ce93d8;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .risk-item .risk-label {
+        font-weight: 600;
+        color: #7b1fa2;
+        margin-bottom: 4px;
+      }
+      .decision-needed {
+        background: #fff3e0;
+        border: 1px solid #ffcc80;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin: 12px 0;
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .decision-needed .dn-label {
+        font-weight: 600;
+        color: #e65100;
+        margin-bottom: 4px;
+      }
+
+      .evidence-inline {
+        color: #546e7a;
+        font-size: 12px;
+      }
+      .need-evidence {
+        font-size: 12px;
+        color: #546e7a;
+        font-style: italic;
+        display: block;
+        margin-top: 4px;
+      }
+      .need-evidence::before {
+        content: "📎 ";
+        font-style: normal;
+      }
+      .what-to-decide {
+        font-size: 12px;
+        color: #e65100;
+        font-weight: 600;
+        display: block;
+        margin-top: 6px;
+      }
+      .what-to-decide::before {
+        content: "➡️ ";
+      }
+
+      @media print {
+        body {
+          background: #fff;
+        }
+        .page {
+          padding: 20px;
+          max-width: 100%;
+        }
+        .page-break {
+          page-break-before: always;
+        }
+        .gradient-header {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .badge,
+        .move-item,
+        .decision-item,
+        .value-item,
+        .risk-item,
+        .decision-needed {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div
+        class="gradient-header"
+        style="
+          background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%);
+          padding: 24px;
+          margin-bottom: 16px;
+        "
+      >
+        <div style="font-size: 24px; font-weight: 700; color: #fff">{{ person_name }}</div>
+        <div style="font-size: 14px; color: rgba(255, 255, 255, 0.9); margin-top: 4px">
+          Activity Briefing &middot; {{ date_range }}
+        </div>
+        <div style="font-size: 12px; color: rgba(255, 255, 255, 0.7); margin-top: 2px">
+          Generated {{ generated_date }}
+        </div>
+      </div>
+
+      <div class="card" style="background: #fafafa; border: 1px dashed #ccc">
+        <div class="narrative-body" style="color: #555">
+          <strong>How to use this briefing:</strong> This report answers five questions from tracked
+          Azure DevOps and Salesforce activity: what moved, what decisions were made, what value was
+          delivered, what's at risk, and what decisions are needed from you. Meetings, mentoring,
+          and untracked work aren't captured here — this is one dimension of contribution. The
+          observations reflect the AI's reasoning; you decide what matters.
+        </div>
+      </div>
+
+      <div class="card card-accent" style="border-left-color: #1565c0">
+        <div class="narrative-body">{{ overview | safe }}</div>
+      </div>
+
+      <div
+        class="gradient-header"
+        style="background: linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)"
+      >
+        <span>▶ What Moved This Period</span>
+        <div class="sub">Items that progressed, advanced, or completed</div>
+      </div>
+      {{ what_moved_section | safe }}
+
+      <div
+        class="gradient-header"
+        style="background: linear-gradient(135deg, #00695c 0%, #004d40 100%)"
+      >
+        <span>⚖ Decisions Made</span>
+        <div class="sub">Choices, trade-offs, handoffs, and approvals that happened</div>
+      </div>
+      {{ decisions_made_section | safe }}
+
+      <div
+        class="gradient-header"
+        style="background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%)"
+      >
+        <span>✓ Value Delivered</span>
+        <div class="sub">
+          What reached production, resolved problems, or moved from idea to done
+        </div>
+      </div>
+      {{ value_delivered_section | safe }}
+
+      <div
+        class="gradient-header"
+        style="background: linear-gradient(135deg, #5e35b1 0%, #4527a0 100%)"
+      >
+        <span>⚠ Progress at Risk</span>
+        <div class="sub">
+          Stalled items, blockers, or signals worth watching — with evidence and reasoning
+        </div>
+      </div>
+      {{ progress_at_risk_section | safe }}
+
+      <div
+        class="gradient-header"
+        style="background: linear-gradient(135deg, #37474f 0%, #263238 100%)"
+      >
+        <span>➡ Decisions Needed</span>
+        <div class="sub">
+          Things waiting on you or others — where direction would unblock progress
+        </div>
+      </div>
+      {{ decisions_needed_section | safe }}
+
+      <div
+        style="
+          text-align: center;
+          padding: 20px;
+          color: #999;
+          font-size: 12px;
+          border-top: 1px solid #eee;
+          margin-top: 30px;
+        "
+      >
+        Generated by Activity Briefing Tool &middot; {{ generated_date }}
+      </div>
+    </div>
+  </body>
+</html>

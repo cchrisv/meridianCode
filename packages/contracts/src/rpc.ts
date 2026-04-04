@@ -68,7 +68,38 @@ import {
   ServerUpsertKeybindingInput,
   ServerUpsertKeybindingResult,
 } from "./server";
+import {
+  GetKnowledgeStatusResult,
+  ListKnowledgeTreeResult,
+  ReadKnowledgeFileInput,
+  ReadKnowledgeFileResult,
+  SyncKnowledgeResult,
+  ValidateKnowledgeRootInput,
+  ValidateKnowledgeRootResult,
+  KnowledgeRpcError,
+} from "./knowledge";
 import { ServerSettings, ServerSettingsError, ServerSettingsPatch } from "./settings";
+import {
+  TicketImportInput,
+  TicketImportResult,
+  TicketListInput,
+  TicketListResult,
+  TicketGetStateInput,
+  TicketGetStateResult,
+  TicketGetContextInput,
+  TicketGetContextResult,
+  TicketStageTransitionInput,
+  TicketStageTransitionResult,
+} from "./ticket";
+
+export class TicketRpcError extends Schema.TaggedErrorClass<TicketRpcError>()("TicketRpcError", {
+  detail: Schema.String,
+  cause: Schema.optional(Schema.Defect),
+}) {
+  override get message(): string {
+    return `Ticket error: ${this.detail}`;
+  }
+}
 
 export const WS_METHODS = {
   // Project registry methods
@@ -108,6 +139,19 @@ export const WS_METHODS = {
   serverUpsertKeybinding: "server.upsertKeybinding",
   serverGetSettings: "server.getSettings",
   serverUpdateSettings: "server.updateSettings",
+  serverValidateKnowledgeRoot: "server.validateKnowledgeRoot",
+  serverGetKnowledgeStatus: "server.getKnowledgeStatus",
+  serverSyncKnowledge: "server.syncKnowledge",
+
+  knowledgeListTree: "knowledge.listTree",
+  knowledgeReadFile: "knowledge.readFile",
+
+  // Ticket methods
+  ticketImport: "ticket.import",
+  ticketList: "ticket.list",
+  ticketGetState: "ticket.getState",
+  ticketGetContext: "ticket.getContext",
+  ticketTransitionStage: "ticket.transitionStage",
 
   // Streaming subscriptions
   subscribeOrchestrationDomainEvents: "subscribeOrchestrationDomainEvents",
@@ -143,6 +187,36 @@ export const WsServerUpdateSettingsRpc = Rpc.make(WS_METHODS.serverUpdateSetting
   payload: Schema.Struct({ patch: ServerSettingsPatch }),
   success: ServerSettings,
   error: ServerSettingsError,
+});
+
+export const WsServerValidateKnowledgeRootRpc = Rpc.make(WS_METHODS.serverValidateKnowledgeRoot, {
+  payload: ValidateKnowledgeRootInput,
+  success: ValidateKnowledgeRootResult,
+  error: KnowledgeRpcError,
+});
+
+export const WsServerGetKnowledgeStatusRpc = Rpc.make(WS_METHODS.serverGetKnowledgeStatus, {
+  payload: Schema.Struct({}),
+  success: GetKnowledgeStatusResult,
+  error: Schema.Union([KnowledgeRpcError, ServerSettingsError]),
+});
+
+export const WsServerSyncKnowledgeRpc = Rpc.make(WS_METHODS.serverSyncKnowledge, {
+  payload: Schema.Struct({}),
+  success: SyncKnowledgeResult,
+  error: Schema.Union([KnowledgeRpcError, ServerSettingsError, GitCommandError]),
+});
+
+export const WsKnowledgeListTreeRpc = Rpc.make(WS_METHODS.knowledgeListTree, {
+  payload: Schema.Struct({}),
+  success: ListKnowledgeTreeResult,
+  error: Schema.Union([KnowledgeRpcError, ServerSettingsError]),
+});
+
+export const WsKnowledgeReadFileRpc = Rpc.make(WS_METHODS.knowledgeReadFile, {
+  payload: ReadKnowledgeFileInput,
+  success: ReadKnowledgeFileResult,
+  error: Schema.Union([KnowledgeRpcError, ServerSettingsError]),
 });
 
 export const WsProjectsSearchEntriesRpc = Rpc.make(WS_METHODS.projectsSearchEntries, {
@@ -321,12 +395,49 @@ export const WsSubscribeServerLifecycleRpc = Rpc.make(WS_METHODS.subscribeServer
   stream: true,
 });
 
+// ── Ticket RPCs ──────────────────────────────────────────────────────
+
+export const WsTicketImportRpc = Rpc.make(WS_METHODS.ticketImport, {
+  payload: TicketImportInput,
+  success: TicketImportResult,
+  error: TicketRpcError,
+});
+
+export const WsTicketListRpc = Rpc.make(WS_METHODS.ticketList, {
+  payload: TicketListInput,
+  success: TicketListResult,
+  error: TicketRpcError,
+});
+
+export const WsTicketGetStateRpc = Rpc.make(WS_METHODS.ticketGetState, {
+  payload: TicketGetStateInput,
+  success: TicketGetStateResult,
+  error: TicketRpcError,
+});
+
+export const WsTicketGetContextRpc = Rpc.make(WS_METHODS.ticketGetContext, {
+  payload: TicketGetContextInput,
+  success: TicketGetContextResult,
+  error: TicketRpcError,
+});
+
+export const WsTicketTransitionStageRpc = Rpc.make(WS_METHODS.ticketTransitionStage, {
+  payload: TicketStageTransitionInput,
+  success: TicketStageTransitionResult,
+  error: TicketRpcError,
+});
+
 export const WsRpcGroup = RpcGroup.make(
   WsServerGetConfigRpc,
   WsServerRefreshProvidersRpc,
   WsServerUpsertKeybindingRpc,
   WsServerGetSettingsRpc,
   WsServerUpdateSettingsRpc,
+  WsServerValidateKnowledgeRootRpc,
+  WsServerGetKnowledgeStatusRpc,
+  WsServerSyncKnowledgeRpc,
+  WsKnowledgeListTreeRpc,
+  WsKnowledgeReadFileRpc,
   WsProjectsSearchEntriesRpc,
   WsProjectsWriteFileRpc,
   WsShellOpenInEditorRpc,
@@ -356,4 +467,9 @@ export const WsRpcGroup = RpcGroup.make(
   WsOrchestrationGetTurnDiffRpc,
   WsOrchestrationGetFullThreadDiffRpc,
   WsOrchestrationReplayEventsRpc,
+  WsTicketImportRpc,
+  WsTicketListRpc,
+  WsTicketGetStateRpc,
+  WsTicketGetContextRpc,
+  WsTicketTransitionStageRpc,
 );

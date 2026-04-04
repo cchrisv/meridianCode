@@ -1,0 +1,32 @@
+{% from "partials/_gradient-header.html" import gradientHeader %} {% from
+"partials/_gwt-scenario.html" import gwtScenario %}
+<div style="font-size: 14px; color: #333">
+  {{ gradientHeader("Acceptance Criteria", "⭐", "#1565c0", "#0d47a1") }} {# FIX VALIDATION SECTION
+  #} {% if fix_validations and fix_validations | length > 0 %}
+  <div
+    style="
+      background: linear-gradient(135deg, #42a5f5 0%, #1565c0 100%);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
+    "
+  >
+    <span style="font-weight: 600; color: #fff; font-size: 13px">🔧 Fix Validation</span>
+  </div>
+
+  {% for item in fix_validations -%} {{ gwtScenario(loop.index, item, "#0078d4") }} {% endfor -%} {%
+  endif %} {# REGRESSION TESTING SECTION #} {% if regressions and regressions | length > 0 %}
+  <div
+    style="
+      background: linear-gradient(135deg, #78909c 0%, #546e7a 100%);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 12px;
+    "
+  >
+    <span style="font-weight: 600; color: #fff; font-size: 13px">🔄 Regression Testing</span>
+  </div>
+
+  {% for item in regressions -%} {{ gwtScenario(loop.index, item, "#546e7a") }} {% endfor -%} {%
+  endif %}
+</div>

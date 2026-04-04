@@ -59,6 +59,7 @@ import { ProjectFaviconResolverLive } from "./project/Layers/ProjectFaviconResol
 import { WorkspaceEntriesLive } from "./workspace/Layers/WorkspaceEntries.ts";
 import { WorkspaceFileSystemLive } from "./workspace/Layers/WorkspaceFileSystem.ts";
 import { WorkspacePathsLive } from "./workspace/Layers/WorkspacePaths.ts";
+import { TicketService } from "./ticket/Services/TicketService.ts";
 
 const defaultProjectId = ProjectId.makeUnsafe("project-default");
 const defaultThreadId = ThreadId.makeUnsafe("thread-default");
@@ -265,6 +266,15 @@ const buildAppUnderTest = (options?: {
           markHttpListening: Effect.void,
           enqueueCommand: (effect) => effect,
           ...options?.layers?.serverRuntimeStartup,
+        }),
+      ),
+      Layer.provide(
+        Layer.mock(TicketService)({
+          importTicket: () => Effect.fail(new Error("not implemented in test")),
+          listTickets: () => Effect.succeed([]),
+          getTicketState: () => Effect.fail(new Error("not implemented in test")),
+          getTicketContext: () => Effect.fail(new Error("not implemented in test")),
+          transitionStage: () => Effect.fail(new Error("not implemented in test")),
         }),
       ),
       Layer.provide(workspaceAndProjectServicesLayer),

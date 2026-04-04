@@ -134,6 +134,9 @@ describe("OrchestrationEngine", () => {
           activities: [],
           checkpoints: [],
           session: null,
+          ticketId: null,
+          ticketStage: null,
+          copilotPhase: null,
         },
       ],
     };

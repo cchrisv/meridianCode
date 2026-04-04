@@ -9,7 +9,7 @@ import {
 import { memo, useState } from "react";
 import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon, LinkIcon } from "lucide-react";
 import { createPortal } from "react-dom";
-import { Popover, PopoverTrigger, PopoverPopup, PopoverClose } from "../ui/popover";
+// Popover removed — using simple dropdown for reliability
 import { StageIndicator } from "../ticket/StageIndicator";
 import { ContextDrawer } from "../ticket/ContextDrawer";
 import { ensureNativeApi } from "../../nativeApi";
@@ -263,71 +263,70 @@ function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => 
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [loaded, setLoaded] = useState(false);
 
-  const loadPrompts = () => {
-    if (loaded) return;
-    const rpc = getWsRpcClient();
-    rpc.prompt
-      .list({})
-      .then((result) => {
-        setPrompts([...result.prompts]);
-        setLoaded(true);
-      })
-      .catch(() => setLoaded(true));
+  const handleToggle = () => {
+    const next = !open;
+    setOpen(next);
+    if (next && !loaded) {
+      const rpc = getWsRpcClient();
+      rpc.prompt
+        .list({})
+        .then((result) => { setPrompts([...result.prompts]); setLoaded(true); })
+        .catch(() => setLoaded(true));
+    }
   };
 
   return (
-    <Popover
-      open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen);
-        if (nextOpen) loadPrompts();
-      }}
-    >
+    <div className="relative">
       <Tooltip>
         <TooltipTrigger
           render={
-            <PopoverTrigger
-              render={
-                <Toggle
-                  className="shrink-0"
-                  pressed={open}
-                  aria-label="Prompts"
-                  variant="outline"
-                  size="xs"
-                />
-              }
+            <Toggle
+              className="shrink-0"
+              pressed={open}
+              onPressedChange={handleToggle}
+              aria-label="Prompts"
+              variant="outline"
+              size="xs"
             >
               <ZapIcon className="size-3" />
-            </PopoverTrigger>
+            </Toggle>
           }
         />
         <TooltipPopup side="bottom">Prompts</TooltipPopup>
       </Tooltip>
-      <PopoverPopup side="bottom" align="start" className="w-72 p-0">
-        <div className="max-h-64 overflow-y-auto py-1">
-          {prompts.length === 0 && loaded && (
-            <div className="px-3 py-4 text-center text-xs text-muted-foreground">No prompts available</div>
-          )}
-          {prompts.length === 0 && !loaded && (
-            <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading...</div>
-          )}
-          {prompts.map((p) => (
-            <button
-              key={p.name}
-              type="button"
-              className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-accent"
-              onClick={() => {
-                setOpen(false);
-                onSelectPrompt(p.name);
-              }}
-            >
-              <span className="text-xs font-medium text-foreground">{p.label}</span>
-              <span className="text-[10px] text-muted-foreground">{p.description}</span>
-            </button>
-          ))}
-        </div>
-      </PopoverPopup>
-    </Popover>
+
+      {open && (
+        <>
+          {/* Backdrop to close on outside click */}
+          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
+          {/* Dropdown */}
+          <div className="absolute right-0 top-full z-50 mt-1 w-72 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover shadow-lg">
+            <div className="py-1">
+              {prompts.length === 0 && loaded && (
+                <div className="px-3 py-4 text-center text-xs text-muted-foreground">No prompts available</div>
+              )}
+              {prompts.length === 0 && !loaded && (
+                <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading...</div>
+              )}
+              {prompts.map((p) => (
+                <button
+                  key={p.name}
+                  type="button"
+                  className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-accent"
+                  onClick={() => {
+                    setOpen(false);
+                    onSelectPrompt(p.name);
+                  }}
+                >
+                  <span className="text-xs font-medium text-foreground">{p.label}</span>
+                  <span className="text-[10px] text-muted-foreground">{p.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 

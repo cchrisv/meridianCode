@@ -353,7 +353,7 @@ const ThreadDeleteCommand = Schema.Struct({
 
 /** Link (or re-link) a thread to an ADO work item. */
 const ThreadLinkWorkItemCommand = Schema.Struct({
-  type: Schema.Literal("thread.linkWorkItem"),
+  type: Schema.Literal("thread.link-work-item"),
   commandId: CommandId,
   threadId: ThreadId,
   workItemId: TrimmedNonEmptyString,

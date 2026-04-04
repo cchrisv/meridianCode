@@ -172,7 +172,7 @@ export const decideOrchestrationCommand = Effect.fn("decideOrchestrationCommand"
       };
     }
 
-    case "thread.linkWorkItem": {
+    case "thread.link-work-item": {
       yield* requireThread({ readModel, command, threadId: command.threadId });
       const occurredAt = nowIso();
       return {

@@ -137,7 +137,7 @@ function LinkWorkItemDialog({
     try {
       const api = ensureNativeApi();
       await api.orchestration.dispatchCommand({
-        type: "thread.linkWorkItem",
+        type: "thread.link-work-item",
         commandId: newCommandId(),
         threadId: threadId as unknown as ThreadId,
         workItemId: trimmed,

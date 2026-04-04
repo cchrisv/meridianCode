@@ -4004,23 +4004,22 @@ export default function ChatView({ threadId }: ChatViewProps) {
           onDeleteProjectScript={deleteProjectScript}
           onToggleTerminal={toggleTerminalVisibility}
           onToggleDiff={onToggleDiff}
-          onOpenPrompts={async (promptName: string) => {
-            // Load the prompt with auto-filled context from the current thread and inject into composer
-            try {
-              const rpc = getWsRpcClient();
-              const variables: Record<string, string> = {};
-              if (activeThread?.workItemId) {
-                variables.work_item_id = activeThread.workItemId;
-                variables.context_file = `core/.ai-artifacts/${activeThread.workItemId}/ticket-context.json`;
-              }
-              const result = await rpc.prompt.load({ name: promptName, variables });
+          onOpenPrompts={(promptName: string) => {
+            // Load prompt and inject into composer
+            const rpc = getWsRpcClient();
+            const variables: Record<string, string> = {};
+            if (activeThread?.workItemId) {
+              variables.work_item_id = activeThread.workItemId;
+              variables.context_file = `core/.ai-artifacts/${activeThread.workItemId}/ticket-context.json`;
+            }
+            rpc.prompt.load({ name: promptName, variables }).then((result) => {
               promptRef.current = result.content;
               setPrompt(result.content);
               setComposerCursor(result.content.length);
               composerEditorRef.current?.focusAtEnd();
-            } catch (err) {
+            }).catch((err) => {
               console.error("Failed to load prompt:", err);
-            }
+            });
           }}
         />
       </header>

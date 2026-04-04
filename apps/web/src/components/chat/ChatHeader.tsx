@@ -7,7 +7,7 @@ import {
   type CopilotPhase,
 } from "@t3tools/contracts";
 import { memo, useState } from "react";
-import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon } from "lucide-react";
+import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon } from "lucide-react";
 import { StageIndicator } from "../ticket/StageIndicator";
 import { ContextDrawer } from "../ticket/ContextDrawer";
 import GitActionsControl from "../GitActionsControl";
@@ -45,6 +45,7 @@ interface ChatHeaderProps {
   onDeleteProjectScript: (scriptId: string) => Promise<void>;
   onToggleTerminal: () => void;
   onToggleDiff: () => void;
+  onOpenPrompts?: () => void;
 }
 
 export const ChatHeader = memo(function ChatHeader({
@@ -67,6 +68,7 @@ export const ChatHeader = memo(function ChatHeader({
   workItemType,
   workItemStage,
   copilotPhase,
+  onOpenPrompts,
   onRunProjectScript,
   onAddProjectScript,
   onUpdateProjectScript,
@@ -102,7 +104,27 @@ export const ChatHeader = memo(function ChatHeader({
         )}
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2 @3xl/header-actions:gap-3">
-        {/* Meridian: work item context button — icon + ID, click opens context drawer */}
+        {/* Meridian: Prompts button */}
+        {onOpenPrompts && (
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <Toggle
+                  className="shrink-0"
+                  pressed={false}
+                  onPressedChange={onOpenPrompts}
+                  aria-label="Open prompts"
+                  variant="outline"
+                  size="xs"
+                >
+                  <ZapIcon className="size-3" />
+                </Toggle>
+              }
+            />
+            <TooltipPopup side="bottom">Prompts</TooltipPopup>
+          </Tooltip>
+        )}
+        {/* Meridian: work item context button */}
         {workItemId && (
           <WorkItemContextButton workItemId={workItemId} workItemType={workItemType} />
         )}
@@ -206,18 +228,21 @@ function WorkItemContextButton({
       <Tooltip>
         <TooltipTrigger
           render={
-            <button
-              type="button"
-              className="inline-flex shrink-0 items-center gap-1 rounded-md border border-border/60 px-1.5 py-0.5 text-[10px] tabular-nums text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-              onClick={() => setContextOpen(true)}
-            />
+            <Toggle
+              className="shrink-0 gap-1"
+              pressed={contextOpen}
+              onPressedChange={() => setContextOpen(!contextOpen)}
+              aria-label={`${workItemType ?? "Work Item"} #${workItemId}`}
+              variant="outline"
+              size="xs"
+            >
+              <Icon className="size-3" style={{ color }} />
+              <span className="text-[10px] tabular-nums">#{workItemId}</span>
+            </Toggle>
           }
-        >
-          <Icon className="h-3 w-3" style={{ color }} />
-          <span>#{workItemId}</span>
-        </TooltipTrigger>
+        />
         <TooltipPopup side="bottom">
-          {workItemType ?? "Work Item"} #{workItemId} — Click to view context
+          {workItemType ?? "Work Item"} #{workItemId} — View context
         </TooltipPopup>
       </Tooltip>
 

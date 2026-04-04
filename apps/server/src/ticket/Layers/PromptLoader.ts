@@ -139,8 +139,8 @@ function detectVariables(content: string): string[] {
   return unique;
 }
 
-/** List all available prompts, optionally filtered by stage. */
-export function listPrompts(stage?: TicketStage): PromptDefinition[] {
+/** List all available prompts. Always returns all prompts (no stage filtering). */
+export function listPrompts(_stage?: TicketStage): PromptDefinition[] {
   const brainPath = resolveBundledMeridianBrainPath();
   const promptsDir = join(brainPath, ".github", "prompts", "core");
 
@@ -154,25 +154,11 @@ export function listPrompts(stage?: TicketStage): PromptDefinition[] {
     const meta = PROMPT_LABELS[name];
     if (!meta) continue; // Skip prompts without metadata
 
-    // Determine which stages this prompt applies to
-    let stages: readonly TicketStage[] | "any" = "any";
-    if (UNIVERSAL_PROMPTS.includes(name)) {
-      stages = "any";
-    } else {
-      const stageList: TicketStage[] = [];
-      for (const [s, prompts] of Object.entries(STAGE_PROMPT_MAP)) {
-        if (prompts.includes(name)) stageList.push(s as TicketStage);
-      }
-      if (stageList.length > 0) stages = stageList;
-    }
-
-    // Filter by stage if requested
-    if (stage && stages !== "any" && !stages.includes(stage)) continue;
-
     // Detect variables from file content
     const filePath = join(promptsDir, file);
     const content = readFileSync(filePath, "utf-8");
     const variables = detectVariables(content);
+    const stages: readonly TicketStage[] | "any" = "any";
 
     definitions.push({
       name,

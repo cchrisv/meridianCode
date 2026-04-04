@@ -43,11 +43,6 @@ export function UtilityActionMenu({
     <div className="absolute bottom-full left-0 z-50 mb-1 w-80 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover shadow-lg">
       <div className="sticky top-0 border-b border-border bg-popover px-3 py-2">
         <div className="text-xs font-semibold text-foreground">Utility Actions</div>
-        {stage && (
-          <div className="text-[10px] text-muted-foreground">
-            Showing actions for: {stage}
-          </div>
-        )}
       </div>
 
       {loading ? (

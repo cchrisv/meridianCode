@@ -1,12 +1,18 @@
 import {
   ArchiveIcon,
   ArrowUpDownIcon,
+  BookOpenIcon,
+  BugIcon,
+  CheckSquareIcon,
   ChevronRightIcon,
+  FileTextIcon,
   FolderIcon,
   GitPullRequestIcon,
+  LayersIcon,
   PlusIcon,
   DownloadIcon,
   SquarePenIcon,
+  StarIcon,
   TerminalIcon,
   TriangleAlertIcon,
 } from "lucide-react";
@@ -134,6 +140,27 @@ import { useSettings, useUpdateSettings } from "~/hooks/useSettings";
 import { useServerKeybindings } from "../rpc/serverState";
 import { useSidebarThreadSummaryById } from "../storeSelectors";
 import type { Project } from "../types";
+/** Map ADO work item type to an icon component and hex colour for sidebar grouping. */
+function workItemTypeVisual(workItemType: string | null | undefined): {
+  icon: typeof FileTextIcon;
+  color: string;
+} {
+  switch (workItemType) {
+    case "User Story":
+      return { icon: BookOpenIcon, color: "#1565c0" };
+    case "Bug":
+      return { icon: BugIcon, color: "#c62828" };
+    case "Feature":
+      return { icon: StarIcon, color: "#7b1fa2" };
+    case "Epic":
+      return { icon: LayersIcon, color: "#f57c00" };
+    case "Task":
+      return { icon: CheckSquareIcon, color: "#388e3c" };
+    default:
+      return { icon: FileTextIcon, color: "#888" };
+  }
+}
+
 const THREAD_PREVIEW_LIMIT = 6;
 const SIDEBAR_SORT_LABELS: Record<SidebarProjectSortOrder, string> = {
   updated_at: "Last user message",
@@ -1792,10 +1819,11 @@ export default function Sidebar() {
                 {/* Work item groups */}
                 {Array.from(workItemGroups.entries()).map(([wid, tids]) => {
                   const firstSummary = sidebarThreadsById[tids[0]!];
+                  const { icon: WiIcon, color: wiColor } = workItemTypeVisual(firstSummary?.workItemType);
                   return (
                     <SidebarMenuSubItem key={`wi-${wid}`} className="w-full">
                       <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-medium text-muted-foreground/70">
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary/60" />
+                        <WiIcon className="size-3 shrink-0" style={{ color: wiColor }} />
                         <span className="truncate">#{wid}</span>
                         <span className="text-muted-foreground/40">({tids.length})</span>
                       </div>

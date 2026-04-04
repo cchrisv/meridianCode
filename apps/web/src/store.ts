@@ -177,6 +177,7 @@ function mapThread(thread: OrchestrationThread): Thread {
     turnDiffSummaries: thread.checkpoints.map(mapTurnDiffSummary),
     activities: thread.activities.map((activity) => ({ ...activity })),
     workItemId: thread.workItemId,
+    workItemType: thread.workItemType,
     workItemStage: thread.workItemStage,
     copilotPhase: thread.copilotPhase,
   };
@@ -233,6 +234,7 @@ function buildSidebarThreadSummary(thread: Thread): SidebarThreadSummary {
       findLatestProposedPlan(thread.proposedPlans, thread.latestTurn?.turnId ?? null),
     ),
     workItemId: thread.workItemId,
+    workItemType: thread.workItemType,
   };
 }
 
@@ -256,7 +258,9 @@ function sidebarThreadSummariesEqual(
     left.latestUserMessageAt === right.latestUserMessageAt &&
     left.hasPendingApprovals === right.hasPendingApprovals &&
     left.hasPendingUserInput === right.hasPendingUserInput &&
-    left.hasActionableProposedPlan === right.hasActionableProposedPlan
+    left.hasActionableProposedPlan === right.hasActionableProposedPlan &&
+    left.workItemId === right.workItemId &&
+    left.workItemType === right.workItemType
   );
 }
 
@@ -659,6 +663,7 @@ export function applyOrchestrationEvent(state: AppState, event: OrchestrationEve
         worktreePath: event.payload.worktreePath,
         latestTurn: null,
         workItemId: event.payload.workItemId ?? null,
+        workItemType: event.payload.workItemType ?? null,
         workItemStage: event.payload.workItemStage ?? null,
         copilotPhase: event.payload.copilotPhase ?? null,
         createdAt: event.payload.createdAt,
@@ -705,12 +710,24 @@ export function applyOrchestrationEvent(state: AppState, event: OrchestrationEve
           ? {
               ...thread,
               workItemId: event.payload.workItemId ?? thread.workItemId,
+              workItemType: event.payload.workItemType ?? thread.workItemType,
               workItemStage: event.payload.workItemStage ?? thread.workItemStage,
               copilotPhase: event.payload.copilotPhase ?? thread.copilotPhase,
             }
           : thread,
       );
-      return threads === state.threads ? state : { ...state, threads };
+      if (threads === state.threads) return state;
+      const updatedThread = threads.find((t) => t.id === event.payload.threadId);
+      const sidebarThreadsById = updatedThread
+        ? (() => {
+            const nextSummary = buildSidebarThreadSummary(updatedThread);
+            const prev = state.sidebarThreadsById[updatedThread.id];
+            return sidebarThreadSummariesEqual(prev, nextSummary)
+              ? state.sidebarThreadsById
+              : { ...state.sidebarThreadsById, [updatedThread.id]: nextSummary };
+          })()
+        : state.sidebarThreadsById;
+      return { ...state, threads, sidebarThreadsById };
     }
 
     case "thread.deleted": {

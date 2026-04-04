@@ -36,6 +36,8 @@ export const ProjectionThread = Schema.Struct({
   deletedAt: Schema.NullOr(IsoDateTime),
   /** Meridian: linked ADO work item ID. */
   workItemId: Schema.NullOr(Schema.String).pipe(Schema.withDecodingDefault(() => null)),
+  /** Meridian: ADO work item type (e.g. "User Story", "Bug", "Task"). */
+  workItemType: Schema.NullOr(Schema.String).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Dream Team stage. */
   workItemStage: Schema.NullOr(Schema.String).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Copilot phase within Stage 1. */

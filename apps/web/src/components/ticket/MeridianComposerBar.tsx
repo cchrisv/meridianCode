@@ -141,6 +141,7 @@ function LinkWorkItemDialog({
         commandId: newCommandId(),
         threadId: threadId as unknown as ThreadId,
         workItemId: trimmed,
+        workItemType: null,
         workItemStage: null,
         copilotPhase: null,
       } as any);

@@ -452,6 +452,7 @@ const makeOrchestrationProjectionPipeline = Effect.fn("makeOrchestrationProjecti
             archivedAt: null,
             deletedAt: null,
             workItemId: event.payload.workItemId ?? null,
+            workItemType: event.payload.workItemType ?? null,
             workItemStage: event.payload.workItemStage ?? null,
             copilotPhase: event.payload.copilotPhase ?? null,
           });
@@ -547,6 +548,7 @@ const makeOrchestrationProjectionPipeline = Effect.fn("makeOrchestrationProjecti
           yield* projectionThreadRepository.upsert({
             ...existingRow.value,
             workItemId: event.payload.workItemId,
+            workItemType: event.payload.workItemType ?? existingRow.value.workItemType,
             workItemStage: event.payload.workItemStage ?? existingRow.value.workItemStage,
             copilotPhase: event.payload.copilotPhase ?? existingRow.value.copilotPhase,
             updatedAt: event.payload.updatedAt,

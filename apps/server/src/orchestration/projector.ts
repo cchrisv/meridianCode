@@ -269,6 +269,7 @@ export function projectEvent(
             checkpoints: [],
             session: null,
             workItemId: payload.workItemId ?? null,
+            workItemType: payload.workItemType ?? null,
             workItemStage: payload.workItemStage ?? null,
             copilotPhase: payload.copilotPhase ?? null,
           },
@@ -292,6 +293,7 @@ export function projectEvent(
             ? {
                 ...t,
                 workItemId: event.payload.workItemId,
+                workItemType: event.payload.workItemType ?? t.workItemType,
                 workItemStage: event.payload.workItemStage ?? t.workItemStage,
                 copilotPhase: event.payload.copilotPhase ?? t.copilotPhase,
                 updatedAt: event.payload.updatedAt,

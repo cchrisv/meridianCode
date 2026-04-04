@@ -111,6 +111,8 @@ export interface Thread {
   activities: OrchestrationThreadActivity[];
   /** Meridian: linked ticket ID (ADO work item ID). Null for general chat threads. */
   workItemId: string | null;
+  /** Meridian: ADO work item type (e.g. "User Story", "Bug", "Task"). */
+  workItemType: string | null;
   /** Meridian: current Dream Team stage derived from ADO board column. */
   workItemStage: string | null;
   /** Meridian: current Copilot phase within Stage 1. */
@@ -133,6 +135,8 @@ export interface SidebarThreadSummary {
   hasPendingApprovals: boolean;
   /** Meridian: linked work item ID for sidebar grouping. */
   workItemId: string | null;
+  /** Meridian: ADO work item type for sidebar group icon/color. */
+  workItemType: string | null;
   hasPendingUserInput: boolean;
   hasActionableProposedPlan: boolean;
 }

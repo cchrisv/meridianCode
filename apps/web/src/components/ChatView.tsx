@@ -3035,6 +3035,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
           worktreePath: nextThreadWorktreePath,
           createdAt: activeThread.createdAt,
           workItemId: activeThread.workItemId ?? null,
+          workItemType: activeThread.workItemType ?? null,
           workItemStage: activeThread.workItemStage ?? null,
           copilotPhase: activeThread.copilotPhase ?? null,
         });
@@ -3507,6 +3508,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
         worktreePath: activeThread.worktreePath,
         createdAt,
         workItemId: null,
+        workItemType: null,
         workItemStage: null,
         copilotPhase: null,
       })

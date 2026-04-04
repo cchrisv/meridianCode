@@ -207,6 +207,7 @@ const autoBootstrapWelcome = Effect.gen(function* () {
           branch: null,
           worktreePath: null,
           workItemId: null,
+          workItemType: null,
           workItemStage: null,
           copilotPhase: null,
           createdAt,

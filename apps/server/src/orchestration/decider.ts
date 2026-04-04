@@ -166,6 +166,7 @@ export const decideOrchestrationCommand = Effect.fn("decideOrchestrationCommand"
           createdAt: command.createdAt,
           updatedAt: command.createdAt,
           workItemId: command.workItemId ?? null,
+          workItemType: command.workItemType ?? null,
           workItemStage: command.workItemStage ?? null,
           copilotPhase: command.copilotPhase ?? null,
         },
@@ -186,6 +187,7 @@ export const decideOrchestrationCommand = Effect.fn("decideOrchestrationCommand"
         payload: {
           threadId: command.threadId,
           workItemId: command.workItemId,
+          workItemType: command.workItemType ?? null,
           workItemStage: command.workItemStage ?? null,
           copilotPhase: command.copilotPhase ?? null,
           updatedAt: occurredAt,

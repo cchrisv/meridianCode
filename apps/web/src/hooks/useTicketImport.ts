@@ -85,6 +85,7 @@ export function useTicketImport() {
           worktreePath: null,
           createdAt: new Date().toISOString(),
           workItemId: result.workItemId as string,
+          workItemType: result.state.metadata.workItemType ?? null,
           workItemStage: (result.state.currentStage as string) ?? null,
           copilotPhase: (result.state.copilotPhase as string) ?? null,
         });

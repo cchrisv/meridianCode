@@ -22,7 +22,8 @@
       "Bash(npm install:*)",
       "Bash(node --experimental-strip-types -e \":*)",
       "Bash(git log:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(sqlite3 ~/.t3/orchestration.db \"SELECT thread_id, work_item_id, work_item_stage, copilot_phase FROM projection_threads\")"
     ]
   }
 }

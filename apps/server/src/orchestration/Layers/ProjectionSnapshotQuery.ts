@@ -203,6 +203,7 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
           archived_at AS "archivedAt",
           deleted_at AS "deletedAt",
           work_item_id AS "workItemId",
+          work_item_type AS "workItemType",
           work_item_stage AS "workItemStage",
           copilot_phase AS "copilotPhase"
         FROM projection_threads
@@ -686,6 +687,7 @@ const makeProjectionSnapshotQuery = Effect.gen(function* () {
             checkpoints: checkpointsByThread.get(row.threadId) ?? [],
             session: sessionsByThread.get(row.threadId) ?? null,
             workItemId: row.workItemId ?? null,
+            workItemType: row.workItemType ?? null,
             workItemStage: row.workItemStage ?? null,
             copilotPhase: row.copilotPhase ?? null,
           }));

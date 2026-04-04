@@ -42,6 +42,7 @@ export function buildLocalDraftThread(
     activities: [],
     proposedPlans: [],
     workItemId: null,
+    workItemType: null,
     workItemStage: null,
     copilotPhase: null,
   };

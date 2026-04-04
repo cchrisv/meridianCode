@@ -282,6 +282,8 @@ export const OrchestrationThread = Schema.Struct({
   session: Schema.NullOr(OrchestrationSession),
   /** Meridian: linked work item ID (ADO work item ID). Null for general chat threads. */
   workItemId: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+  /** Meridian: ADO work item type (e.g. "User Story", "Bug", "Task"). */
+  workItemType: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: current Dream Team stage derived from ADO board column. */
   workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: current Copilot phase within Stage 1. */
@@ -339,6 +341,8 @@ const ThreadCreateCommand = Schema.Struct({
   createdAt: IsoDateTime,
   /** Meridian: linked work item ID. Null for general chat threads. */
   workItemId: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+  /** Meridian: ADO work item type (e.g. "User Story", "Bug", "Task"). */
+  workItemType: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Dream Team stage from ADO board column. */
   workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Copilot phase within Stage 1. */
@@ -357,6 +361,7 @@ const ThreadLinkWorkItemCommand = Schema.Struct({
   commandId: CommandId,
   threadId: ThreadId,
   workItemId: TrimmedNonEmptyString,
+  workItemType: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   copilotPhase: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
 });
@@ -683,6 +688,8 @@ export const ThreadCreatedPayload = Schema.Struct({
   updatedAt: IsoDateTime,
   /** Meridian: linked work item ID. */
   workItemId: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
+  /** Meridian: ADO work item type. */
+  workItemType: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Dream Team stage. */
   workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   /** Meridian: Copilot phase. */
@@ -692,6 +699,7 @@ export const ThreadCreatedPayload = Schema.Struct({
 export const ThreadWorkItemLinkedPayload = Schema.Struct({
   threadId: ThreadId,
   workItemId: TrimmedNonEmptyString,
+  workItemType: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   workItemStage: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   copilotPhase: Schema.NullOr(TrimmedNonEmptyString).pipe(Schema.withDecodingDefault(() => null)),
   updatedAt: IsoDateTime,

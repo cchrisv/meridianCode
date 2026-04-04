@@ -42,6 +42,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           archived_at,
           deleted_at,
           work_item_id,
+          work_item_type,
           work_item_stage,
           copilot_phase
         )
@@ -60,6 +61,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           ${row.archivedAt},
           ${row.deletedAt},
           ${row.workItemId},
+          ${row.workItemType},
           ${row.workItemStage},
           ${row.copilotPhase}
         )
@@ -78,6 +80,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           archived_at = excluded.archived_at,
           deleted_at = excluded.deleted_at,
           work_item_id = excluded.work_item_id,
+          work_item_type = excluded.work_item_type,
           work_item_stage = excluded.work_item_stage,
           copilot_phase = excluded.copilot_phase
       `,
@@ -103,6 +106,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           archived_at AS "archivedAt",
           deleted_at AS "deletedAt",
           work_item_id AS "workItemId",
+          work_item_type AS "workItemType",
           work_item_stage AS "workItemStage",
           copilot_phase AS "copilotPhase"
         FROM projection_threads
@@ -130,6 +134,7 @@ const makeProjectionThreadRepository = Effect.gen(function* () {
           archived_at AS "archivedAt",
           deleted_at AS "deletedAt",
           work_item_id AS "workItemId",
+          work_item_type AS "workItemType",
           work_item_stage AS "workItemStage",
           copilot_phase AS "copilotPhase"
         FROM projection_threads

@@ -178,7 +178,7 @@ const getTicketContext = (ticketId: string): Effect.Effect<TicketGetContextResul
 
 const transitionStage = (
   ticketId: string,
-  targetStage: string,
+  targetStage: TicketStage,
 ): Effect.Effect<TicketStageTransitionResult, Error> =>
   Effect.try({
     try: () => {

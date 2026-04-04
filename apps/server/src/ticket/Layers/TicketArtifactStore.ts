@@ -1,7 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { resolveBundledMeridianBrainPath } from "../../knowledge/bundledMeridianBrainPath";
-import type { TicketState } from "@t3tools/contracts";
 
 /**
  * Manages ticket-context.json files in the Meridian Brain artifacts directory.

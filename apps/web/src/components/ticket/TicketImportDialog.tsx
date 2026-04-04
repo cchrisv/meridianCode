@@ -7,21 +7,24 @@ export function TicketImportDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onImport: (workItemId: string) => void;
+  onImport: (workItemId: string) => Promise<void>;
 }) {
   const [workItemId, setWorkItemId] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmed = workItemId.trim();
     if (!trimmed) return;
     setLoading(true);
-    onImport(trimmed);
-    setWorkItemId("");
-    setLoading(false);
+    try {
+      await onImport(trimmed);
+      setWorkItemId("");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

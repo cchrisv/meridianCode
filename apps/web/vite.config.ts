@@ -58,9 +58,5 @@ export default defineConfig({
     emptyOutDir: true,
     sourcemap: buildSourcemap,
   },
-  test: {
-    env: {
-      T3_LEGACY_PROVIDERS: "1",
-    },
-  },
+  test: {},
 });

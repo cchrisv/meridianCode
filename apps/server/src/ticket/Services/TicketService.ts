@@ -4,6 +4,7 @@ import type {
   TicketGetStateResult,
   TicketImportResult,
   TicketListItem,
+  TicketStage,
   TicketStageTransitionResult,
 } from "@t3tools/contracts";
 
@@ -14,7 +15,7 @@ export interface TicketServiceShape {
   readonly getTicketContext: (ticketId: string) => Effect.Effect<TicketGetContextResult, Error>;
   readonly transitionStage: (
     ticketId: string,
-    targetStage: string,
+    targetStage: TicketStage,
   ) => Effect.Effect<TicketStageTransitionResult, Error>;
 }
 

@@ -77,8 +77,8 @@ export function MeridianSyncDialog({
           </ul>
         ) : null}
         <p className="px-4 pb-2 text-xs text-muted-foreground">
-          Active Copilot sessions keep their prior config until restarted; Codex/Claude pick up file
-          changes on the next turn.
+          Active provider sessions keep their prior config until restarted; file changes are picked
+          up on the next turn.
         </p>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)}>

@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { TicketListItem, TicketState, TicketStage } from "@t3tools/contracts";
+import { STAGE_DEFINITIONS, type TicketListItem, type TicketState, type TicketStage } from "@t3tools/contracts";
 
 export interface TicketStore {
   tickets: TicketListItem[];
@@ -42,15 +42,13 @@ export const useTicketStore = create<TicketStore>((set) => ({
 export function groupTicketsByStage(
   tickets: readonly TicketListItem[],
 ): Record<TicketStage, TicketListItem[]> {
-  const groups: Record<string, TicketListItem[]> = {
-    "copilot-refinement": [],
-    "triage": [],
-    "refinement": [],
-    "development": [],
-    "qa": [],
-    "release": [],
-    "closed": [],
-  };
+  const groups = STAGE_DEFINITIONS.reduce(
+    (acc, { stage }) => {
+      acc[stage] = [];
+      return acc;
+    },
+    {} as Record<TicketStage, TicketListItem[]>,
+  ) satisfies Record<TicketStage, TicketListItem[]>;
 
   for (const ticket of tickets) {
     const stage = ticket.currentStage ?? "copilot-refinement";
@@ -62,5 +60,5 @@ export function groupTicketsByStage(
     }
   }
 
-  return groups as Record<TicketStage, TicketListItem[]>;
+  return groups;
 }

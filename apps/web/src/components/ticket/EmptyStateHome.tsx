@@ -12,7 +12,7 @@ export function EmptyStateHome({
   onImportTicket,
   onGeneralChat,
 }: {
-  onImportTicket: (workItemId: string) => void;
+  onImportTicket: (workItemId: string) => Promise<void>;
   onGeneralChat: () => void;
 }) {
   const [importOpen, setImportOpen] = useState(false);
@@ -58,9 +58,9 @@ export function EmptyStateHome({
       <TicketImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}
-        onImport={(workItemId) => {
+        onImport={async (workItemId) => {
           setImportOpen(false);
-          onImportTicket(workItemId);
+          await onImportTicket(workItemId);
         }}
       />
     </div>

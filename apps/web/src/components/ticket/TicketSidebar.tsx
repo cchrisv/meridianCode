@@ -18,7 +18,7 @@ export function TicketSidebar({
   onImportTicket,
 }: {
   onSelectTicket: (ticketId: string, threadId?: string) => void;
-  onImportTicket: (workItemId: string) => void;
+  onImportTicket: (workItemId: string) => Promise<void>;
 }) {
   const tickets = useTicketStore((s) => s.tickets);
   const activeTicketId = useTicketStore((s) => s.activeTicketId);
@@ -86,9 +86,9 @@ export function TicketSidebar({
       <TicketImportDialog
         open={importOpen}
         onOpenChange={setImportOpen}
-        onImport={(workItemId) => {
+        onImport={async (workItemId) => {
           setImportOpen(false);
-          onImportTicket(workItemId);
+          await onImportTicket(workItemId);
         }}
       />
     </div>

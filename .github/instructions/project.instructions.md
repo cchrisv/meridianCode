@@ -1,17 +1,17 @@
 ---
-description: "T3 Code project overview: architecture, conventions, package roles, Effect patterns, and how to extend the codebase. Always load for any code changes in this repository."
+description: "Meridian Code project overview: architecture, conventions, package roles, Effect patterns, and how to extend the codebase. Always load for any code changes in this repository."
 applyTo: "**"
 ---
 
-# T3 Code — Project Instructions
+# Meridian Code — Project Instructions
 
-T3 Code is a minimal web GUI for coding agents (Codex, Claude). It is a Bun monorepo managed by Turborepo.
+Meridian Code is a minimal web GUI for the Copilot coding agent. It is a Bun monorepo managed by Turborepo.
 
 ## Package Roles
 
 | Package              | Purpose                                                                                                                                            |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apps/server`        | Node.js WebSocket/HTTP server. Wraps `codex app-server` (JSON-RPC over stdio), manages provider sessions, serves the web app.                      |
+| `apps/server`        | Node.js WebSocket/HTTP server. Wraps Copilot CLI (JSON-RPC over stdio), manages provider sessions, serves the web app.                              |
 | `apps/web`           | React 19 / Vite UI. Session UX, conversation rendering, client-side state. Connects via WebSocket RPC.                                             |
 | `apps/desktop`       | Electron shell around server + web.                                                                                                                |
 | `packages/contracts` | **Schema-only.** Effect/Schema definitions for WebSocket protocol, provider events, and model/session types. No runtime logic.                     |
@@ -119,9 +119,7 @@ src/
 - Do not add `eslint-disable` or `@ts-ignore` without a comment explaining why.
 - `react-in-jsx-scope` is disabled (React 19 automatic JSX transform).
 
-## Codex App Server
+## Copilot Provider
 
-- Codex is started per provider session via `codexAppServerManager.ts` (JSON-RPC over stdio).
+- Copilot is started per provider session via the Copilot adapter (JSON-RPC over stdio).
 - Provider dispatch is in `providerManager.ts`.
-- Reference: https://developers.openai.com/codex/sdk/#app-server
-- Reference implementation: https://github.com/Dimillian/CodexMonitor

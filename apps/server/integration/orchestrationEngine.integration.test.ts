@@ -137,6 +137,9 @@ const seedProjectAndThread = (harness: OrchestrationIntegrationHarness) =>
       runtimeMode: "approval-required",
       branch: null,
       worktreePath: harness.workspaceDir,
+      ticketId: null,
+      ticketStage: null,
+      copilotPhase: null,
       createdAt,
     });
   });
@@ -286,6 +289,9 @@ it.live.skipIf(!process.env.CODEX_BINARY_PATH)(
           runtimeMode: "full-access",
           branch: null,
           worktreePath: harness.workspaceDir,
+          ticketId: null,
+          ticketStage: null,
+          copilotPhase: null,
           createdAt,
         });
 

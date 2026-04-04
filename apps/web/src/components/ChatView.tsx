@@ -167,6 +167,7 @@ import { ComposerCommandItem, ComposerCommandMenu } from "./chat/ComposerCommand
 import { ComposerPendingApprovalActions } from "./chat/ComposerPendingApprovalActions";
 import { CompactComposerControlsMenu } from "./chat/CompactComposerControlsMenu";
 import { MeridianComposerBar } from "./ticket/MeridianComposerBar";
+import { StageIndicator } from "./ticket/StageIndicator";
 import { ComposerPrimaryActions } from "./chat/ComposerPrimaryActions";
 import { ComposerPendingApprovalPanel } from "./chat/ComposerPendingApprovalPanel";
 import { ComposerPendingUserInputPanel } from "./chat/ComposerPendingUserInputPanel";
@@ -3033,6 +3034,9 @@ export default function ChatView({ threadId }: ChatViewProps) {
           branch: nextThreadBranch,
           worktreePath: nextThreadWorktreePath,
           createdAt: activeThread.createdAt,
+          ticketId: activeThread.ticketId ?? null,
+          ticketStage: activeThread.ticketStage ?? null,
+          copilotPhase: activeThread.copilotPhase ?? null,
         });
         createdServerThreadForLocalDraft = true;
       }
@@ -3502,6 +3506,9 @@ export default function ChatView({ threadId }: ChatViewProps) {
         branch: activeThread.branch,
         worktreePath: activeThread.worktreePath,
         createdAt,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
       })
       .then(() => {
         return api.orchestration.dispatchCommand({
@@ -4021,6 +4028,13 @@ export default function ChatView({ threadId }: ChatViewProps) {
               onTouchEnd={onMessagesTouchEnd}
               onTouchCancel={onMessagesTouchEnd}
             >
+              {/* Meridian: Stage indicator for ticket-linked threads */}
+              {activeThread?.ticketId && (
+                <StageIndicator
+                  currentStage={(activeThread.ticketStage as any) ?? "copilot-refinement"}
+                  copilotPhase={activeThread.copilotPhase as any}
+                />
+              )}
               <MessagesTimeline
                 key={activeThread.id}
                 hasMessages={timelineEntries.length > 0}

@@ -250,6 +250,9 @@ describe("ProviderRuntimeIngestion", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt,
       }),
     );
@@ -779,6 +782,9 @@ describe("ProviderRuntimeIngestion", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt,
       }),
     );
@@ -814,6 +820,9 @@ describe("ProviderRuntimeIngestion", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt,
       }),
     );
@@ -966,6 +975,9 @@ describe("ProviderRuntimeIngestion", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt,
       }),
     );
@@ -1119,6 +1131,9 @@ describe("ProviderRuntimeIngestion", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt,
       }),
     );
@@ -1154,6 +1169,9 @@ describe("ProviderRuntimeIngestion", () => {
         runtimeMode: "approval-required",
         branch: null,
         worktreePath: null,
+        ticketId: null,
+        ticketStage: null,
+        copilotPhase: null,
         createdAt,
       }),
     );

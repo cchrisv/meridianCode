@@ -80,7 +80,7 @@ import { formatRelativeTimeLabel } from "../timestampFormat";
 import { SidebarGithubAccount } from "./SidebarGithubAccount";
 import { TicketSidebar } from "./ticket/TicketSidebar";
 import { useTicketStore } from "../ticketStore";
-import { getWsRpcClient } from "../wsRpcClient";
+import { useTicketImport } from "../hooks/useTicketImport";
 import { SettingsSidebarNav } from "./settings/SettingsSidebarNav";
 import {
   getArm64IntelBuildWarningDescription,
@@ -669,38 +669,11 @@ function SortableProjectItem({
 
 /**
  * Meridian ticket section — renders TicketSidebar with import capability.
- * Sits above the existing "Features" project/thread tree.
+ * Uses the useTicketImport hook for proper thread creation, toasts, and navigation.
  */
 function TicketSidebarSection({ navigate }: { navigate: ReturnType<typeof useNavigate> }) {
-  const addTicket = useTicketStore((s) => s.addTicket);
+  const { importTicket } = useTicketImport();
   const setActiveTicket = useTicketStore((s) => s.setActiveTicket);
-
-  const handleImportTicket = async (workItemId: string) => {
-    try {
-      const rpc = getWsRpcClient();
-      const result = await rpc.ticket.import({ workItemId: workItemId as any });
-      addTicket({
-        ticketId: result.ticketId,
-        workItemId: workItemId as any,
-        title: result.state.metadata.title,
-        workItemType: result.state.metadata.workItemType,
-        currentStage: result.state.currentStage,
-        copilotPhase: result.state.copilotPhase,
-        platform: result.state.metadata.platform,
-        priority: result.state.metadata.priority,
-        assignedTo: result.state.metadata.assignedTo,
-        threadId: result.state.threadId,
-        updatedAt: result.state.updatedAt,
-      });
-      setActiveTicket(result.ticketId as string);
-      // Navigate to the thread if one was created
-      if (result.threadId) {
-        void navigate({ to: "/$threadId", params: { threadId: result.threadId as string } });
-      }
-    } catch (err) {
-      console.error("Failed to import ticket:", err);
-    }
-  };
 
   const handleSelectTicket = (ticketId: string, threadId?: string) => {
     setActiveTicket(ticketId);
@@ -712,7 +685,7 @@ function TicketSidebarSection({ navigate }: { navigate: ReturnType<typeof useNav
   return (
     <TicketSidebar
       onSelectTicket={handleSelectTicket}
-      onImportTicket={handleImportTicket}
+      onImportTicket={importTicket}
     />
   );
 }

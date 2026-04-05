@@ -166,7 +166,7 @@ import { ProviderModelPicker } from "./chat/ProviderModelPicker";
 import { ComposerCommandItem, ComposerCommandMenu } from "./chat/ComposerCommandMenu";
 import { ComposerPendingApprovalActions } from "./chat/ComposerPendingApprovalActions";
 import { CompactComposerControlsMenu } from "./chat/CompactComposerControlsMenu";
-import { getWsRpcClient } from "../wsRpcClient";
+// Prompts feature removed — will rebuild later
 import { ComposerPrimaryActions } from "./chat/ComposerPrimaryActions";
 import { ComposerPendingApprovalPanel } from "./chat/ComposerPendingApprovalPanel";
 import { ComposerPendingUserInputPanel } from "./chat/ComposerPendingUserInputPanel";
@@ -658,7 +658,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const [isConnecting, _setIsConnecting] = useState(false);
   const [isRevertingCheckpoint, setIsRevertingCheckpoint] = useState(false);
   const [contextCompactPending, setContextCompactPending] = useState(false);
-  // Prompts are loaded directly into the composer via onOpenPrompts callback
   const [respondingRequestIds, setRespondingRequestIds] = useState<ApprovalRequestId[]>([]);
   const [respondingUserInputRequestIds, setRespondingUserInputRequestIds] = useState<
     ApprovalRequestId[]
@@ -4004,23 +4003,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
           onDeleteProjectScript={deleteProjectScript}
           onToggleTerminal={toggleTerminalVisibility}
           onToggleDiff={onToggleDiff}
-          onOpenPrompts={(promptName: string) => {
-            // Load prompt and inject into composer
-            const rpc = getWsRpcClient();
-            const variables: Record<string, string> = {};
-            if (activeThread?.workItemId) {
-              variables.work_item_id = activeThread.workItemId;
-              variables.context_file = `core/.ai-artifacts/${activeThread.workItemId}/ticket-context.json`;
-            }
-            rpc.prompt.load({ name: promptName, variables }).then((result) => {
-              promptRef.current = result.content;
-              setPrompt(result.content);
-              setComposerCursor(result.content.length);
-              composerEditorRef.current?.focusAtEnd();
-            }).catch((err) => {
-              console.error("Failed to load prompt:", err);
-            });
-          }}
         />
       </header>
 

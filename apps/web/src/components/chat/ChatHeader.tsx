@@ -7,7 +7,7 @@ import {
   type CopilotPhase,
 } from "@t3tools/contracts";
 import { memo, useState } from "react";
-import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, ZapIcon, LinkIcon } from "lucide-react";
+import { BookOpenIcon, BugIcon, StarIcon, LayersIcon, CheckSquareIcon, FileTextIcon, DiffIcon, TerminalSquareIcon, LinkIcon } from "lucide-react";
 import { createPortal } from "react-dom";
 // Popover removed — using simple dropdown for reliability
 import { StageIndicator } from "../ticket/StageIndicator";
@@ -15,7 +15,7 @@ import { ContextDrawer } from "../ticket/ContextDrawer";
 import { ensureNativeApi } from "../../nativeApi";
 import { newCommandId } from "../../lib/utils";
 import { toastManager } from "../ui/toast";
-import { getWsRpcClient } from "../../wsRpcClient";
+// Prompts feature removed — will rebuild later
 import GitActionsControl from "../GitActionsControl";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -51,8 +51,6 @@ interface ChatHeaderProps {
   onDeleteProjectScript: (scriptId: string) => Promise<void>;
   onToggleTerminal: () => void;
   onToggleDiff: () => void;
-  /** Callback: load a named prompt and inject into composer */
-  onOpenPrompts?: (promptName: string) => void;
 }
 
 export const ChatHeader = memo(function ChatHeader({
@@ -75,7 +73,6 @@ export const ChatHeader = memo(function ChatHeader({
   workItemType,
   workItemStage,
   copilotPhase,
-  onOpenPrompts,
   onRunProjectScript,
   onAddProjectScript,
   onUpdateProjectScript,
@@ -111,10 +108,7 @@ export const ChatHeader = memo(function ChatHeader({
         )}
       </div>
       <div className="flex shrink-0 items-center justify-end gap-2 @3xl/header-actions:gap-3">
-        {/* Meridian: Prompts popover */}
-        {onOpenPrompts && (
-          <PromptsPopover onSelectPrompt={onOpenPrompts} />
-        )}
+        {/* Meridian: Prompts — removed, will rebuild later */}
         {/* Meridian: work item context button OR link button */}
         {workItemId ? (
           <WorkItemContextButton workItemId={workItemId} workItemType={workItemType} />
@@ -245,88 +239,6 @@ function WorkItemContextButton({
         onClose={() => setContextOpen(false)}
       />
     </>
-  );
-}
-
-// ── Link Work Item Button ────────────────────────────────────────────
-
-// ── Prompts Popover ──────────────────────────────────────────────────
-
-interface PromptItem {
-  name: string;
-  label: string;
-  description: string;
-}
-
-function PromptsPopover({ onSelectPrompt }: { onSelectPrompt: (name: string) => void }) {
-  const [open, setOpen] = useState(false);
-  const [prompts, setPrompts] = useState<PromptItem[]>([]);
-  const [loaded, setLoaded] = useState(false);
-
-  const handleToggle = () => {
-    const next = !open;
-    setOpen(next);
-    if (next && !loaded) {
-      const rpc = getWsRpcClient();
-      rpc.prompt
-        .list({})
-        .then((result) => { setPrompts([...result.prompts]); setLoaded(true); })
-        .catch(() => setLoaded(true));
-    }
-  };
-
-  return (
-    <div className="relative">
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Toggle
-              className="shrink-0"
-              pressed={open}
-              onPressedChange={handleToggle}
-              aria-label="Prompts"
-              variant="outline"
-              size="xs"
-            >
-              <ZapIcon className="size-3" />
-            </Toggle>
-          }
-        />
-        <TooltipPopup side="bottom">Prompts</TooltipPopup>
-      </Tooltip>
-
-      {open && (
-        <>
-          {/* Backdrop to close on outside click */}
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          {/* Dropdown */}
-          <div className="absolute right-0 top-full z-50 mt-1 w-72 max-h-72 overflow-y-auto rounded-lg border border-border bg-popover shadow-lg">
-            <div className="py-1">
-              {prompts.length === 0 && loaded && (
-                <div className="px-3 py-4 text-center text-xs text-muted-foreground">No prompts available</div>
-              )}
-              {prompts.length === 0 && !loaded && (
-                <div className="px-3 py-4 text-center text-xs text-muted-foreground">Loading...</div>
-              )}
-              {prompts.map((p) => (
-                <button
-                  key={p.name}
-                  type="button"
-                  className="flex w-full flex-col gap-0.5 px-3 py-2 text-left transition-colors hover:bg-accent"
-                  onClick={() => {
-                    setOpen(false);
-                    onSelectPrompt(p.name);
-                  }}
-                >
-                  <span className="text-xs font-medium text-foreground">{p.label}</span>
-                  <span className="text-[10px] text-muted-foreground">{p.description}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-    </div>
   );
 }
 

@@ -204,6 +204,7 @@ const makeThread = (input?: {
   turnDiffSummaries: [],
   activities: [],
   workItemId: null,
+  workItemType: null,
   workItemStage: null,
   copilotPhase: null,
 });
@@ -360,6 +361,7 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
       turnDiffSummaries: [],
       activities: [],
       workItemId: null,
+      workItemType: null,
       workItemStage: null,
       copilotPhase: null,
     });
@@ -399,6 +401,7 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
       turnDiffSummaries: [],
       activities: [],
       workItemId: null,
+      workItemType: null,
       workItemStage: null,
       copilotPhase: null,
     });
@@ -447,6 +450,7 @@ describe("hasServerAcknowledgedLocalDispatch", () => {
       turnDiffSummaries: [],
       activities: [],
       workItemId: null,
+      workItemType: null,
       workItemStage: null,
       copilotPhase: null,
     });

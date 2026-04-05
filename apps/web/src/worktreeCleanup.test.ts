@@ -28,6 +28,7 @@ function makeThread(overrides: Partial<Thread> = {}): Thread {
     branch: null,
     worktreePath: null,
     workItemId: null,
+    workItemType: null,
     workItemStage: null,
     copilotPhase: null,
     ...overrides,

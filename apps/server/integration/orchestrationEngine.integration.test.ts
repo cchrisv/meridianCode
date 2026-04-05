@@ -139,6 +139,7 @@ const seedProjectAndThread = (harness: OrchestrationIntegrationHarness) =>
       worktreePath: harness.workspaceDir,
       workItemId: null,
       workItemStage: null,
+      workItemType: null,
       copilotPhase: null,
       createdAt,
     });
@@ -291,6 +292,7 @@ it.live.skipIf(!process.env.CODEX_BINARY_PATH)(
           worktreePath: harness.workspaceDir,
           workItemId: null,
           workItemStage: null,
+          workItemType: null,
           copilotPhase: null,
           createdAt,
         });

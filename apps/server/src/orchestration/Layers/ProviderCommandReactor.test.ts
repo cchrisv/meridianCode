@@ -275,6 +275,7 @@ describe("ProviderCommandReactor", () => {
         worktreePath: null,
         workItemId: null,
         workItemStage: null,
+        workItemType: null,
         copilotPhase: null,
         createdAt: now,
       }),

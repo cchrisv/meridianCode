@@ -14,6 +14,7 @@ import { StageIndicator } from "../ticket/StageIndicator";
 import { ContextDrawer } from "../ticket/ContextDrawer";
 import { ensureNativeApi } from "../../nativeApi";
 import { newCommandId } from "../../lib/utils";
+import { getWsRpcClient } from "../../wsRpcClient";
 import { toastManager } from "../ui/toast";
 // Prompts feature removed — will rebuild later
 import GitActionsControl from "../GitActionsControl";
@@ -256,14 +257,37 @@ function LinkWorkItemButton({ threadId }: { threadId: ThreadId }) {
     setLoading(true);
     try {
       const api = ensureNativeApi();
+      const rpc = getWsRpcClient();
+
+      // Fetch work item metadata from ADO (also prepares context artifacts)
+      let resolvedType: string | null = null;
+      let resolvedStage: string | null = null;
+      let resolvedPhase: string | null = null;
+      try {
+        const importResult = await rpc.ticket.import({ workItemId: trimmed as any });
+        resolvedType = importResult.state.metadata.workItemType ?? null;
+        resolvedStage = importResult.state.currentStage ?? null;
+        resolvedPhase = (importResult.state.copilotPhase as string) ?? null;
+      } catch {
+        // If import fails, fall back to checking stored state
+        try {
+          const stateResult = await rpc.ticket.getState({ workItemId: trimmed as any });
+          resolvedType = stateResult.state.metadata.workItemType ?? null;
+          resolvedStage = stateResult.state.currentStage ?? null;
+          resolvedPhase = (stateResult.state.copilotPhase as string) ?? null;
+        } catch {
+          // Leave as null — the link will still succeed without metadata
+        }
+      }
+
       await api.orchestration.dispatchCommand({
         type: "thread.link-work-item",
         commandId: newCommandId(),
         threadId,
         workItemId: trimmed,
-        workItemType: null,
-        workItemStage: null,
-        copilotPhase: null,
+        workItemType: resolvedType,
+        workItemStage: resolvedStage,
+        copilotPhase: resolvedPhase,
       } as any);
       toastManager.add({ type: "success" as const, title: "Linked", description: `#${trimmed}` });
       setDialogOpen(false);

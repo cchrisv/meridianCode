@@ -91,6 +91,7 @@ projectionRepositoriesLayer("Projection repositories", (it) => {
         deletedAt: null,
         workItemId: null,
         workItemStage: null,
+        workItemType: null,
         copilotPhase: null,
       });
 

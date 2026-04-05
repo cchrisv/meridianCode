@@ -53,16 +53,33 @@ const importTicket = (workItemId: string): Effect.Effect<TicketImportResult, Err
 
     // 3. Read the created context to extract metadata
     const context = store.readContext(workItemId) as Record<string, unknown> | null;
-    const adoData = adoResult.json as Record<string, unknown> | null;
+    // The ado-tools CLI returns the raw ADO API shape: { id, fields: { "System.WorkItemType": ... } }
+    const adoFields = ((adoResult.json as Record<string, unknown> | null)?.fields as Record<string, unknown>) ?? {};
 
     const resolvedWorkItemId = makeWorkItemId(workItemId);
     const title =
-      (adoData?.title as string) ??
+      (adoFields["System.Title"] as string) ??
       (context?.metadata as Record<string, unknown>)?.title as string ??
       `Work Item ${workItemId}`;
-    const boardColumn = (adoData?.boardColumn as string) ?? null;
+    const workItemType = (adoFields["System.WorkItemType"] as string) ?? null;
+    const boardColumn = (adoFields["System.BoardColumn"] as string) ?? null;
+    const priority = (adoFields["Microsoft.VSTS.Common.Priority"] as number)?.toString() ?? null;
+    const storyPoints = (adoFields["Microsoft.VSTS.Scheduling.StoryPoints"] as number) ?? null;
+    const areaPath = (adoFields["System.AreaPath"] as string) ?? null;
+    const iterationPath = (adoFields["System.IterationPath"] as string) ?? null;
+    const assignedTo = ((adoFields["System.AssignedTo"] as Record<string, unknown>)?.displayName as string) ?? null;
+    const platform = ((context?.metadata as Record<string, unknown>)?.platform as string) ?? null;
     const currentStage = boardColumnToStage(boardColumn);
     const now = nowIso();
+
+    // Persist work_item_type back into the context file so getTicketState can return it later
+    if (context && workItemType) {
+      const metadata = (context.metadata ?? {}) as Record<string, unknown>;
+      metadata.work_item_type = workItemType;
+      metadata.title = title;
+      context.metadata = metadata;
+      store.writeContext(workItemId, context);
+    }
 
     // Thread ID will be assigned by the orchestration engine when the thread is created.
     // For now, generate a placeholder that the UI will use to create the thread.
@@ -73,14 +90,14 @@ const importTicket = (workItemId: string): Effect.Effect<TicketImportResult, Err
       metadata: {
         workItemId: workItemId as any,
         title: title as any,
-        workItemType: (adoData?.workItemType as string) ?? null,
-        platform: ((context?.metadata as Record<string, unknown>)?.platform as string) ?? null,
-        priority: (adoData?.priority as string) ?? null,
-        storyPoints: (adoData?.storyPoints as number) ?? null,
-        areaPath: (adoData?.areaPath as string) ?? null,
-        iterationPath: (adoData?.iterationPath as string) ?? null,
-        boardColumn: (boardColumn as string) ?? null,
-        assignedTo: (adoData?.assignedTo as string) ?? null,
+        workItemType: workItemType ?? null,
+        platform: platform ?? null,
+        priority: priority ?? null,
+        storyPoints: storyPoints ?? null,
+        areaPath: areaPath ?? null,
+        iterationPath: iterationPath ?? null,
+        boardColumn: boardColumn ?? null,
+        assignedTo: assignedTo ?? null,
         team: null,
         wsjfScore: null,
       },

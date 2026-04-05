@@ -115,6 +115,7 @@ function createMinimalSnapshot(): OrchestrationReadModel {
         worktreePath: null,
         latestTurn: null,
         workItemId: null,
+        workItemType: null,
         workItemStage: null,
         copilotPhase: null,
         createdAt: NOW_ISO,

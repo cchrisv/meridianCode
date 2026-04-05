@@ -314,6 +314,7 @@ describe("CheckpointReactor", () => {
         worktreePath: options?.threadWorktreePath ?? cwd,
         workItemId: null,
         workItemStage: null,
+        workItemType: null,
         copilotPhase: null,
         createdAt,
       }),

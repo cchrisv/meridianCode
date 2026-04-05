@@ -336,6 +336,7 @@ projectionSnapshotLayer("ProjectionSnapshotQuery", (it) => {
           },
           workItemId: null,
           workItemStage: null,
+          workItemType: null,
           copilotPhase: null,
         },
       ]);

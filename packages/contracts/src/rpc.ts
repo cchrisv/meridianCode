@@ -153,10 +153,6 @@ export const WS_METHODS = {
   ticketGetContext: "ticket.getContext",
   ticketTransitionStage: "ticket.transitionStage",
 
-  // Prompt methods
-  promptList: "prompt.list",
-  promptLoad: "prompt.load",
-
   // Streaming subscriptions
   subscribeOrchestrationDomainEvents: "subscribeOrchestrationDomainEvents",
   subscribeTerminalEvents: "subscribeTerminalEvents",
@@ -399,30 +395,6 @@ export const WsSubscribeServerLifecycleRpc = Rpc.make(WS_METHODS.subscribeServer
   stream: true,
 });
 
-// ── Prompt RPCs ──────────────────────────────────────────────────────
-
-export const WsPromptListRpc = Rpc.make(WS_METHODS.promptList, {
-  payload: Schema.Struct({ stage: Schema.optional(Schema.String) }),
-  success: Schema.Struct({
-    prompts: Schema.Array(Schema.Struct({
-      name: Schema.String,
-      label: Schema.String,
-      description: Schema.String,
-      variables: Schema.Array(Schema.String),
-    })),
-  }),
-  error: TicketRpcError,
-});
-
-export const WsPromptLoadRpc = Rpc.make(WS_METHODS.promptLoad, {
-  payload: Schema.Struct({
-    name: Schema.String,
-    variables: Schema.optional(Schema.Record(Schema.String, Schema.String)),
-  }),
-  success: Schema.Struct({ name: Schema.String, content: Schema.String }),
-  error: TicketRpcError,
-});
-
 // ── Ticket RPCs ──────────────────────────────────────────────────────
 
 export const WsTicketImportRpc = Rpc.make(WS_METHODS.ticketImport, {
@@ -495,8 +467,6 @@ export const WsRpcGroup = RpcGroup.make(
   WsOrchestrationGetTurnDiffRpc,
   WsOrchestrationGetFullThreadDiffRpc,
   WsOrchestrationReplayEventsRpc,
-  WsPromptListRpc,
-  WsPromptLoadRpc,
   WsTicketImportRpc,
   WsTicketListRpc,
   WsTicketGetStateRpc,

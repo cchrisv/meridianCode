@@ -48,7 +48,6 @@ import {
   validateKnowledgeRootWs,
 } from "./knowledge/knowledgeWsEffects.ts";
 import { TicketService } from "./ticket/Services/TicketService";
-import { listPrompts, loadPrompt } from "./ticket/Layers/PromptLoader";
 import { WorkspaceEntries } from "./workspace/Services/WorkspaceEntries";
 import { WorkspaceFileSystem } from "./workspace/Services/WorkspaceFileSystem";
 import { WorkspacePathOutsideRootError } from "./workspace/Services/WorkspacePaths";
@@ -466,30 +465,6 @@ const WsRpcLayer = WsRpcGroup.toLayer(
             );
           }),
           { "rpc.aggregate": "server" },
-        ),
-      [WS_METHODS.promptList]: (input) =>
-        observeRpcEffect(
-          WS_METHODS.promptList,
-          Effect.try({
-            try: () => {
-              const prompts = listPrompts(input.stage as any);
-              return { prompts };
-            },
-            catch: (cause) => new TicketRpcError({ detail: String(cause), cause }),
-          }),
-          { "rpc.aggregate": "prompt" },
-        ),
-      [WS_METHODS.promptLoad]: (input) =>
-        observeRpcEffect(
-          WS_METHODS.promptLoad,
-          Effect.try({
-            try: () => {
-              const result = loadPrompt(input.name, (input.variables ?? {}) as Record<string, string>);
-              return { name: result.name, content: result.content };
-            },
-            catch: (cause) => new TicketRpcError({ detail: String(cause), cause }),
-          }),
-          { "rpc.aggregate": "prompt" },
         ),
       [WS_METHODS.ticketImport]: (input) =>
         observeRpcEffect(

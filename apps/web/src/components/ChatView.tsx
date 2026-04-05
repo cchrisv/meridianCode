@@ -4126,7 +4126,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
                       />
                     </div>
                   ) : null}
-                  {/* MeridianComposerBar content moved to ChatHeader */}
                   <div
                     className={cn(
                       "relative px-3 pb-2 sm:px-4",
